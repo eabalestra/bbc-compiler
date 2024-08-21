@@ -1,0 +1,5 @@
+#!/bin/bash
+
+flex prelexer.l
+bison -d preparser.y
+gcc lex.yy.c preparser.tab.c
