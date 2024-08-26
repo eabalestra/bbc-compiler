@@ -1,66 +1,69 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include "binarytree/binarytree.h"
 %}
+
+%union{
+    struct Node *vnode;
+    struct int vint;
+    struct *char vstring;
+}
 
 %token TYPE
 %token RETURN
-%token SEMICOLON
+%token COLON
 %token ASSIGN
 %token PLUS
 %token MULTIPLY
-%token OPEN_BRACKET
-%token CLOSE_BRACKET
-%token OPEN_CURLY_BRACKET
-%token CLOSE_CURLY_BRACKET
+%token LBRACKET
+%token RBRACKET
+%token LCURLY
+%token RCURLY
 %token MAIN
-%token INT
-%token ID
+%token<vint> INT
+%token<vstring> ID
 
 %type body
 %type sentence
-%type assignment
-%type statement
-%type returns
-%type expr
-%type value
+%type asgmt
+%type stmt
+%type<vnode> expr
+%type<vint> value
     
 %left '+' PLUS
 %left '*' MULTIPLY
 
 %%
 
-prog: TYPE MAIN OPEN_BRACKET CLOSE_BRACKET OPEN_CURLY_BRACKET body CLOSE_CURLY_BRACKET    { printf("No hay errores \n"); }
+prog: TYPE MAIN LBRACKET RBRACKET LCURLY body RCURLY    { printf("No hay errores \n"); }
     ;
 
 body: sentence body
     | %empty
     ;
 
-sentence:   assignment SEMICOLON
-            | statement SEMICOLON
-            | returns SEMICOLON
+sentence:   stmt COLON
+            | asgmt COLON
             ;
 
-assignment:     TYPE ID ASSIGN expr
-                | ID ASSIGN expr
-                ;
+asgmt:  ID ASSIGN expr 
+        | RETURN expr
+        | RETURN 
+        ;
 
-statement:      TYPE ID
-                ;
+stmt:   TYPE ID
+        |   TYPE ID ASSIGN expr
+        ;
 
-returns:        RETURN expr
-                | RETURN
-                ;
+expr:   value   { $$ = $1; }
+        | expr PLUS expr
+        | expr MULTIPLY expr
+        | LBRACKET expr RBRACKET
+        | ID { $$ = createNodeWithSymbol($1); }
+        ;
 
-expr:           value
-                | expr PLUS expr
-                | expr MULTIPLY expr
-                | OPEN_BRACKET expr CLOSE_BRACKET
-                | ID
-                ;
-
-value:  INT
+value:  INT { $$ = $1; }
         ;
 
 %%

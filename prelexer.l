@@ -14,17 +14,14 @@ digit [0-9]
 %%
 
 "int" {
-    printf("TYPE : %s\n", yytext);
     return TYPE;
 }
 
 "bool" {
-    printf("TYPE : %s\n", yytext);
     return TYPE;
 }
 
 "void" {
-    printf("TYPE : %s\n", yytext);
     return TYPE;
 }
 
@@ -39,7 +36,7 @@ digit [0-9]
 }
 
 ";" {
-    return SEMICOLON;
+    return COLON;
 }
 
 "=" {
@@ -55,28 +52,28 @@ digit [0-9]
 }
 
 "(" {
-    return OPEN_BRACKET;
+    return LBRACKET;
 }
 
 ")" {
-    return CLOSE_BRACKET;
+    return RBRACKET;
 }
 
 "{" {
-    return OPEN_CURLY_BRACKET;
+    return LCURLY;
 }
 
 "}" {
-    return CLOSE_CURLY_BRACKET;
+    return RCURLY;
 }
 
 {digit}+    {
-    printf("INT : %d\n",atoi(yytext));
+    yylval = atoi(yytext);
     return INT;
 }
 
 [a-zA-Z][a-zA-Z0-9]* {
-    printf("ID : %s\n", yytext);
+    yylval = strdup(yytext);
     return ID;
 }
 

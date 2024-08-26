@@ -1,5 +1,6 @@
 #!/bin/bash
 
+gcc -c binarytree/binarytree.h
 flex prelexer.l
 bison -d preparser.y
-gcc lex.yy.c preparser.tab.c
+gcc lex.yy.c preparser.tab.c -o parser
