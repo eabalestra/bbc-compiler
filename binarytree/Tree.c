@@ -10,14 +10,14 @@ Tree* createTree(Node *root, Tree *left, Tree *right)
     return newTree;
 }
 
-Node* createNode(NodeType flag, char *type, char *value, char *name)
+Node* createNode(NodeType flag, Type type, void *value, char *name)
 {
     Node *newNode = malloc(sizeof(Node));
     
-    newNode->value= value;
-    newNode->name= name;
-    newNode->flag= flag;
-    newNode->type= type;
+    newNode->value = value;
+    newNode->name = name;
+    newNode->flag = flag;
+    newNode->type = type;
     
     return newNode;
 }
@@ -28,11 +28,45 @@ void printTree(Tree *tree)
     {
         return;
     }
-    if (tree->root != NULL)
-    {
-        printf("Node value: %s\n", tree->root->value);
+    printf("ROOT: \n");
+    if(tree->root->flag == 0){
+        printf("FLAG: PROG\n");
+    
     }
+    if(tree->root->flag == 1){
+        printf("FLAG: BODY\n");
+    
+    }
+    if(tree->root->flag == 2){
+        printf("FLAG: EXPR\n");
+    
+    }
+    if(tree->root->flag == 3){
+        printf("FLAG: NUMBER\n");
+    
+    }
+    if(tree->root->flag == 4){
+        printf("FLAG: ID\n");
+    
+    }
+    
+    if(tree->root->flag == 5){
+        printf("FLAG: PLUS \n");
+    
+    }
+    
+    if(tree->root->flag == 6){
+        printf("FLAG: MULTIPLY\n");
+    
+    }
+    if(tree->root->flag == 7){
+        printf("FLAG: ASSIGN\n");
+    
+    }
+    //printf("FLAG: %d \n", tree->root->flag);
+    printf("HIZO IZQUIERDO: \n");
     printTree(tree->left);
+    printf("HIZO DERECHO: \n");
     printTree(tree->right);
 }
 

@@ -3,6 +3,10 @@
 *.tab.h
 *.tab.c
 *.exe
+*.o
+*.h.gch
+
+*/*.h.gch
 
 .idea
 .vscode

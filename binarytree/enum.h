@@ -1,3 +1,3 @@
 typedef enum Type {
-    INTEGER, BOOLEAN, VOID
+    INTEGER, BOOLEAN, VOID, NONTYPE
 } Type;

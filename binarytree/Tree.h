@@ -12,10 +12,10 @@ typedef enum NodeType {
 } NodeType;
 
 typedef struct Node {
-    char *value;
-    char *name;
-    Type type;
     NodeType flag;
+    Type type;
+    void *value;
+    char *name;
 } Node;
 
 typedef struct Tree {
@@ -30,7 +30,7 @@ void printTree(Node *node);
 Node* createTree(int symbol, Node *left, Node *right); */
 
 Tree* createTree(Node *root, Tree *left, Tree *right);
-Node* createNode(NodeType flag, char *type, char *value, char *name);
+Node* createNode(NodeType flag, Type type, void *value, char *name);
 void printTree(Tree *tree);
 //void freeTree(Tree *tree);
 
