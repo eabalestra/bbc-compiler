@@ -1,2 +1,7 @@
+*.yy.c
+*.out
+*.tab.h
+*.tab.c
+
 .idea
 .vscode

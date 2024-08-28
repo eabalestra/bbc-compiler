@@ -1,17 +1,16 @@
-#include "binarytree.h"
+#include "Tree.h"
 
 int main() {
-    
-    Node *left = createNode(nodeTypeInt, "integer", "", "5");
-    Node *right = createNode(nodeTypeInt, "integer", "", "8");
+    Node *node1 = createNode("5", "Name1", nodeTypeInt, "int");
+    Node *node2 = createNode("8", "Name2", nodeTypeInt, "int");
+    Node *node3 = createNode("1", "Name3", nodeTypeInt, "int");
 
-    Symbol *symbol = (Symbol *)malloc(sizeof(Symbol)); 
-    symbol->value = "+";
+    // Create trees
+    Tree *leftTree = createTree(node2, NULL, NULL);
+    Tree *rightTree = createTree(node3, NULL, NULL);
+    Tree *rootTree = createTree(node1, leftTree, rightTree);
 
-    Node *root = createTree(symbol, left, right);
-
-    printf("Binary Tree:\n");
-    printTree(root);
-
-    return 0;
+    // Print the tree
+    printf("Printing the tree:\n");
+    printTree(rootTree);
 }

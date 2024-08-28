@@ -1,16 +1,15 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "binarytree/binarytree.h"
+#include "binarytree/Tree.h"
 %}
 
 %union{
     struct Node *vnode;
-    struct int vint;
-    struct *char vstring;
+    int vint;
+    char *vstring;
 }
 
-%token TYPE
 %token RETURN
 %token COLON
 %token ASSIGN
@@ -21,49 +20,53 @@
 %token LCURLY
 %token RCURLY
 %token MAIN
-%token<vint> INT
+%token VOID
+%token BOOL
+%token INT
+%token<vint> TNUMBER
 %token<vstring> ID
 
-%type body
-%type sentence
-%type asgmt
-%type stmt
+%type<vnode> decls
+%type<vnode> decl
+%type<vnode> stmts
+%type<vnode> stmt
 %type<vnode> expr
-%type<vint> value
+%type type
     
 %left '+' PLUS
 %left '*' MULTIPLY
 
 %%
 
-prog: TYPE MAIN LBRACKET RBRACKET LCURLY body RCURLY    { printf("No hay errores \n"); }
-    ;
+prog: type MAIN LBRACKET RBRACKET LCURLY decls stmts RCURLY
 
-body: sentence body
-    | %empty
-    ;
-
-sentence:   stmt COLON
-            | asgmt COLON
-            ;
-
-asgmt:  ID ASSIGN expr 
-        | RETURN expr
-        | RETURN 
+decls:  decl
+        | decl decls
         ;
 
-stmt:   TYPE ID
-        |   TYPE ID ASSIGN expr
+decl:   type ID COLON
+        | type ID ASSIGN expr COLON
         ;
 
-expr:   value   { $$ = $1; }
-        | expr PLUS expr
+stmts:  stmt
+        | stmt stmts
+        ;
+
+stmt:   ID ASSIGN expr COLON
+        | RETURN expr COLON
+        | RETURN COLON
+        ;
+
+expr:   expr PLUS expr
         | expr MULTIPLY expr
         | LBRACKET expr RBRACKET
-        | ID { $$ = createNodeWithSymbol($1); }
+        | TNUMBER
+        | ID
         ;
 
-value:  INT { $$ = $1; }
+type:   INT
+        | BOOL
+        | VOID
         ;
 
 %%
