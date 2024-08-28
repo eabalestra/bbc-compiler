@@ -2,6 +2,9 @@
 *.out
 *.tab.h
 *.tab.c
+*.exe
 
 .idea
 .vscode
+
+parser

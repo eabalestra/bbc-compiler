@@ -10,7 +10,7 @@ Tree* createTree(Node *root, Tree *left, Tree *right)
     return newTree;
 }
 
-Node* createNode(char *value, char *name, NodeType flag, char *type)
+Node* createNode(NodeType flag, char *type, char *value, char *name)
 {
     Node *newNode = malloc(sizeof(Node));
     

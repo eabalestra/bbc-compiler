@@ -5,68 +5,70 @@
 %}
 
 %union{
+    enum Type *vtype;
     struct Node *vnode;
+    struct Tree *vast;
     int vint;
     char *vstring;
 }
 
-%token RETURN
-%token COLON
-%token ASSIGN
-%token PLUS
-%token MULTIPLY
-%token LBRACKET
-%token RBRACKET
-%token LCURLY
-%token RCURLY
-%token MAIN
-%token VOID
-%token BOOL
-%token INT
+%token TRETURN
+%token TCOLON
+%token TPLUS
+%token TMULTIPLY
+%token TLBRACKET
+%token TRBRACKET
+%token TLCURLY
+%token TRCURLY
+%token TMAIN
+%token<vast> TASSIGN
+%token<vtype> TVOID
+%token<vtype> TBOOLEAN
+%token<vtype> TINTEGER
 %token<vint> TNUMBER
-%token<vstring> ID
+%token<vstring> TID
 
-%type<vnode> decls
-%type<vnode> decl
-%type<vnode> stmts
-%type<vnode> stmt
-%type<vnode> expr
-%type type
+%type<vast> decls
+%type<vast> decl
+%type<vast> stmts
+%type<vast> stmt
+%type<vast> expr
+%type<vast> type
     
-%left '+' PLUS
-%left '*' MULTIPLY
+%left '+' TPLUS
+%left '*' TMULTIPLY
 
 %%
 
-prog: type MAIN LBRACKET RBRACKET LCURLY decls stmts RCURLY
+prog: type TMAIN TLBRACKET TRBRACKET TLCURLY decls stmts TRCURLY
 
 decls:  decl
         | decl decls
         ;
 
-decl:   type ID COLON
-        | type ID ASSIGN expr COLON
+decl:   type TID TCOLON   {}
+        | type TID TASSIGN expr TCOLON {}
         ;
 
 stmts:  stmt
         | stmt stmts
         ;
 
-stmt:   ID ASSIGN expr COLON
-        | RETURN expr COLON
-        | RETURN COLON
+stmt:   TID TASSIGN expr TCOLON
+        | TRETURN expr TCOLON
+        | TRETURN TCOLON
         ;
 
-expr:   expr PLUS expr
-        | expr MULTIPLY expr
-        | LBRACKET expr RBRACKET
-        | TNUMBER
-        | ID
+expr:   expr TPLUS expr
+        | expr TMULTIPLY expr    {}
+        | TLBRACKET expr TRBRACKET    {}
+        | TNUMBER   {}
+        | TID {}
         ;
 
-type:   INT
-        | BOOL
-        | VOID
+type:   TINTEGER {}
+        | TBOOLEAN   {}
+        | TVOID  {}
         ;
 
 %%

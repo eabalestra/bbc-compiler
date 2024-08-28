@@ -4,24 +4,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "enum.h"
 
 typedef enum NodeType {
-    nodeTypeProg,           // represents a program
-    nodeTypeBody,           // represents a body
-    nodeTypeAssignment,     // represents an assignment
-    nodeTypeExpr,           // represents an expression
-    nodeTypeInt,            // represents an integer
-    nodeTypeId,
-    nodeTypePlus,
-    nodeTypeMultiply,
-    nodeTypeDecl
+    PROG, BODY, EXPR, NUMBER, ID, PLUS, MULTIPLY,
+    ASSIGN, 
 } NodeType;
 
 typedef struct Node {
     char *value;
     char *name;
+    Type type;
     NodeType flag;
-    char *type;
 } Node;
 
 typedef struct Tree {
@@ -36,7 +30,7 @@ void printTree(Node *node);
 Node* createTree(int symbol, Node *left, Node *right); */
 
 Tree* createTree(Node *root, Tree *left, Tree *right);
-Node* createNode(char *value, char *name, NodeType flag, char *type);
+Node* createNode(NodeType flag, char *type, char *value, char *name);
 void printTree(Tree *tree);
 //void freeTree(Tree *tree);
 

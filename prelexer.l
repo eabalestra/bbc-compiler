@@ -15,64 +15,64 @@ digit [0-9]
 
 "int" {
     printf("INT : %s\n", yytext);
-    return INT;
+    return TINTEGER;
 }
 
 "bool" {
-    return BOOL;
+    return TBOOLEAN;
 }
 
 "void" {
     printf("VOID : %s\n", yytext);
-    return VOID;
+    return TVOID;
 }
 
 "return" {
     printf("RETURN : %s\n", yytext);
-    return RETURN;
+    return TRETURN;
 }
 
 "main" {
     printf("MAIN : %s\n", yytext);
-    return MAIN;
+    return TMAIN;
 }
 
 ";" {
     printf("COLON : %s\n", yytext);
-    return COLON;
+    return TCOLON;
 }
 
 "=" {
     printf("ASSIGN : %s\n", yytext);
-    return ASSIGN;
+    return TASSIGN;
 }
 
 "+" {
-    return PLUS;
+    return TPLUS;
 }
 
 "*" {
-    return MULTIPLY;
+    return TMULTIPLY;
 }
 
 "(" {
     printf("LBRACKET : %s\n", yytext);
-    return LBRACKET;
+    return TLBRACKET;
 }
 
 ")" {
     printf("RBRACKET : %s\n", yytext);
-    return RBRACKET;
+    return TRBRACKET;
 }
 
 "{" {
     printf("LCURLY : %s\n", yytext);
-    return LCURLY;
+    return TLCURLY;
 }
 
 "}" {
     printf("RCURLY : %s\n", yytext);
-    return RCURLY;
+    return TRCURLY;
 }
 
 {digit}+    {
@@ -84,7 +84,7 @@ digit [0-9]
 [a-zA-Z][a-zA-Z0-9]* {
     printf("ID : %s\n", yytext);
     yylval.vstring = strdup(yytext);
-    return ID;
+    return TID;
 }
 
 [.|\n]  ; /* ignore all the rest */
