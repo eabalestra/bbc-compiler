@@ -8,7 +8,7 @@
 
 typedef enum NodeType {
     PROG, BODY, EXPR, NUMBER, ID, PLUS, MULTIPLY,
-    ASSIGN, 
+    ASSIGN, COLON, DECLS, STMTS, RETURN, DECL
 } NodeType;
 
 typedef struct Node {
