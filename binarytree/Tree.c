@@ -1,4 +1,5 @@
 #include "Tree.h"
+#define COUNT 10
 
 Tree* createTree(Node *root, Tree *left, Tree *right) 
 {
@@ -22,90 +23,37 @@ Node* createNode(NodeType flag, Type type, void *value, char *name)
     return newNode;
 }
 
-void printTree(Tree *tree)
+const char* nodeTypeToString(NodeType type)
 {
-    if (tree == NULL)
-    {
-        return;
+    switch (type) {
+        case PROG: return "PROG";
+        case BODY: return "BODY";
+        case EXPR: return "EXPR";
+        case NUMBER: return "NUMBER";
+        case ID: return "ID";
+        case PLUS: return "PLUS";
+        case MULTIPLY: return "MULTIPLY";
+        case ASSIGN: return "ASSIGN";
+        case COLON: return "COLON";
+        case DECLS: return "DECLS";
+        case STMTS: return "STMTS";
+        case RETURN: return "RETURN";
+        case DECL: return "DECL";
+        case TYPE: return "TYPE";
+        default: return "UNKNOWN";
     }
-    printf("ROOT: \n");
-    if(tree->root->flag == 0){
-        printf("FLAG: PROG\n");
-    
-    }
-    if(tree->root->flag == 1){
-        printf("FLAG: BODY\n");
-    
-    }
-    if(tree->root->flag == 2){
-        printf("FLAG: EXPR\n");
-    
-    }
-    if(tree->root->flag == 3){
-        printf("FLAG: NUMBER\n");
-    
-    }
-    if(tree->root->flag == 4){
-        printf("FLAG: ID\n");
-    
-    }
-    
-    if(tree->root->flag == 5){
-        printf("FLAG: PLUS \n");
-    
-    }
-    
-    if(tree->root->flag == 6){
-        printf("FLAG: MULTIPLY\n");
-    
-    }
-    if(tree->root->flag == 7){
-        printf("FLAG: ASSIGN\n");
-    
-    }
-    //printf("FLAG: %d \n", tree->root->flag);
-    printf("HIZO IZQUIERDO: \n");
-    printTree(tree->left);
-    printf("HIZO DERECHO: \n");
-    printTree(tree->right);
 }
 
-
-/* void freeNode(Node *node) {
-    if (node == NULL) {
+void printTree(Tree *tree, int space)
+{
+    if (tree == NULL || tree->root == NULL)
         return;
-    }
-
-    // Free dynamically allocated strings
-    if (node->value != NULL) {
-        free(node->value);
-    }
-    if (node->name != NULL) {
-        free(node->name);
-    }
-    if (node->type != NULL) {
-        free(node->type);
-    }
-
-    // Free the Node structure itself
-    free(node);
+    space += COUNT;
+    printTree(tree->right, space);
+    printf("\n");
+    for (int i = COUNT; i < space; i++)
+        printf(" ");
+    printf("%s\n", nodeTypeToString(tree->root->flag));
+    printTree(tree->left, space);
 }
 
-// Function to recursively free a Tree
-void freeTree(Tree *tree) {
-    if (tree == NULL) {
-        return;
-    }
-
-    // Recursively free the left and right subtrees
-    freeTree(tree->left);
-    freeTree(tree->right);
-
-    // Free the root Node
-    if (tree->root != NULL) {
-        freeNode(tree->root);
-    }
-
-    // Free the Tree structure itself
-    free(tree);
-} */

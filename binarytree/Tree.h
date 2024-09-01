@@ -8,7 +8,7 @@
 
 typedef enum NodeType {
     PROG, BODY, EXPR, NUMBER, ID, PLUS, MULTIPLY,
-    ASSIGN, COLON, DECLS, STMTS, RETURN, DECL
+    ASSIGN, COLON, DECLS, STMTS, RETURN, DECL, TYPE
 } NodeType;
 
 typedef struct Node {
@@ -24,15 +24,9 @@ typedef struct Tree {
     struct Tree *right;
 } Tree;
 
-/* Node* createNode(NodeType flag, char *type, char *name, char *value);
-Node* createNodeWithSymbol(int symbol);
-void printTree(Node *node);
-Node* createTree(int symbol, Node *left, Node *right); */
-
 Tree* createTree(Node *root, Tree *left, Tree *right);
 Node* createNode(NodeType flag, Type type, void *value, char *name);
-void printTree(Tree *tree);
-//void freeTree(Tree *tree);
+void printTree(Tree *tree, int space);
 
 #endif // TREE_H
 
