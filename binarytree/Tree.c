@@ -23,7 +23,7 @@ Node* createNode(NodeType flag, Type type, void *value, char *name)
     return newNode;
 }
 
-const char* nodeTypeToString(NodeType type)
+char* nodeTypeToString(NodeType type)
 {
     switch (type) {
         case PROG: return "PROG";
@@ -56,4 +56,3 @@ void printTree(Tree *tree, int space)
     printf("%s\n", nodeTypeToString(tree->root->flag));
     printTree(tree->left, space);
 }
-

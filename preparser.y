@@ -76,7 +76,8 @@ decl:   type TID TCOLON {
         ;
 
 stmts:  stmt {
-            $$ = $1;
+            Node *newNode = createNode(COLON, NONTYPE, NULL, NULL);
+            $$ = createTree(newNode, $1, NULL); 
         }
         | stmt stmts {
             Node *newNode = createNode(STMTS, NONTYPE, NULL, NULL);
@@ -86,7 +87,7 @@ stmts:  stmt {
         
 stmt:   TID TASSIGN expr TCOLON {
             Node *newNode = createNode(ASSIGN, NONTYPE, NULL, NULL);
-            Node *newId = createNode(ID, NONTYPE, $1, NULL);
+            Node *newId = createNode(ID, NONTYPE, $1, NULL);   
             Tree *idLeaf = createTree(newId, NULL, NULL);
             $$ = createTree(newNode, idLeaf, $3);
         }
@@ -116,7 +117,7 @@ expr:   expr TPLUS expr {
             $$ = createTree(newNode, NULL, NULL);
         }
         | TID {
-            Node *newNode = createNode(ID, NONTYPE, $1, NULL);
+            Node *newNode = createNode(ID, NONTYPE, $1, NULL);     
             $$ = createTree(newNode, NULL, NULL);
         }
         ;

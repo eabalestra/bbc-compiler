@@ -26,6 +26,7 @@ typedef struct Tree {
 
 Tree* createTree(Node *root, Tree *left, Tree *right);
 Node* createNode(NodeType flag, Type type, void *value, char *name);
+char* nodeTypeToString(NodeType type);
 void printTree(Tree *tree, int space);
 
 #endif // TREE_H

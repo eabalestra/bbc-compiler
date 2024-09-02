@@ -6,6 +6,7 @@
 *.o
 *.h.gch
 
+*/*.o
 */*.h.gch
 
 .idea
