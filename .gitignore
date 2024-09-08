@@ -9,7 +9,10 @@
 */*.o
 */*.h.gch
 
+# Ide's files
 .idea
 .vscode
 
-parser
+# Build files
+/cmake-build-debug/
+/build/

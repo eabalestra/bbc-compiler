@@ -1,6 +1,0 @@
-#!/bin/bash
-gcc -c binarytree/enum.h
-gcc -c binarytree/Tree.c
-flex prelexer.l
-bison -d preparser.y
-gcc -o parser preparser.tab.c lex.yy.c Tree.o

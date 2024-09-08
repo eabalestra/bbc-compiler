@@ -1,7 +1,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "binarytree/Tree.h"
+#include "../binarytree/Tree.h"
 
 Tree *ast;
 %}
