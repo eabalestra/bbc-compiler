@@ -40,6 +40,7 @@ char* nodeTypeToString(NodeType type)
         case RETURN: return "RETURN";
         case DECL: return "DECL";
         case TYPE: return "TYPE";
+        case VAR: return "VAR";
         default: return "UNKNOWN";
     }
 }
@@ -54,5 +55,6 @@ void printTree(Tree *tree, int space)
     for (int i = COUNT; i < space; i++)
         printf(" ");
     printf("%s\n", nodeTypeToString(tree->root->flag));
+    
     printTree(tree->left, space);
 }

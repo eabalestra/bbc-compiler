@@ -1,7 +1,7 @@
 #include "SymbolTable.h"
 #include <errno.h>
 
-SymbolTable *createTable()
+SymbolTable* createTable()
 {
     SymbolTable *newSymbolTable = (SymbolTable *)malloc(sizeof(SymbolTable));
     newSymbolTable->symbol = NULL;
@@ -35,7 +35,7 @@ void insert(SymbolTable *table, Node *symbol)
     table->size++;
 }
 
-Node *search(SymbolTable *table, char *symbol)
+Node* search(SymbolTable *table, char *symbol)
 {
     if (symbol == NULL)
     {
@@ -68,10 +68,47 @@ int exist(SymbolTable *table, char *symbol)
 
 void printSymbolTable(SymbolTable *table)
 {
-    printf("size = %d \n", table->size);
+    printf("\n-- TABLE --\n");
+    printf("SIZE = %d \n", table->size);
     SymbolTable *current_node = table;
    	while (current_node != NULL) {
-        printf("%s\n", nodeTypeToString(current_node->symbol->flag));
+        printf("\nNODE %s\n",nodeTypeToString(current_node->symbol->flag));
+        printf("%s\n", current_node->symbol->name);
+        printf("%p\n",current_node->symbol->value);
         current_node = current_node->next;
     }
+}
+
+SymbolTable* semanticCheck(Tree *tree)
+{
+    SymbolTable *table = createTable();
+    declarationCheck(tree->left, table);
+    return table;
+}
+
+void declarationCheck(Tree *tree, SymbolTable *table)
+{
+    if (tree == NULL || tree->root == NULL)
+    {
+        return;
+    }
+    if (tree->left != NULL && tree->left->root->flag == ID)
+    {
+        Tree *hi = tree->left;
+        Node *newNode = createNode(VAR, hi->root->type, NULL, hi->root->value);
+        if (tree->right != NULL && tree->right->root != NULL)
+        {
+            Tree *hd = tree->right;
+            if (newNode->type == hd->root->type)
+            {
+                newNode->value = hd->root->value;
+            } else 
+            {
+                printf("Incorrect types \n");
+            }
+        }
+        insert(table, newNode);
+    }
+    declarationCheck(tree->left, table);
+    declarationCheck(tree->right, table);
 }

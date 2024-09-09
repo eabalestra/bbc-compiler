@@ -4,6 +4,7 @@ mkdir -p build
 
 gcc -c binarytree/enum.h -o build/enum.h.o
 gcc -c binarytree/Tree.c -o build/Tree.o
+gcc -c symboltable/SymbolTable.c -o build/SymbolTable.o
 flex -o build/lex.yy.c parser/prelexer.l
 bison -d -o build/preparser.tab.c parser/preparser.y
-gcc build/preparser.tab.c build/lex.yy.c build/Tree.o
+gcc build/preparser.tab.c build/lex.yy.c build/Tree.o build/SymbolTable.o

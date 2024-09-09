@@ -1,7 +1,7 @@
 void main() {
     int x = 1;
-    int y = 2;
-    y = x+y;
-    x = y+1;
-    return x;
+    bool y;
+    int z;
+    int w = x;
+    x = x + 1;
 }

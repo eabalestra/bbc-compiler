@@ -19,5 +19,7 @@ Node *search(SymbolTable *table, char *symbol);
 int exist(SymbolTable *table, char *symbol);
 void printSymbolTable(SymbolTable *table);
 
+SymbolTable* semanticCheck(Tree *tree);
+
 
 #endif // SYMBOL_TABLE_H

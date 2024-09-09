@@ -2,8 +2,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../binarytree/Tree.h"
+#include "../symboltable/SymbolTable.h"
 
 Tree *ast;
+
+static enum Type integerType = INTEGER;
+static enum Type boolType = BOOLEAN;
+static enum Type voidType = VOID;
+
 %}
 
 %union{
@@ -50,7 +56,8 @@ prog: type TMAIN TLBRACKET TRBRACKET TLCURLY decls stmts TRCURLY {
     printf("PARSER OK\n");
     Node *newNode = createNode(PROG, NONTYPE, NULL, NULL);
     ast = createTree(newNode, $6, $7);
-    printTree(ast, 0);
+    SymbolTable *table = semanticCheck(ast);
+    printSymbolTable(table);
 }
 
 decls:  decl {
@@ -122,9 +129,9 @@ expr:   expr TPLUS expr {
         }
         ;
 
-type:   TINTEGER { $$ = createTree(createNode(TYPE, INTEGER, NULL, NULL), NULL, NULL); }
-        | TBOOLEAN   { $$ = createTree(createNode(TYPE, BOOLEAN, NULL, NULL), NULL, NULL); }
-        | TVOID  { $$ = createTree(createNode(TYPE, VOID, NULL, NULL), NULL, NULL); }
+type:   TINTEGER { $$ = &integerType; }
+        | TBOOLEAN   { $$ = &boolType; }
+        | TVOID  { $$ = &voidType; }
         ;
 
 %%
