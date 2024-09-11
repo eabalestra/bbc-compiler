@@ -12,11 +12,11 @@ SymbolTable* createTable()
 
 void insert(SymbolTable *table, Node *symbol)
 {
-    /* int valueExist = exist(table, symbol->value);
+    int valueExist = exist(table, symbol->name);
     if (valueExist == 1) {
         printf("Can't insert new element, it already exists.\n");
         return;
-    } */
+    }
     
     SymbolTable *newSymbolTable = (SymbolTable *)malloc(sizeof(SymbolTable));
     newSymbolTable->symbol = symbol;
@@ -36,14 +36,14 @@ void insert(SymbolTable *table, Node *symbol)
 
 Node* search(SymbolTable *table, char *symbol)
 {
-    if (symbol == NULL)
+    if (symbol == NULL || table->size == 0)
     {
         return NULL;
     }
     SymbolTable *aux = table;
     while (aux != NULL) {
         if (strcmp(aux->symbol->name, symbol) == 0) {
-            return aux->symbol;
+                return aux->symbol;
         }
         aux = aux->next;
     }
@@ -100,8 +100,8 @@ void declarationCheck(Tree *tree, SymbolTable *table)
             if (hd->root->flag == NUMBER || hd->root->flag == BOOL) { // TODO: PREGUNTAR
                 if (newNode->type == hd->root->type) {
                     newNode->value = hd->root->value;
-                    printf("valor: %d\n", hd->root->value); // cambiar %d por %p
-                    printf("es cero el valor?: %d\n", hd->root->value == 0);
+                    /* printf("valor: %d\n", hd->root->value); // cambiar %d por %p
+                    printf("es cero el valor?: %d\n", hd->root->value == 0); */
                 } else {
                     printf("Incorrect types");
                     return;
