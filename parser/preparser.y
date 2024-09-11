@@ -63,9 +63,10 @@ static enum Type voidType = VOID;
 
 prog: type TMAIN TLBRACKET TRBRACKET TLCURLY decls stmts TRCURLY {
     printf("PARSER OK\n");
-    Node *newNode = createNode(PROG, NONTYPE, NULL, NULL);
+    Node *newNode = createNode(PROG, *$1, NULL, NULL);
     ast = createTree(newNode, $6, $7);
     SymbolTable *table = performSemanticCheck(ast);
+    printTree(ast);
     printSymbolTable(table);
 }
 

@@ -1,6 +1,7 @@
 #include "SymbolTable.h"
 
 void handleDeclaration(Tree *tree, SymbolTable *table);
+void handleStatements(Tree *tree, SymbolTable *table);
 
 SymbolTable* createSymbolTable()
 {
@@ -81,8 +82,11 @@ void printSymbolTable(SymbolTable *table)
 SymbolTable* performSemanticCheck(Tree *tree)
 {
     SymbolTable *table = createSymbolTable();
+    Node *newNode = createNode(PROG, tree->root->type, NULL, "main");
+    insertSymbol(table, newNode);
+    
     checkDeclarations(tree->left, table);
-
+    checkStatements(tree->right, table);
     return table;
 }
 
@@ -111,14 +115,14 @@ void handleDeclaration(Tree *tree, SymbolTable *table)
             if (newNode->type == hd->root->type) {
                 newNode->value = hd->root->value;
             } else {
-                printf("Incorrect types");
-                return;
+                printf("Incorrect types \n");
+                return; // en vez de un return un exit para que se termine la ejecucion
             }
         } else {
             Node *aux = findSymbol(table, hd->root->value);
             if (aux == NULL) {
                 printf("Id not declared \n");
-                return;
+                return;  // en vez de un return un exit para que se termine la ejecucion
             }
             if (newNode->type == aux->type) {
                 newNode->value = aux->value;
@@ -126,4 +130,104 @@ void handleDeclaration(Tree *tree, SymbolTable *table)
         }
     }
     insertSymbol(table, newNode);
+}
+
+void checkStatements(Tree *tree, SymbolTable *table) 
+{
+    if (tree == NULL || tree->root == NULL)
+    {
+        return;
+    }
+    if (tree->root->flag == ASSIGN || tree->root->flag == RETURN || tree->root->flag == COLON)
+    {
+        handleStatements(tree, table);
+    }
+    checkStatements(tree->left, table);
+    checkStatements(tree->right, table);
+}
+
+void handleStatements(Tree *tree, SymbolTable *table)
+{
+    if (tree->root->flag == ASSIGN)
+    {
+        if (!isVarDeclared(table, tree->left->root->value)) {
+            return;
+        }
+        Node *hiNode = findSymbol(table, tree->left->root->value);
+        int idType = hiNode->type;
+
+        if (isTreeAnOperator(tree->right)) {
+            printf("LLEGUE por que es un operator \n");
+            Tree *operator = tree->right;
+            Node *hiOperatorNode = findSymbol(table, operator->left->root->value);
+            Node *hdOperatorNode = findSymbol(table, operator->right->root->value);
+
+            if (hiOperatorNode->type != idType || hdOperatorNode->type != idType) { // ver que esten declaradas
+                printf("Incorrect types \n");
+                return;
+            }
+        } else {
+            printf("LLEGUE por que NO es un operator \n");
+            Node *hiNode = findSymbol(table, tree->right->root->value);
+            if (hiNode->type != idType) {
+                printf("Incorrect types \n"); // en vez de un return un exit para que se termine la ejecucion
+                return;
+            }
+        }
+    }
+    if (tree->root->flag == RETURN)
+    {
+        Node *mainNode = findSymbol(table, "main");
+        int mainType = mainNode->type;
+        if (isTreeAnOperator(tree->left)) {
+            printf("RETURN LLEGUE por que es un operator \n");
+
+            Tree *operator = tree->left;
+            Node *hiOperatorNode = findSymbol(table, operator->left->root->value);
+            Node *hdOperatorNode = findSymbol(table, operator->right->root->value);
+
+            if (hiOperatorNode->type != mainType || hdOperatorNode->type != mainType) { // ver que esten declaradas
+                printf("Incorrect main and return types \n");
+                return;
+            }
+        } else {
+            printf("RETURN LLEGUE por que NO es un operator \n");
+            Node *hiNode = findSymbol(table, tree->left->root->value);
+            if (hiNode->type != mainType) {
+                printf("Incorrect main and return types \n");
+                return;
+            }
+        }
+    }
+}
+
+int checkOperatorTypes(Tree *operator, SymbolTable *table, int expectedType)
+{
+    Node *leftOperand = findSymbol(table, operator->left->root->value);
+    Node *rightOperand = findSymbol(table, operator->right->root->value);
+
+    if (leftOperand->type != expectedType || rightOperand->type != expectedType) {
+        return 0;
+    }
+}
+
+int isVarDeclared(SymbolTable *table, char* symbol) {
+    Node *foundNode = findSymbol(table, symbol);
+    if (foundNode == NULL)
+    {
+        printf("Error: var %s is not declared", symbol);
+        return 0;
+    }
+}
+
+int isTreeAnOperator(Tree *tree) {
+    switch (tree->root->flag) {
+        case PLUS:
+        case MULTIPLY:
+        case AND:
+        case OR:
+            return 1;
+        default:
+            return 0;
+    }
 }
