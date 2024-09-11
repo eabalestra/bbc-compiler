@@ -1,6 +1,5 @@
 int main() {
-    int x = 1;
-    int y = 1;
-    boolean z = true;
-    return x + y;
+    int x = 0;
+    boolean p = true;
+    return x;
 }

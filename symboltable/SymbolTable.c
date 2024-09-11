@@ -12,11 +12,11 @@ SymbolTable* createTable()
 
 void insert(SymbolTable *table, Node *symbol)
 {
-    int valueExist = exist(table, symbol->value);
+    /* int valueExist = exist(table, symbol->value);
     if (valueExist == 1) {
         printf("Can't insert new element, it already exists.\n");
         return;
-    }
+    } */
     
     SymbolTable *newSymbolTable = (SymbolTable *)malloc(sizeof(SymbolTable));
     newSymbolTable->symbol = symbol;
@@ -41,10 +41,8 @@ Node* search(SymbolTable *table, char *symbol)
         return NULL;
     }
     SymbolTable *aux = table;
-    while (aux->next != NULL)
-    {
-        if (aux->symbol->value == symbol)
-        {
+    while (aux != NULL) {
+        if (strcmp(aux->symbol->name, symbol) == 0) {
             return aux->symbol;
         }
         aux = aux->next;
@@ -72,8 +70,8 @@ void printSymbolTable(SymbolTable *table)
    	while (current_node != NULL) {
         printf("\nNODE %s\n",nodeTypeToString(current_node->symbol->flag));
         printf("type: %u\n",current_node->symbol->type);
-        printf("%s\n", current_node->symbol->name);
-        printf("%p\n",current_node->symbol->value);
+        printf("name: %s\n", current_node->symbol->name);
+        printf("value: %d\n",current_node->symbol->value);
         current_node = current_node->next;
     }
 }
@@ -102,11 +100,22 @@ void declarationCheck(Tree *tree, SymbolTable *table)
             if (hd->root->flag == NUMBER || hd->root->flag == BOOL) { // TODO: PREGUNTAR
                 if (newNode->type == hd->root->type) {
                     newNode->value = hd->root->value;
+                    printf("valor: %d\n", hd->root->value); // cambiar %d por %p
+                    printf("es cero el valor?: %d\n", hd->root->value == 0);
                 } else {
                     printf("Incorrect types");
                     return;
                 }
-            } // TODO: faltaria agregar casos para poder hacer int y = x + 1;
+            } else {
+                Node *aux = search(table, hd->root->value);
+                if (aux == NULL) {
+                    printf("Id not declared \n");
+                    return;
+                }
+                if (newNode->type == aux->type) {
+                    newNode->value = aux->value;
+                }
+            }
         }
         insert(table, newNode);
     }
