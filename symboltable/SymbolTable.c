@@ -1,6 +1,8 @@
 #include "SymbolTable.h"
 
-SymbolTable* createTable()
+void handleDeclaration(Tree *tree, SymbolTable *table);
+
+SymbolTable* createSymbolTable()
 {
     SymbolTable *newSymbolTable = (SymbolTable *)malloc(sizeof(SymbolTable));
     newSymbolTable->symbol = NULL;
@@ -10,11 +12,11 @@ SymbolTable* createTable()
     return newSymbolTable;
 }
 
-void insert(SymbolTable *table, Node *symbol)
+void insertSymbol(SymbolTable *table, Node *symbol)
 {
-    int valueExist = exist(table, symbol->name);
+    int valueExist = symbolExists(table, symbol->name);
     if (valueExist == 1) {
-        printf("Can't insert new element, it already exists.\n");
+        printf("Can't insertSymbol new element, it already exists.\n");
         return;
     }
     
@@ -34,7 +36,7 @@ void insert(SymbolTable *table, Node *symbol)
     table->size++;
 }
 
-Node* search(SymbolTable *table, char *symbol)
+Node* findSymbol(SymbolTable *table, char *symbol)
 {
     if (symbol == NULL || table->size == 0)
     {
@@ -50,9 +52,9 @@ Node* search(SymbolTable *table, char *symbol)
     return NULL;
 }
 
-int exist(SymbolTable *table, char *symbol)
+int symbolExists(SymbolTable *table, char *symbol)
 {
-    if (search(table, symbol) != NULL)
+    if (findSymbol(table, symbol) != NULL)
     {
         return 1;
     }
@@ -76,15 +78,15 @@ void printSymbolTable(SymbolTable *table)
     }
 }
 
-SymbolTable* semanticCheck(Tree *tree)
+SymbolTable* performSemanticCheck(Tree *tree)
 {
-    SymbolTable *table = createTable();
-    declarationCheck(tree->left, table);
+    SymbolTable *table = createSymbolTable();
+    checkDeclarations(tree->left, table);
 
     return table;
 }
 
-void declarationCheck(Tree *tree, SymbolTable *table)
+void checkDeclarations(Tree *tree, SymbolTable *table)
 {
     if (tree == NULL || tree->root == NULL)
     {
@@ -92,33 +94,36 @@ void declarationCheck(Tree *tree, SymbolTable *table)
     }
     if (tree->root->flag == DECL)
     {
-        Tree *hi = tree->left;
-        Node *newNode = createNode(VAR, hi->root->type, NULL, hi->root->value);
-        if (tree->right != NULL && tree->right->root != NULL)
-        {
-            Tree *hd = tree->right;
-            if (hd->root->flag == NUMBER || hd->root->flag == BOOL) { // TODO: PREGUNTAR
-                if (newNode->type == hd->root->type) {
-                    newNode->value = hd->root->value;
-                    /* printf("valor: %d\n", hd->root->value); // cambiar %d por %p
-                    printf("es cero el valor?: %d\n", hd->root->value == 0); */
-                } else {
-                    printf("Incorrect types");
-                    return;
-                }
+        handleDeclaration(tree, table);
+    }
+    checkDeclarations(tree->left, table);
+    checkDeclarations(tree->right, table);
+}
+
+void handleDeclaration(Tree *tree, SymbolTable *table)
+{
+    Tree *hi = tree->left;
+    Node *newNode = createNode(VAR, hi->root->type, NULL, hi->root->value);
+    if (tree->right != NULL && tree->right->root != NULL)
+    {
+        Tree *hd = tree->right;
+        if (hd->root->flag == NUMBER || hd->root->flag == BOOL) { // TODO: PREGUNTAR
+            if (newNode->type == hd->root->type) {
+                newNode->value = hd->root->value;
             } else {
-                Node *aux = search(table, hd->root->value);
-                if (aux == NULL) {
-                    printf("Id not declared \n");
-                    return;
-                }
-                if (newNode->type == aux->type) {
-                    newNode->value = aux->value;
-                }
+                printf("Incorrect types");
+                return;
+            }
+        } else {
+            Node *aux = findSymbol(table, hd->root->value);
+            if (aux == NULL) {
+                printf("Id not declared \n");
+                return;
+            }
+            if (newNode->type == aux->type) {
+                newNode->value = aux->value;
             }
         }
-        insert(table, newNode);
     }
-    declarationCheck(tree->left, table);
-    declarationCheck(tree->right, table);
+    insertSymbol(table, newNode);
 }

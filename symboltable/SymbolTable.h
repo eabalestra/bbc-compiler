@@ -13,13 +13,13 @@ typedef struct SymbolTable
     int size;
 } SymbolTable;
 
-SymbolTable *createTable();
-void insert(SymbolTable *table, Node *symbol);
-Node *search(SymbolTable *table, char *symbol);
-int exist(SymbolTable *table, char *symbol);
+SymbolTable *createSymbolTable();
+void insertSymbol(SymbolTable *table, Node *symbol);
+Node *findSymbol(SymbolTable *table, char *symbol);
+int symbolExists(SymbolTable *table, char *symbol);
 void printSymbolTable(SymbolTable *table);
 
-SymbolTable* semanticCheck(Tree *tree);
-void declarationCheck(Tree *tree, SymbolTable *table);
+SymbolTable* performSemanticCheck(Tree *tree);
+void checkDeclarations(Tree *tree, SymbolTable *table);
 
 #endif // SYMBOL_TABLE_H

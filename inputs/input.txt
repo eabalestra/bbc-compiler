@@ -1,5 +1,3 @@
 int main() {
-    int x = 0;
-    boolean p = true;
     return x;
 }

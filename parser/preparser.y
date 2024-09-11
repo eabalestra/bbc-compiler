@@ -65,7 +65,7 @@ prog: type TMAIN TLBRACKET TRBRACKET TLCURLY decls stmts TRCURLY {
     printf("PARSER OK\n");
     Node *newNode = createNode(PROG, NONTYPE, NULL, NULL);
     ast = createTree(newNode, $6, $7);
-    SymbolTable *table = semanticCheck(ast);
+    SymbolTable *table = performSemanticCheck(ast);
     printSymbolTable(table);
 }
 
