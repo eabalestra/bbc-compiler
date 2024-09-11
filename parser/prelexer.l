@@ -2,6 +2,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>
+    #include <stdbool.h>
 
     #include "preparser.tab.h"
 %}
@@ -17,7 +18,7 @@ digit [0-9]
     return TINTEGER;
 }
 
-"bool" {
+"boolean" {
     return TBOOLEAN;
 }
 
@@ -31,6 +32,24 @@ digit [0-9]
 
 "main" {
     return TMAIN;
+}
+
+"true" {
+   yylval.vbool = true;
+   return TTRUE;
+}
+
+"false" {
+   yylval.vbool = false;
+   return TFALSE;
+}
+
+"and" {
+    return TAND;
+}
+
+"or" {
+    return TOR;
 }
 
 ";" {

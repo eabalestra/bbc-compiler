@@ -1,6 +1,8 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 #include "../binarytree/Tree.h"
 #include "../symboltable/SymbolTable.h"
 
@@ -18,6 +20,7 @@ static enum Type voidType = VOID;
     struct Tree *vast;
     int vint;
     char *vstring;
+    bool vbool;
 }
 
 %token<vstring> TID
@@ -34,11 +37,15 @@ static enum Type voidType = VOID;
 %token TPLUS
 %token TMULTIPLY
 %token TASSIGN
+%token TAND
+%token TOR
 
 %token<vtype> TVOID
 %token<vtype> TBOOLEAN
 %token<vtype> TINTEGER
 %token<vint> TNUMBER
+%token<vbool> TTRUE
+%token<vbool> TFALSE
 
 %type<vast> prog
 %type<vast> decls
@@ -49,14 +56,17 @@ static enum Type voidType = VOID;
 
 %left '+' TPLUS
 %left '*' TMULTIPLY
+%left "or" TOR
+%left "and" TAND
 
 %%
 
 prog: type TMAIN TLBRACKET TRBRACKET TLCURLY decls stmts TRCURLY {
     printf("PARSER OK\n");
-    Node *newNode = createNode(PROG, NONTYPE, NULL, NULL);
+    Node *newNode = createNode(PROG, type, NULL, NULL);
     ast = createTree(newNode, $6, $7);
     SymbolTable *table = semanticCheck(ast);
+    printTree(ast);
     printSymbolTable(table);
 }
 
@@ -73,12 +83,12 @@ decls:  decl {
 decl:   type TID TCOLON {
             Node *newNode = createNode(ID, *$1, $2, NULL);
             Tree *idTree = createTree(newNode, NULL, NULL);
-            $$ = createTree(createNode(ASSIGN, NONTYPE, NULL, NULL), idTree, NULL);
+            $$ = createTree(createNode(DECL, NONTYPE, NULL, NULL), idTree, NULL);
         }
         | type TID TASSIGN expr TCOLON {
             Node *newNode = createNode(ID, *$1, $2, NULL);
             Tree *idTree = createTree(newNode, NULL, NULL);
-            $$ = createTree(createNode(ASSIGN, NONTYPE, NULL, NULL), idTree, $4);
+            $$ = createTree(createNode(DECL, NONTYPE, NULL, NULL), idTree, $4);
         }
         ;
 
@@ -119,6 +129,22 @@ expr:   expr TPLUS expr {
         | TLBRACKET expr TRBRACKET {
             $$ = $2;
         }
+        | expr TAND expr {
+            Node *newNode = createNode(AND, NONTYPE, NULL, NULL);
+            $$ = createTree(newNode, $1, $3);
+        }
+        | expr TOR expr {
+            Node *newNode = createNode(OR, NONTYPE, NULL, NULL);
+            $$ = createTree(newNode, $1, $3);
+        }
+        | TFALSE {
+            Node *newNode = createNode(BOOL, BOOLEAN, (void *) $1, NULL);
+            $$ = createTree(newNode, NULL, NULL);
+        }
+        | TTRUE {
+            Node *newNode = createNode(BOOL, BOOLEAN, (void *) $1, NULL);
+            $$ = createTree(newNode, NULL, NULL);
+        }
         | TNUMBER   {
             Node *newNode = createNode(NUMBER, INTEGER, $1, NULL);
             $$ = createTree(newNode, NULL, NULL);
@@ -129,7 +155,7 @@ expr:   expr TPLUS expr {
         }
         ;
 
-type:   TINTEGER { $$ = &integerType; }
+    type:   TINTEGER { $$ = &integerType; }
         | TBOOLEAN   { $$ = &boolType; }
         | TVOID  { $$ = &voidType; }
         ;

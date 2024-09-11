@@ -20,6 +20,6 @@ int exist(SymbolTable *table, char *symbol);
 void printSymbolTable(SymbolTable *table);
 
 SymbolTable* semanticCheck(Tree *tree);
-
+void declarationCheck(Tree *tree, SymbolTable *table);
 
 #endif // SYMBOL_TABLE_H

@@ -41,20 +41,31 @@ char* nodeTypeToString(NodeType type)
         case DECL: return "DECL";
         case TYPE: return "TYPE";
         case VAR: return "VAR";
+        case BOOL: return "BOOLEAN";
         default: return "UNKNOWN";
     }
 }
 
-void printTree(Tree *tree, int space)
+void printTree(Tree *tree)
+{
+    if (tree == NULL)
+    {
+        printf("");
+        return;
+    }
+    printTreeR(tree, 0);
+}
+
+void printTreeR(Tree *tree, int space)
 {
     if (tree == NULL || tree->root == NULL)
         return;
     space += COUNT;
-    printTree(tree->right, space);
+    printTreeR(tree->right, space);
     printf("\n");
     for (int i = COUNT; i < space; i++)
         printf(" ");
     printf("%s\n", nodeTypeToString(tree->root->flag));
     
-    printTree(tree->left, space);
+    printTreeR(tree->left, space);
 }

@@ -1,7 +1,6 @@
-void main() {
+int main() {
     int x = 1;
-    bool y;
-    int z;
-    int w = x;
-    x = x + 1;
+    int y = 1;
+    boolean z = true;
+    return x + y;
 }

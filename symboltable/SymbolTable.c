@@ -1,5 +1,4 @@
 #include "SymbolTable.h"
-#include <errno.h>
 
 SymbolTable* createTable()
 {
@@ -41,7 +40,6 @@ Node* search(SymbolTable *table, char *symbol)
     {
         return NULL;
     }
-
     SymbolTable *aux = table;
     while (aux->next != NULL)
     {
@@ -68,11 +66,12 @@ int exist(SymbolTable *table, char *symbol)
 
 void printSymbolTable(SymbolTable *table)
 {
-    printf("\n-- TABLE --\n");
+    printf("\n-- SYMBOL TABLE --\n");
     printf("SIZE = %d \n", table->size);
     SymbolTable *current_node = table;
    	while (current_node != NULL) {
         printf("\nNODE %s\n",nodeTypeToString(current_node->symbol->flag));
+        printf("type: %u\n",current_node->symbol->type);
         printf("%s\n", current_node->symbol->name);
         printf("%p\n",current_node->symbol->value);
         current_node = current_node->next;
@@ -83,6 +82,7 @@ SymbolTable* semanticCheck(Tree *tree)
 {
     SymbolTable *table = createTable();
     declarationCheck(tree->left, table);
+
     return table;
 }
 
@@ -92,20 +92,21 @@ void declarationCheck(Tree *tree, SymbolTable *table)
     {
         return;
     }
-    if (tree->left != NULL && tree->left->root->flag == ID)
+    if (tree->root->flag == DECL)
     {
         Tree *hi = tree->left;
         Node *newNode = createNode(VAR, hi->root->type, NULL, hi->root->value);
         if (tree->right != NULL && tree->right->root != NULL)
         {
             Tree *hd = tree->right;
-            if (newNode->type == hd->root->type)
-            {
-                newNode->value = hd->root->value;
-            } else 
-            {
-                printf("Incorrect types \n");
-            }
+            if (hd->root->flag == NUMBER || hd->root->flag == BOOL) { // TODO: PREGUNTAR
+                if (newNode->type == hd->root->type) {
+                    newNode->value = hd->root->value;
+                } else {
+                    printf("Incorrect types");
+                    return;
+                }
+            } // TODO: faltaria agregar casos para poder hacer int y = x + 1;
         }
         insert(table, newNode);
     }
