@@ -1,6 +1,5 @@
 int main() {
-    int x = 1;
-    boolean y;
-    y = x + x;
-    return x + x;
+    int x = 15;
+    int y = 5;
+    return x * y;
 }

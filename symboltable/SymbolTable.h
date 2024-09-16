@@ -21,5 +21,7 @@ void printSymbolTable(SymbolTable *table);
 
 SymbolTable* performSemanticCheck(Tree *tree);
 void checkDeclarations(Tree *tree, SymbolTable *table);
+void interpreter(Tree *tree, SymbolTable *table);
+void *interpret(Tree *tree, SymbolTable *table);
 
 #endif // SYMBOL_TABLE_H
