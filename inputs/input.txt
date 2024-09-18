@@ -1,5 +1,5 @@
 int main() {
-    int x = 15;
-    int y = 5;
-    return x * y;
+    boolean isFalse = truee;
+    boolean isTrue = true;
+    return isFalse  isTrue;
 }
