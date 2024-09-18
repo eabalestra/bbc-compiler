@@ -4,13 +4,15 @@
     #include <stdio.h>
     #include <stdbool.h>
 
-    #include "preparser.tab.h"
+    #include "../parser/preparser.tab.h"
 %}
 
 %option noyywrap
 %option yylineno
 
 digit [0-9]
+alpha [a-zA-Z]
+alpha_num [a-zA-Z0-9_]
 
 %%
 
@@ -18,8 +20,8 @@ digit [0-9]
     return TINTEGER;
 }
 
-"boolean" {
-    return TBOOLEAN;
+"bool" {
+    return TBOOL;
 }
 
 "void" {
@@ -30,30 +32,36 @@ digit [0-9]
     return TRETURN;
 }
 
-"main" {
-    return TMAIN;
+"true"|"false" {
+   return TBOOL_LITERAL;
 }
 
-"true" {
-   yylval.vbool = true;
-   return TTRUE;
-}
-
-"false" {
-   yylval.vbool = false;
-   return TFALSE;
-}
-
-"and" {
+"&&" {
     return TAND;
 }
 
-"or" {
+"||" {
     return TOR;
+}
+
+"!" {
+    return TNOT;
+}
+
+"==" {
+    return TEQUALS;
 }
 
 ";" {
     return TCOLON;
+}
+
+">" {
+    return TGRATERTHAN;
+}
+
+"<" {
+    return TLESSTHAN;
 }
 
 "=" {
@@ -64,8 +72,20 @@ digit [0-9]
     return TPLUS;
 }
 
+"-" {
+    return TMINUS;
+}
+
 "*" {
     return TMULTIPLY;
+}
+
+"/" {
+    return TDIVISION;
+}
+
+"%" {
+    return TMOD;
 }
 
 "(" {
@@ -84,17 +104,53 @@ digit [0-9]
     return TRCURLY;
 }
 
-{digit}+    {
-    yylval.vint = atoi(yytext);
-    return TNUMBER;
+"if" {
+    return TIF;
 }
 
-[a-zA-Z][a-zA-Z0-9]* {
-    yylval.vstring = strdup(yytext);
+"then" {
+    return TTHEN;
+}
+
+"else" {
+    return TELSE;
+}
+
+"while" {
+    return TWHILE;
+}
+
+"progam" {
+    return TPROGRAM;
+}
+
+"extern" {
+    return TEXTERN;
+}
+
+"," {
+    return TCOMMA;
+}
+
+{digit}+ {
+    return TDIGIT;
+}
+
+{digit}{digit}* {
+    return TINTEGER_LITERAL;
+}
+
+{alpha}+ {
+    return TALPHA;
+}
+
+{alpha}{alpha_num}* {
     return TID;
 }
 
 [.|\n]  ; /* ignore all the rest */
+
+[//]    ; /* comments */
 
 %%
 
