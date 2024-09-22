@@ -6,12 +6,37 @@
 %token TINTEGER
 %token TBOOL
 %token TVOID
+%token TBOOL_LITERAL
+%token TINTEGER_LITERAL
+%token TID
 
 %token TRETURN
-%token TIF;
-%token TTHEN;
-%token TELSE;
-%token TWHILE;
+%token TIF
+%token TTHEN
+%token TELSE
+%token TWHILE
+
+%token TAND
+%token TOR
+%token TNOT
+%token TEQUALS
+%token TGRATERTHAN
+%token TLESSTHAN
+%token TASSIGN
+%token TPLUS
+%token TMINUS
+%token TMULTIPLY
+%token TDIVISION
+%token TMOD
+
+%token TCOLON
+%token TLBRACKET
+%token TRBRACKET
+%token TLCURLY
+%token TRCURLY
+%token TPROGRAM
+%token TEXTERN
+%token TCOMMA
 
 %left TPLUS TDIVISION TMOV
 %left TPLUS TMINUS
@@ -35,7 +60,7 @@ method_decls:   method_decl method_decls
                 | method_decl
                 ;
 
-method_decl:    method_type TID TLBRACKET params TRBRACKET TRBRACKET method_end
+method_decl:    method_type TID TLBRACKET params TLBRACKET TRBRACKET method_end
                 ;
 
 method_type:    TVOID
@@ -70,7 +95,7 @@ statement:  TID TASSIGN expr TCOLON
             | block
             ;
 
-expr    : TID
+expr:   TID
         | method_call
         | literal
         | expr bin_op expr
@@ -78,6 +103,15 @@ expr    : TID
         | TNOT expr
         | TLBRACKET expr TRBRACKET
         ;
+
+method_call:    TID TLBRACKET expr_list TRBRACKET
+
+expr_list:  expr TCOMMA expr_list
+            | expr
+
+if_block:   TIF TLBRACKET expr TRBRACKET TTHEN block TELSE block
+
+while_block:    TWHILE TLBRACKET expr TRBRACKET block   -- le agregue los parentesis que en la gramatica no los tenia
 
 bin_op: arith_op
         | rel_op
@@ -87,7 +121,8 @@ bin_op: arith_op
 arith_op:   TPLUS
             | TMINUS
             | TMULTIPLY
-            |
+            | TDIVISION
+            | TMOD
             ;
 
 rel_op:     TLESSTHAN
@@ -108,5 +143,9 @@ integer_literal : TINTEGER_LITERAL
 
 bool_literal : TBOOL_LITERAL
              ;
+
+type:   TINTEGER
+        | TBOOL
+        ;
 
 %%
