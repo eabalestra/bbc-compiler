@@ -4,7 +4,7 @@
     #include <stdio.h>
     #include <stdbool.h>
 
-    #include "../parser/preparser.tab.h"
+    #include "../build/parser.tab.h"
 %}
 
 %option noyywrap
@@ -16,7 +16,7 @@ alpha_num [a-zA-Z0-9_]
 
 %%
 
-"int" {
+"integer" {
     return TINTEGER;
 }
 
@@ -120,7 +120,7 @@ alpha_num [a-zA-Z0-9_]
     return TWHILE;
 }
 
-"progam" {
+"Program" {
     return TPROGRAM;
 }
 
@@ -132,16 +132,8 @@ alpha_num [a-zA-Z0-9_]
     return TCOMMA;
 }
 
-{digit}+ {
-    return TDIGIT;
-}
-
 {digit}{digit}* {
     return TINTEGER_LITERAL;
-}
-
-{alpha}+ {
-    return TALPHA;
 }
 
 {alpha}{alpha_num}* {
@@ -149,8 +141,6 @@ alpha_num [a-zA-Z0-9_]
 }
 
 [.|\n]  ; /* ignore all the rest */
-
-[//]    ; /* comments */
 
 %%
 

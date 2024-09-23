@@ -1,5 +1,27 @@
-int main() {
-    boolean isFalse = truee;
-    boolean isTrue = true;
-    return isFalse  isTrue;
+Program 
+{
+    integer x;
+    
+    integer inc(integer x)
+    {
+        return x + x;
+    }
+    
+    integer get_int() extern;
+    
+    void print_int(integer i) extern ;
+    
+    void main()
+    {
+        integer y = 0;
+        y = get_int();
+        if (y == 1) then
+        {
+            print_int(y);
+        }
+        else
+        {
+        return print_int(inc(y));
+        }
+    }
 }

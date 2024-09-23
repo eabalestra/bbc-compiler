@@ -9,6 +9,8 @@
 %token TBOOL_LITERAL
 %token TINTEGER_LITERAL
 %token TID
+%token TDIGIT
+%token TALPHA
 
 %token TRETURN
 %token TIF
@@ -38,51 +40,58 @@
 %token TEXTERN
 %token TCOMMA
 
-%left TPLUS TDIVISION TMOV
-%left TPLUS TMINUS
-%left TLESSTHAN TGRATERTHAN
-%left TEQUALS
-%left TAND
 %left TOR
+%left TAND
+%nonassoc TEQUALS TLESSTHAN TGRATERTHAN
+%left TPLUS TMINUS
+%left TMULTIPLY TDIVISION TMOD
+%left TUNARY
 
 %%
 
-program : TPROGRAM TLCURLY var_decls method_decls TRCURLY
+program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY { printf("PARSER OK\n"); }
+            | TPROGRAM TLCURLY method_decls TRCURLY { printf("PARSER OK\n"); }
+            ;
 
-var_decls:  var_decl var_decls
+var_decls:  var_decls var_decl
             | var_decl
             ;
 
-var_decl : type TID TASSIGN expr TCOLON
-         ;
+var_decl:   type TID TASSIGN expr TCOLON
+            | type TID TCOLON
+            ;
 
-method_decls:   method_decl method_decls
+method_decls:   method_decls method_decl
                 | method_decl
                 ;
 
-method_decl:    method_type TID TLBRACKET params TLBRACKET TRBRACKET method_end
-                ;
-
-method_type:    TVOID
-                | type
+method_decl:    type TID TLBRACKET params TRBRACKET method_end
+                | TVOID TID TLBRACKET params TRBRACKET method_end
                 ;
 
 params:     params_list
             | %empty
             ;
 
+params_list:    type TID
+                | type TID TCOMMA params_list
+                ;
+
 method_end:     block
                 | TEXTERN TCOLON
                 ;
 
-params_list:    type TID TCOMMA params_list
-                | type TID
-                ;
-
 block:  TLCURLY var_decls statements TRCURLY
+        | TLCURLY statements TRCURLY
+        | TLCURLY var_decls TRCURLY
+        | TLCURLY TRCURLY
         ;
 
-statements:     statement statements
+type:   TINTEGER  
+        | TBOOL
+        ;
+
+statements:     statements statement
                 | statement
                 ;
 
@@ -90,49 +99,49 @@ statement:  TID TASSIGN expr TCOLON
             | method_call TCOLON
             | if_block
             | while_block
-            | return expr TCOLON
-            | //punto y coma
+            | return_block
+            | TCOLON
             | block
             ;
+
+return_block:   TRETURN expr TCOLON
+                | TRETURN TCOLON
+                ;
+
+method_call:    TID TLBRACKET expr_list TRBRACKET
+                ;
 
 expr:   TID
         | method_call
         | literal
-        | expr bin_op expr
-        | TMINUS expr
-        | TNOT expr
+        | expr TAND expr
+        | expr TOR expr
+        | expr TPLUS expr
+        | expr TMULTIPLY expr
+        | expr TDIVISION expr
+        | expr TMOD expr
+        | expr TLESSTHAN expr
+        | expr TGRATERTHAN expr
+        | expr TEQUALS expr
+        | TMINUS expr %prec TUNARY
+        | TNOT expr %prec TUNARY
         | TLBRACKET expr TRBRACKET
         ;
 
-method_call:    TID TLBRACKET expr_list TRBRACKET
-
 expr_list:  expr TCOMMA expr_list
             | expr
-
-if_block:   TIF TLBRACKET expr TRBRACKET TTHEN block TELSE block
-
-while_block:    TWHILE TLBRACKET expr TRBRACKET block   -- le agregue los parentesis que en la gramatica no los tenia
-
-bin_op: arith_op
-        | rel_op
-        | cond_op
-        ;
-
-arith_op:   TPLUS
-            | TMINUS
-            | TMULTIPLY
-            | TDIVISION
-            | TMOD
+            | %empty
             ;
 
-rel_op:     TLESSTHAN
-            | TGRATERTHAN
-            | TEQUALS
+if_block:   TIF TLBRACKET expr TRBRACKET TTHEN block else_block
             ;
 
-cond_op:    TAND
-            | TOR
-            ;
+else_block:     TELSE block
+                | %empty
+                ;
+
+while_block:    TWHILE TLBRACKET expr TRBRACKET block
+                ;
 
 literal:    integer_literal
             | bool_literal
@@ -143,9 +152,5 @@ integer_literal : TINTEGER_LITERAL
 
 bool_literal : TBOOL_LITERAL
              ;
-
-type:   TINTEGER
-        | TBOOL
-        ;
 
 %%
