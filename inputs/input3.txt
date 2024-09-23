@@ -1,0 +1,22 @@
+Program {
+    integer x = 0;
+
+    integer get_value() {
+        return 5;
+    }
+
+    void process_value(integer n) {
+        if (n > 5) then {
+            x = n * 2;
+        } else {
+            x = n - (-2);
+        }
+        return;
+    }
+
+    void main() {
+        integer val = get_value();
+        process_value(val);
+        return;
+    }
+}

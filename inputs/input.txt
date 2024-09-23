@@ -1,5 +1,9 @@
 Program 
 {
+    //hjhkjhjkh - _ ; + | < > << == &&*
+
+
+
     integer x;
     
     integer inc(integer x)
@@ -21,7 +25,7 @@ Program
         }
         else
         {
-        return print_int(inc(y));
+           return print_int(inc(y));
         }
     }
 }

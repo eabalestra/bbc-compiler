@@ -117,6 +117,7 @@ expr:   TID
         | expr TAND expr
         | expr TOR expr
         | expr TPLUS expr
+        | expr TMINUS expr
         | expr TMULTIPLY expr
         | expr TDIVISION expr
         | expr TMOD expr
