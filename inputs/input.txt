@@ -1,8 +1,20 @@
 Program 
 {
-    //hjhkjhjkh - _ ; + | < > << == &&*
+    //hjhkjhjkh - _ ; + | < > << == &&* while[o] !
 
+    /* 
+        hjhkjhjkh - _ ; + | < > << == &&* while [o] {ñ! ó
 
+        sasa
+        ds's;
+        56da4sd8q32i5hgab mC' DOV[PDSFAPJAL;NDACAV
+        FL;ADJSAD
+        -]
+                        LFJALKHALDJA
+                        'SDALSJFVN L;lk;sjfw'eq-0-9r0_)()(*^
+                        )((*^*&%&^$%^#%$@)))
+                        +_)_}{:<>MNUIT&^%^$%#$!@~!AZXG}
+    */
 
     integer x;
     
