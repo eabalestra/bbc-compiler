@@ -1,22 +1,29 @@
 Program {
-    bool x = true;
+    /*
+        Example to test logic operands
+    */
 
-    bool get_value() {
-        return false;
+    bool is_valid = false; // Variable to store validation status
+
+    bool validate_conditions(integer a, integer b) {
+        return (a == 10) || (b > 20); 
     }
 
-    void process_value(integer n) {
-        if (x) then {
-            x = false;
+    void check_values(integer a, integer b) {
+        if (validate_conditions(a, b) && (is_valid == false)) then {
+            is_valid = true; 
+        } 
+        if (!validate_conditions(a, b) && (is_valid == true)) then {
+            is_valid = false;
         } else {
-            x = true;
+            is_valid = true;
         }
-        return;
     }
 
     void main() {
-        bool val = get_value();
-        process_value(1);
-        return;
+        integer a = 10; 
+        integer b = 25; 
+        check_values(a, b);
+        return; 
     }
 }

@@ -1,16 +1,32 @@
 Program {
+    /* 
+        Example to test arithmetic operands
+    */
+
     integer x = 0;
 
     integer get_value() {
-        return 5;
+        return 10; // Changed to return a value that can demonstrate all operators
     }
 
     void process_value(integer n) {
+        integer mod_value = n % 3;
+
         if (n > 5) then {
-            x = n * 2;
+            x = n * 2; 
         } else {
-            x = n - (-2);
+            x = n - (-2); 
         }
+
+        if (mod_value == 0) then {
+            x = x / 2; 
+        } 
+        if (mod_value < 2) then {
+            x = x + 1; 
+        } else {
+            x = x - 1; 
+        }
+        
         return;
     }
 
