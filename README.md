@@ -24,3 +24,9 @@ To execute the project, run:
 ```
 make c-tds inputs/input.ctds
 ```
+
+### Running the project's tests
+To execute the tests, run:
+```
+sh scripts/run_paser_tests.sh 
+```
