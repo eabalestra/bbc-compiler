@@ -1,6 +1,0 @@
-#!/bin/bash
-mkdir -p build
-
-flex -o build/lex.yy.c src/scanner/lexer.l
-bison -d -v -o build/parser.tab.c src/parser/parser.y
-gcc build/parser.tab.c build/lex.yy.c

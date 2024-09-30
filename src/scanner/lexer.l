@@ -142,6 +142,12 @@ alpha_num [a-zA-Z0-9_]
 
 [.|\n]  ; /* ignore all the rest */
 
+
+"//"(alpha_num|[+*;()-{},!=|<>%&]|" ")* ; /* single-line comments */
+
+"/*"([^*]|\*+[^*/])*\*+"/" ; /* multi line comments */
+
+
 %%
 
 void yyerror(){

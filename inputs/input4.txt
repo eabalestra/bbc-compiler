@@ -1,0 +1,29 @@
+Program {
+    /*
+        Example to test logic operands
+    */
+
+    bool is_valid = false; // Variable to store validation status
+
+    bool validate_conditions(integer a, integer b) {
+        return (a == 10) || (b > 20); 
+    }
+
+    void check_values(integer a, integer b) {
+        if (validate_conditions(a, b) && (is_valid == false)) then {
+            is_valid = true; 
+        } 
+        if (!validate_conditions(a, b) && (is_valid == true)) then {
+            is_valid = false;
+        } else {
+            is_valid = true;
+        }
+    }
+
+    void main() {
+        integer a = 10; 
+        integer b = 25; 
+        check_values(a, b);
+        return; 
+    }
+}
