@@ -1,7 +1,26 @@
 # TDS24/BBC Compiler
+## Getting Started
+### Prerequisites
 
-## Commands to execute the project
-#### To compile the lexer run the following command:
+Make sure you have `git` and `make` installed on your system.
 
+### Cloning the Repository
 
-#### To execute the lexer run the following command:
+To get a copy of the project, clone the repository using the following command:
+
+```
+git clone https://github.com/eabalestra/bbc-compiler.git 
+cd bbc-compiler
+```
+
+### Building the Project
+To compile the lexer and parser, run:
+```
+make parse
+```
+
+### Running the Project
+To execute the project, run:
+```
+make c-tds inputs/input.ctds
+```
