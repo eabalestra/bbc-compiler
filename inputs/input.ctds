@@ -7,7 +7,7 @@ Program
         return x + x;
     }
     
-    integer get_int() extern;
+    integer get_int() extern ;
     
     void print_int(integer i) extern ;
     

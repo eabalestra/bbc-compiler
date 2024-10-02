@@ -1,4 +1,4 @@
-#include "include/tree.h"
+#include "../../include/tree.h"
 #define COUNT 10
 
 /**
@@ -55,7 +55,7 @@ Node *createNonTerminalNode(Tag flag)
     newNode->name = NULL;
     newNode->flag = flag;
     newNode->type = NONTYPE;
-    newNode->line_number = NULL;
+    newNode->line_number = -1;
 
     return newNode;
 }
@@ -102,6 +102,53 @@ char *nodeFlagToString(Tag flag)
         return "VAR";
     case BOOL:
         return "BOOLEAN";
+    case MOD:
+        return "MOD";
+    case MINUS:
+        return "MINUS";
+    case EXPRLIST:
+        return "EXPRLIST";
+    case EXTERN:
+        return "EXTERN";
+    case BLOCK:
+        return "BLOCK";
+    case METHODCALL:
+        return "METHODCALL";
+    case DIVISION:
+        return "DIVISION";
+    case EXPRLIST:
+        return "EXPRLIST";
+    case PARAMSLIST:
+        return "PARAMSLIST";
+    case METHODEND:
+        return "METHODEND";
+    case METHODDECL:
+        return "METHODDECL";
+    case VARDECL:
+        return "VARDECL";
+    case METHODDECLS:
+        return "METHODDECLS";
+    case NOT:
+        return "NOT";
+    case EQUALS:
+        return "EQUALS";
+    case GRATERTHAN:
+        return "GRATERTHAN";
+    case LESSTHAN:
+        return "LESSTHAN";
+    case ELSE:
+        return "ELSE";
+    case THEN:
+        return "THEN";
+    case IF:
+        return "IF";
+    case WHILE:
+        return "WHILE";
+    case OR:
+        return "OR";
+    case AND:
+        return "AND";
+    
     default:
         return "UNKNOWN";
     }
@@ -116,7 +163,7 @@ void printTree(Tree *tree)
 {
     if (tree == NULL)
     {
-        printf("");
+        printf("TREE");
         return;
     }
     printTreeR(tree, 0);
@@ -137,20 +184,7 @@ void printTreeR(Tree *tree, int space)
     printf("\n");
     for (int i = COUNT; i < space; i++)
         printf(" ");
-    printf("%s\n", nodeTypeToString(tree->root->flag));
+    printf("%s\n", nodeFlagToString(tree->root->flag));
 
     printTreeR(tree->left, space);
-}
-
-Node *createNonTerminalNode(Tag flag)
-{
-    Node *newNode = malloc(sizeof(Node));
-
-    newNode->flag = flag;
-    newNode->value = NULL;
-    newNode->name = NULL;
-    newNode->type = NULL;
-    newNode->line_number = NULL;
-
-    return newNode;
 }

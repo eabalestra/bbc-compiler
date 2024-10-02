@@ -10,22 +10,13 @@
 %}
 
 %union{
-    enum Type *vtype;
+    enum Type vtype;
     struct Tree *vast;
     char *vstring;
     int vint;
     int line_number;
-    bool vbool;
+    int vbool;
 }
-
-%type<vtype> type
-
-%type<vast> program
-%type<vast> var_decls
-%type<vast> var_decl
-%type<vast> method_decls
-%type<vast> method_decl
-
 
 %token<vtype> TINTEGER
 %token<vtype> TBOOL
@@ -64,6 +55,8 @@
 %token TEXTERN
 %token TCOMMA
 
+%type<vtype> type
+
 %type<vast> program
 %type<vast> var_decls
 %type<vast> var_decl
@@ -73,7 +66,6 @@
 %type<vast> params_list
 %type<vast> method_end
 %type<vast> block
-%type<vast> type
 %type<vast> statements
 %type<vast> statement
 %type<vast> return_block
@@ -96,13 +88,17 @@
 
 %%
 
-program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY { printf("PARSER OK\n"); 
-                Node *newNode = createNode(PROG, NONTYPE, NULL, NULL, NULL);        
-                $$ = createTree(node, $3, $4);
+program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY { 
+                Node *newNode = createNonTerminalNode(PROG);        
+                ast = createTree(newNode, $3, $4);
+                printTree(ast);
+                printf("PARSER OK\n"); 
             }
-            | TPROGRAM TLCURLY method_decls TRCURLY { printf("PARSER OK\n"); 
-                Node *newNode = createNode(PROG, NONTYPE, NULL, NULL, NULL);        
-                $$ = createTree(node, $3, NULL);
+            | TPROGRAM TLCURLY method_decls TRCURLY {
+                Node *newNode = createNonTerminalNode(PROG);        
+                ast = createTree(newNode, $3, NULL);
+                printTree(ast);
+                printf("PARSER OK\n"); 
             }
             ;
 
@@ -117,14 +113,14 @@ var_decls:  var_decls var_decl {
             ;
 
 var_decl:   type TID TASSIGN expr TCOLON {
-                Node *newNode = createNode(ID, *$1, NULL, $2, yylval.lyylineno);
+                Node *newNode = createNode(ID, $1, NULL, $2, yylval.line_number);
                 Tree *idTree = createTree(newNode, NULL, NULL);
-                $$ = createTree(createNode(VARDECL, NONTYPE, NULL, NULL), idTree, $4);
+                $$ = createTree(createNonTerminalNode(VARDECL), idTree, $4);
             }
             | type TID TCOLON {
-                Node *newNode = createNode(ID, *$1, NULL, $2, yylval.lyylineno);
+                Node *newNode = createNode(ID, $1, NULL, $2, yylval.line_number);
                 Tree *idTree = createTree(newNode, NULL, NULL);
-                $$ = createTree(createNode(VARDECL, NONTYPE, NULL, NULL), idTree, NULL);
+                $$ = createTree(createNonTerminalNode(VARDECL), idTree, NULL);
             }
             ;
 
@@ -137,31 +133,64 @@ method_decls:   method_decls method_decl {
 
 method_decl:    type TID TLBRACKET params TRBRACKET method_end {
                     Node *newNode = createNonTerminalNode(METHODDECL);
-                    $$ = createTree(newNode, $1, createTree(createNonTerminalNode(METHODDECL),));
+                    Node *idNode = createNode(ID, $1, NULL, $2, yylval.line_number);  
+                    Tree *idTree = createTree(idNode, NULL, NULL); 
+                    Node *methodEndNode = createNonTerminalNode(METHODEND);
+                    $$ = createTree(newNode, idTree, createTree(methodEndNode, $4, $6));
                 }
-                | TVOID TID TLBRACKET params TRBRACKET method_end
+                | TVOID TID TLBRACKET params TRBRACKET method_end {
+                    Node *newNode = createNonTerminalNode(METHODDECL);
+                    Node *idNode = createNode(ID, VOID, NULL, $2, yylval.line_number);
+                    Tree *hi = createTree(idNode, NULL, NULL);
+                    Tree *hd = createTree(createNonTerminalNode(METHODEND), $4, $6);
+                    $$ = createTree(newNode, hi, hd);
+                }
                 ;
 
-params:     params_list
+params:     params_list { $$ = $1; }
             | %empty { $$ = NULL; }
             ;
 
-params_list:    type TID 
-                | type TID TCOMMA params_list
+params_list:    type TID  {
+                    Node *idNode = createNode(ID, $1, NULL, $2, yylval.line_number);
+                    $$ = createTree(idNode, NULL, NULL);
+                }
+                | type TID TCOMMA params_list {
+                    Node *newNode = createNonTerminalNode(PARAMSLIST);
+                    Node *idNode = createNode(ID, $1, NULL, $2, yylval.line_number);
+                    $$ = createTree(newNode, createTree(idNode, NULL, NULL), $4);
+                }
                 ;
 
-method_end:     block 
-                | TEXTERN TCOLON
+method_end:     block {
+                    $$ = $1;
+                }
+                | TEXTERN TCOLON {
+                    Node *newNode = createNonTerminalNode(EXTERN);
+                    $$ = createTree(newNode, NULL, NULL);
+                }
                 ;
 
-block:  TLCURLY var_decls statements TRCURLY 
-        | TLCURLY statements TRCURLY
-        | TLCURLY var_decls TRCURLY 
-        | TLCURLY TRCURLY
+block:  TLCURLY var_decls statements TRCURLY {
+            Node *newNode = createNonTerminalNode(BLOCK);
+            $$ = createTree(newNode, $2, $3);
+        }
+        | TLCURLY statements TRCURLY {
+            Node *newNode = createNonTerminalNode(BLOCK);
+            $$ = createTree(newNode, $2, NULL);
+        }
+        | TLCURLY var_decls TRCURLY {
+            Node *newNode = createNonTerminalNode(BLOCK);
+            $$ = createTree(newNode, $2, NULL);
+        }
+        | TLCURLY TRCURLY   {
+            Node *newNode = createNonTerminalNode(BLOCK);
+            $$ = createTree(newNode, NULL, NULL);
+        }
         ;
 
-type:   TINTEGER { $$ = $1; }
-        | TBOOL { $$ = $1; }
+type:   TINTEGER { $$ = INTEGER; }
+        | TBOOL { $$ = BOOLEAN; }
         ;
 
 statements:     statements statement {
@@ -176,7 +205,7 @@ statements:     statements statement {
 
 statement:  TID TASSIGN expr TCOLON {
                                     Node *newNode = createNonTerminalNode(ASSIGN);
-                                    Node *newId = createNode(ID, NONTYPE, NULL, $1, yylval.lyylineno);   
+                                    Node *newId = createNode(ID, NONTYPE, NULL, $1, yylval.line_number);   
                                     Tree *idTree = createTree(newId, NULL, NULL);
                                     $$ = createTree(newNode, idTree, $3);
             }
@@ -205,20 +234,21 @@ return_block:   TRETURN expr TCOLON {
                     Node *newNode = createNonTerminalNode(RETURN);
                     $$ = createTree(newNode, $2, NULL);
                 }
-                | TRETURN TCOLON    {  
-                    Node *newNode = createNonTerminalNode(RETURN);
+                | TRETURN TCOLON    {
+                    Node *newNode = createNode(RETURN, NONTYPE, NULL, NULL, yylval.line_number);
                     $$ = createTree(newNode, NULL, NULL);
                 }
                 ;
 
-method_call:    TID TLBRACKET expr_list TRBRACKET  {
+method_call:    TID TLBRACKET expr_list TRBRACKET   {
                                                         Node *newNode = createNonTerminalNode(METHODCALL);
                                                         $$ = createTree(newNode, $1, $3);   
                                                     }
                 ;
 
 expr:   TID {
-            $$ = $1;
+            Node *newNode = createNode(ID, NONTYPE, $1, NULL, yylval.line_number);
+            $$ = createTree(newNode, NULL, NULL);
         }
         | method_call   {
                             $$ = $1;
@@ -227,58 +257,66 @@ expr:   TID {
                         $$ = $1; 
                     }
         | expr TAND expr {
-                            Node *newNode = createNonTerminalNode(AND);
+                            Node *newNode = createNode(AND, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TOR expr {
-                            Node *newNode = createNonTerminalNode(OR);
+                            Node *newNode = createNode(OR, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TPLUS expr {
-                            Node *newNode = createNonTerminalNode(PLUS);
+                            Node *newNode = createNode(PLUS, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TMINUS expr {
-                            Node *newNode = createNonTerminalNode(MINUS);
+                            Node *newNode = createNode(MINUS, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TMULTIPLY expr {
-                            Node *newNode = createNonTerminalNode(MULTIPLY);
+                            Node *newNode = createNode(MULTIPLY, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TDIVISION expr {
-                            Node *newNode = createNonTerminalNode(DIVISION);
+                            Node *newNode = createNode(DIVISION, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TMOD expr {
-                            Node *newNode = createNonTerminalNode(MOD);
+                            Node *newNode = createNode(MOD, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TLESSTHAN expr {
-                            Node *newNode = createNonTerminalNode(LESSTHAN);
+                            Node *newNode = createNode(LESSTHAN, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TGRATERTHAN expr {
-                            Node *newNode = createNonTerminalNode(GRATERTHAN);
+                            Node *newNode = createNode(GRATERTHAN, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | expr TEQUALS expr {
-                            Node *newNode = createNonTerminalNode(EQUALS);
+                            Node *newNode = createNode(EQUALS, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $1, $3);
                         }
         | TMINUS expr %prec TUNARY {
-                            Node *newNode = createNonTerminalNode(MINUS);
+                            Node *newNode = createNode(MINUS, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $2, NULL);
                         }
         | TNOT expr %prec TUNARY {
-                            Node *newNode = createNonTerminalNode(NOT);
+                            Node *newNode = createNode(NOT, NONTYPE, NULL, NULL, yylval.line_number);
                             $$ = createTree(newNode, $2, NULL);
                         }
-        | TLBRACKET expr TRBRACKET
+        | TLBRACKET expr TRBRACKET {
+                            $$ = $2;
+                        }
         ;
 
-expr_list:  expr TCOMMA expr_list
-            | expr 
+expr_list:  expr TCOMMA expr_list {
+                Node *newNode = createNonTerminalNode(EXPRLIST);
+                $$ = createTree(newNode, $1, $3);
+            }
+            | expr {
+                Node *newNode = createNonTerminalNode(EXPRLIST);
+                $$ = createTree(newNode, $1, NULL);
+            }
             | %empty { $$ = NULL; }
             ;
 
@@ -301,7 +339,7 @@ else_block:     TELSE block {
 
 while_block:    TWHILE TLBRACKET expr TRBRACKET block {
                     Node *newNode = createNonTerminalNode(WHILE); 
-                    $$ = createTree(newNode, $3, $4);
+                    $$ = createTree(newNode, $3, $5);
                 }
                 ;   
 
@@ -314,13 +352,13 @@ literal:    integer_literal {
             ;
 
 integer_literal : TINTEGER_LITERAL {
-                    Node *newNode = createNode(NUMBER, INTEGER, $1, NULL, yylval.lyylineno);
+                    Node *newNode = createNode(NUMBER, INTEGER, (void *) $1, NULL, yylval.line_number);
                     $$ = createTree(newNode, NULL, NULL);
                 }
                 ;
 
 bool_literal : TBOOL_LITERAL {
-                    Node *newNode = createNode(BOOL, BOOLEAN, $1, NULL, yylval.lyylineno);
+                    Node *newNode = createNode(BOOL, BOOLEAN, (void *) $1, NULL, yylval.line_number);
                     $$ = createTree(newNode, NULL, NULL);
                 }
             ;

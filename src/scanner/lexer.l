@@ -4,6 +4,7 @@
     #include <stdio.h>
     #include <stdbool.h>
 
+    #include "../include/type.h"
     #include "../build/parser.tab.h"
 %}
 
@@ -17,10 +18,12 @@ alpha_num [a-zA-Z0-9_]
 %%
 
 "integer" {
+    yylval.vtype = INTEGER;
     return TINTEGER;
 }
 
 "bool" {
+    yylval.vtype = BOOLEAN;
     return TBOOL;
 }
 
@@ -35,10 +38,11 @@ alpha_num [a-zA-Z0-9_]
 
 "true"|"false" {
     if (strcmp(yytext, "true") == 0) {
-        yylval.vbool = true; 
+        yylval.vbool = true;
     } else {
         yylval.vbool = false;
     }
+    yylval.line_number = yylineno;
     return TBOOL_LITERAL;
 }
 

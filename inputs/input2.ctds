@@ -5,7 +5,7 @@ Program {
     
     integer count = 0;
     bool flag = true;
-
+    
     void main() {
         while (count < 10) {
             count = count + 1;
