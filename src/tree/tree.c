@@ -116,8 +116,6 @@ char *nodeFlagToString(Tag flag)
         return "METHODCALL";
     case DIVISION:
         return "DIVISION";
-    case EXPRLIST:
-        return "EXPRLIST";
     case PARAMSLIST:
         return "PARAMSLIST";
     case METHODEND:
@@ -148,43 +146,44 @@ char *nodeFlagToString(Tag flag)
         return "OR";
     case AND:
         return "AND";
+    case EMPTY:
+        return "EMPTY";
     
     default:
         return "UNKNOWN";
     }
 }
 
-/**
- * Prints the entire tree in a structured format.
- *
- * @param tree pointer to the tree to print.
- */
-void printTree(Tree *tree)
-{
-    if (tree == NULL)
-    {
-        printf("TREE");
+void printTree(Tree *tree) {
+    if (tree == NULL || tree->root == NULL) {
+        printf("(empty tree)\n");
         return;
     }
-    printTreeR(tree, 0);
+    printTreeR(tree, "", 1); // Start printing from root
 }
 
-/**
- * Recursive function to print the tree with indentation.
- *
- * @param tree pointer to the tree to print.
- * @param space the current level of indentation.
- */
-void printTreeR(Tree *tree, int space)
-{
+void printTreeR(Tree *tree, char *prefix, int isLast) {
     if (tree == NULL || tree->root == NULL)
         return;
-    space += COUNT;
-    printTreeR(tree->right, space);
-    printf("\n");
-    for (int i = COUNT; i < space; i++)
-        printf(" ");
+
+    // Print the current node
+    printf("%s", prefix);
+    printf(isLast ? "└── " : "├── ");
     printf("%s\n", nodeFlagToString(tree->root->flag));
 
-    printTreeR(tree->left, space);
+    // Prepare the new prefix for children
+    char newPrefix[1000];
+    snprintf(newPrefix, sizeof(newPrefix), "%s%s", prefix, isLast ? "    " : "│   ");
+
+    // If there are child nodes, print them recursively
+    int hasLeftChild = tree->left != NULL;
+    int hasRightChild = tree->right != NULL;
+
+    if (hasLeftChild) {
+        printTreeR(tree->left, newPrefix, !hasRightChild);  // Left child (if it's the last, pass `!hasRightChild`)
+    }
+
+    if (hasRightChild) {
+        printTreeR(tree->right, newPrefix, 1);  // Right child is always the last in its subtree
+    }
 }

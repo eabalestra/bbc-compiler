@@ -6,6 +6,11 @@ Program {
     integer count = 0;
     bool flag = true;
     
+    integer inc(integer x)
+    {
+        return x + x;
+    }
+
     void main() {
         while (count < 10) {
             count = count + 1;

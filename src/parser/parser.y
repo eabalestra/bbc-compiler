@@ -92,7 +92,7 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);        
                 ast = createTree(newNode, $3, $4);
                 printTree(ast);
-                printf("PARSER OK\n"); 
+                printf("PARSER OK\n");
             }
             | TPROGRAM TLCURLY method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);        
@@ -126,7 +126,7 @@ var_decl:   type TID TASSIGN expr TCOLON {
 
 method_decls:   method_decls method_decl {
                                 Node *newNode = createNonTerminalNode(METHODDECLS);
-                                $$ = createTree(newNode, $2, $1);
+                                $$ = createTree(newNode, $1, $2);
                 }
                 | method_decl { $$ = $1; }
                 ;
@@ -148,7 +148,7 @@ method_decl:    type TID TLBRACKET params TRBRACKET method_end {
                 ;
 
 params:     params_list { $$ = $1; }
-            | %empty { $$ = NULL; }
+            | %empty { $$ = createTree(createNonTerminalNode(EMPTY), NULL, NULL); }
             ;
 
 params_list:    type TID  {
@@ -242,12 +242,14 @@ return_block:   TRETURN expr TCOLON {
 
 method_call:    TID TLBRACKET expr_list TRBRACKET   {
                                                         Node *newNode = createNonTerminalNode(METHODCALL);
-                                                        $$ = createTree(newNode, $1, $3);   
+                                                        Node *idNode = createNode(ID, NONTYPE, NULL, $1, yylval.line_number);
+                                                        Tree *hi = createTree(idNode, NULL, NULL);
+                                                        $$ = createTree(newNode, hi, $3);
                                                     }
                 ;
 
 expr:   TID {
-            Node *newNode = createNode(ID, NONTYPE, $1, NULL, yylval.line_number);
+            Node *newNode = createNode(ID, NONTYPE, NULL, $1, yylval.line_number);
             $$ = createTree(newNode, NULL, NULL);
         }
         | method_call   {
@@ -314,10 +316,10 @@ expr_list:  expr TCOMMA expr_list {
                 $$ = createTree(newNode, $1, $3);
             }
             | expr {
-                Node *newNode = createNonTerminalNode(EXPRLIST);
+                Node *newNode = createNonTerminalNode(EXPR);
                 $$ = createTree(newNode, $1, NULL);
             }
-            | %empty { $$ = NULL; }
+            | %empty { $$ = createTree(createNonTerminalNode(EMPTY), NULL, NULL); }
             ;
 
 if_block:   TIF TLBRACKET expr TRBRACKET TTHEN block else_block {
