@@ -8,9 +8,8 @@ include_directories(binarytree)
 include_directories(symboltable)
 
 add_executable(precompiler
-        main.c
-        binarytree/Tree.c
-        binarytree/Tree.h
-        symboltable/SymbolTable.c
-        symboltable/SymbolTable.h
+        src/symboltable/symbolTable.c
+        src/tree/tree.c
+        src/symboltable/main2.c
+        src/node/node.c
 )
