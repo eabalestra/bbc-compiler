@@ -159,10 +159,10 @@ void printTree(Tree *tree) {
         printf("(empty tree)\n");
         return;
     }
-    printTreeR(tree, "", 1); // Start printing from root
+    printTreeRecursive(tree, "", 1); // Start printing from root
 }
 
-void printTreeR(Tree *tree, char *prefix, int isLast) {
+void printTreeRecursive(Tree *tree, char *prefix, int isLast) {
     if (tree == NULL || tree->root == NULL)
         return;
 
@@ -180,10 +180,10 @@ void printTreeR(Tree *tree, char *prefix, int isLast) {
     int hasRightChild = tree->right != NULL;
 
     if (hasLeftChild) {
-        printTreeR(tree->left, newPrefix, !hasRightChild);  // Left child (if it's the last, pass `!hasRightChild`)
+        printTreeRecursive(tree->left, newPrefix, !hasRightChild);  // Left child (if it's the last, pass `!hasRightChild`)
     }
 
     if (hasRightChild) {
-        printTreeR(tree->right, newPrefix, 1);  // Right child is always the last in its subtree
+        printTreeRecursive(tree->right, newPrefix, 1);  // Right child is always the last in its subtree
     }
 }

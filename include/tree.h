@@ -26,5 +26,6 @@ Node* createNonTerminalNode(Tag flag);
 Node* createNode(Tag flag, Type type, void *value, char *name, int line_number);
 char* nodeFlagToString(Tag flag);
 void printTree(Tree *tree);
+void printTreeRecursive(Tree *tree, char *prefix, int isLast);
 
 #endif // TREE_H

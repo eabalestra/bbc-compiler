@@ -3,9 +3,10 @@ parse:
 	@gcc -c include/tag.h -o build/tag.c.o
 	@gcc -c include/type.h -o build/type.c.o 
 	@gcc -c src/tree/tree.c -o build/tree.o 
-	@flex -o build/lex.yy.c src/scanner/lexer.l 
+	@gcc -c src/symboltable/symbolTable.c -o build/symboltable.o
+	@flex -o build/lex.yy.c src/scanner/lexer.l
 	@bison -d -v -o build/parser.tab.c src/parser/parser.y 
-	@gcc -o compiler build/parser.tab.c build/lex.yy.c build/tree.o
+	@gcc -o compiler build/parser.tab.c build/lex.yy.c build/tree.o build/symboltable.o
 
 c-tds:
 	@echo "Compiling $(word 2, $(MAKECMDGOALS))"
