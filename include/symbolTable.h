@@ -5,15 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tree.h"
-
-typedef struct SymbolList
-{
-    Node *symbol;
-    int size;
-    struct SymbolList *next;
-
-} SymbolList;
+#include "symbolList.h"
 
 typedef struct SymbolTable
 {
@@ -24,13 +16,10 @@ typedef struct SymbolTable
 } SymbolTable;
 
 SymbolTable *createSymbolTable();   
-SymbolList *createSymbolList(Node *symbol); 
 void pushLevelToSymbolTable(SymbolTable *table); 
 void popLevelFromSymbolTable(SymbolTable *table);
-void freeSymbolList(SymbolList *symbolList); 
 
 Node *findSymbolNode(char *symbol, SymbolTable *table, int level);
-Node* findNodeInLevel(SymbolList *symbolList, char *symbol);
 void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level);  
 
 void printSymbolTable(SymbolTable *table);
