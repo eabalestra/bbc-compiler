@@ -23,14 +23,15 @@ typedef struct SymbolTable
     struct SymbolTable *previous;
 } SymbolTable;
 
-SymbolTable *createSymbolTable();
-SymbolList *createSymbolList(Node *symbol);
-void pushLevelToSymbolTable(SymbolTable *table);
+SymbolTable *createSymbolTable();   
+SymbolList *createSymbolList(Node *symbol); 
+void pushLevelToSymbolTable(SymbolTable *table); 
 void popLevelFromSymbolTable(SymbolTable *table);
+void freeSymbolList(SymbolList *symbolList); 
 
 Node *findSymbolNode(char *symbol, SymbolTable *table, int level);
 Node* findNodeInLevel(SymbolList *symbolList, char *symbol);
-void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level);
+void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level);  
 
 void printSymbolTable(SymbolTable *table);
 

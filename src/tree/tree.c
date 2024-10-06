@@ -18,36 +18,45 @@ Tree *createTree(Node *root, Tree *left, Tree *right)
     return newTree;
 }
 
+/**
+ * Prints the structure of a binary tree.
+ * 
+ * @param tree pointer to the tree to print.
+ */
 void printTree(Tree *tree) {
     if (tree == NULL || tree->root == NULL) {
         printf("(empty tree)\n");
         return;
     }
-    printTreeRecursive(tree, "", 1); // Start printing from root
+    printTreeRecursive(tree, "", 1);
 }
 
+/**
+ * Recursively prints the structure of a binary tree.
+ * 
+ * @param tree pointer to the tree to print.
+ * @param prefix to print before the node (to maintain visual hierarchy).
+ * @param isLast indicates whether the current node is the last child of its parent.
+ */
 void printTreeRecursive(Tree *tree, char *prefix, int isLast) {
     if (tree == NULL || tree->root == NULL)
         return;
 
-    // Print the current node
     printf("%s", prefix);
     printf(isLast ? "└── " : "├── ");
     printf("%s\n", nodeFlagToString(tree->root->flag));
 
-    // Prepare the new prefix for children
     char newPrefix[1000];
     snprintf(newPrefix, sizeof(newPrefix), "%s%s", prefix, isLast ? "    " : "│   ");
 
-    // If there are child nodes, print them recursively
     int hasLeftChild = tree->left != NULL;
     int hasRightChild = tree->right != NULL;
 
     if (hasLeftChild) {
-        printTreeRecursive(tree->left, newPrefix, !hasRightChild);  // Left child (if it's the last, pass `!hasRightChild`)
+        printTreeRecursive(tree->left, newPrefix, !hasRightChild); 
     }
 
     if (hasRightChild) {
-        printTreeRecursive(tree->right, newPrefix, 1);  // Right child is always the last in its subtree
+        printTreeRecursive(tree->right, newPrefix, 1); 
     }
 }

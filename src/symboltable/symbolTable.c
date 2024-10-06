@@ -11,34 +11,41 @@ SymbolTable *createSymbolTable()
     newSymbolTable->levelData = createSymbolList(NULL);
     newSymbolTable->next = NULL;
     newSymbolTable->previous = NULL;
-    newSymbolTable->levels = -1;
+    newSymbolTable->levels = 0;
 
     return newSymbolTable;
 }
 
 /**
+ * Allocates memory for and creates a new SymbolList.
  *
+ * @param symbol pointer to the symbol to be added to the new list.
+ * @return pointer to the newly created SymbolList. 
  */
 SymbolList *createSymbolList(Node *symbol)
 {
     SymbolList *newSymbolList = (SymbolList *)malloc(sizeof(SymbolList));
     newSymbolList->symbol = symbol;
     newSymbolList->next = NULL;
-    newSymbolList->size = 1;
+    newSymbolList->size = 0;
 
     return newSymbolList;
 }
 
 /**
- * Searches for a symbol in the provided symbol table.
+ * Searches for a symbol in the provided symbol table. 
+ * It first starts searching for the symbol at the given level, 
+ * if it doesn't exist there, it will search on the previous level
+ * and so on until it finds it or it runs out of levels to search in.
  *
  * @param symbol to search for in the symbol table.
  * @param table to search within.
+ * @param level in which to search.
  * @return pointer to the symbol if it was found, otherwise returns NULL.
  */
 Node *findSymbolNode(char *symbol, SymbolTable *table, int level)
 {
-    if (symbol == NULL || table->levels == -1)
+    if (symbol == NULL || table->levels == -1 || table->levels < level || level < 0)
     {
         printf("Illegal arguments \n");
         return NULL;
@@ -46,25 +53,23 @@ Node *findSymbolNode(char *symbol, SymbolTable *table, int level)
 
     SymbolTable *tableAux = table;
 
-    while (tableAux->levels > level)
+    int currentLevel = 0;
+    while (currentLevel < level)
     {
+        currentLevel++;
         tableAux = tableAux->next;
     }
 
-    for (int i = level; i > 0; i--)
+    for (int i = level; i >= 0; i--)
     {
         Node *result = findNodeInLevel(tableAux->levelData, symbol);
         if (result != NULL)
         {
             return result;
         }
-        tableAux = tableAux->previous;
-    }
-    // Tratamiento del level 0
-    Node *result = findNodeInLevel(tableAux->levelData, symbol);
-    if (result != NULL)
-    {
-        return result;
+        if (i > 0) {
+            tableAux = tableAux->previous;
+        }
     }
 
     return NULL;
@@ -74,10 +79,10 @@ Node *findSymbolNode(char *symbol, SymbolTable *table, int level)
  * Given a SymbolList and a symbol, returns the symbol if it exists in
  * said table.
  *
- * @param symbolTableNode to search within.
+ * @param symbolList to search within.
  * @param symbol to search for.
- * @returns the symbol if it exists on the symbolTableNode, otherwise returns NULL;
- */
+ * @return a pointer to the symbol if it exists in the SymbolList; otherwise, returns NULL
+ */ 
 Node *findNodeInLevel(SymbolList *symbolList, char *symbol)
 {
     if (symbolList == NULL || symbol == NULL)
@@ -110,28 +115,30 @@ Node *findNodeInLevel(SymbolList *symbolList, char *symbol)
  */
 void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level)
 {
-    if (symbol == NULL || table == NULL || level == -1)
+    if (symbol == NULL || table == NULL)
     {
-        printf("Incorrect parameters \n");
+        printf("Illegal arguments \n");
         return;
     }
 
-    if (level > table->levels)
+    if (level > table->levels || level < 0)
     {
         printf("Level doesn't exist \n");
         return;
     }
 
     SymbolTable *tableAux = table;
-    while (table->levels > level)
+    int currentLevel = 0;
+    while (currentLevel < level)
     {
-        tableAux = table->next;
+        currentLevel++;
+        tableAux = tableAux->next;
     }
 
     SymbolList *levelAux = tableAux->levelData;
     if (findNodeInLevel(levelAux, symbol->name) != NULL)
     {
-        printf("Symbol already exists in level %d\n", level);
+        printf("Symbol %s already exists in level %d\n", symbol->name, level);
         return;
     }
     while (levelAux->next != NULL)
@@ -145,6 +152,9 @@ void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level)
 }
 
 /**
+ * Adds a new level to the symbol table.
+ *
+ * @param table pointer to the SymbolTable to which the new level will be added.
  */
 void pushLevelToSymbolTable(SymbolTable *table)
 {
@@ -167,7 +177,7 @@ void pushLevelToSymbolTable(SymbolTable *table)
 }
 
 /**
- * Removes and frees the last level from a symbol table
+ * Removes and frees the last level from a symbol table.
  *
  * @param table pointer to the symbol table.
  */
@@ -175,14 +185,13 @@ void popLevelFromSymbolTable(SymbolTable *table)
 {
     if (table == NULL)
     {
-        printf("Symbol table is null \n");
+        printf("Symbol table is null\n");
         return;
     }
-    if (table->next == NULL)
+
+    if (table->levels <= 0) 
     {
-        free(table->levelData);
-        table->levelData = NULL;
-        table->levels = -1;
+        printf("No more levels to pop\n");
         return;
     }
 
@@ -195,6 +204,11 @@ void popLevelFromSymbolTable(SymbolTable *table)
         tableAux = tableAux->next;
     }
 
+    if (tableAux->levelData != NULL) 
+    {
+        freeSymbolList(tableAux->levelData);
+    }
+
     if (prev != NULL)
     {
         prev->next = NULL;
@@ -204,6 +218,30 @@ void popLevelFromSymbolTable(SymbolTable *table)
     free(tableAux);
 }
 
+/**
+ * Frees the memory allocated for a SymbolList.
+ *
+ * @param symbolList pointer to the head of the SymbolList to be freed.
+ *
+ * Note: After calling this function, the caller should ensure 
+ *       that the pointer to the head of the list is set to NULL 
+ *       to avoid dangling pointers.
+ */
+void freeSymbolList(SymbolList *symbolList)
+{
+    while (symbolList != NULL) 
+    {
+        SymbolList *next = symbolList->next;
+        free(symbolList); 
+        symbolList = next;
+    }
+}
+
+/**
+ * Prints the contents of the symbol table, including all levels and their symbols.
+ *
+ * @param table pointer to the SymbolTable to be printed. 
+ */
 void printSymbolTable(SymbolTable *table)
 {
     if (table == NULL)
@@ -212,14 +250,19 @@ void printSymbolTable(SymbolTable *table)
         return;
     }
 
+    if (table->levelData == NULL)
+    {
+        printf("Empty level \n");
+        return;
+    }
+
     SymbolTable *tableAux = table;
     int levelAct = 0;
 
     printf("\n-- SYMBOL TABLE --\n");
-    // while (tableAux != NULL && tableAux->levels >= levelAct)
     while (tableAux != NULL)
     {
-        printf("\n-- LEVEL %d --\n", levelAct);
+        printf("\n--- LEVEL %d ---\n", levelAct);
         SymbolList *symbolList = tableAux->levelData;
 
         while (symbolList != NULL)
@@ -230,7 +273,7 @@ void printSymbolTable(SymbolTable *table)
                 printf("type: %u\n", symbolList->symbol->type);
                 printf("name: %s\n", symbolList->symbol->name);
                 printf("value: %d\n", symbolList->symbol->value);
-                printf("--------------------------------------\n");
+                printf("---------\n");
             }
             symbolList = symbolList->next;
         }
