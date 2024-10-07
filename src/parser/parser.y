@@ -5,8 +5,10 @@
 
     #include "../include/tree.h"
     #include "../include/type.h"
+    #include "../include/symbolTable.h"
     
     Tree *ast;
+    SymbolTable *symbolTable;
 %}
 
 %union{
@@ -89,7 +91,7 @@
 %%
 
 program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY { 
-                Node *newNode = createNonTerminalNode(PROG);        
+                Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
                 printTree(ast);
                 printf("PARSER OK\n");

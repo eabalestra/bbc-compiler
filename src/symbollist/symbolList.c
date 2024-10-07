@@ -4,7 +4,7 @@
  * Allocates memory for and creates a new SymbolList.
  *
  * @param symbol pointer to the symbol to be added to the new list.
- * @return pointer to the newly created SymbolList. 
+ * @return pointer to the newly created SymbolList.
  */
 SymbolList *createSymbolList(Node *symbol)
 {
@@ -21,16 +21,16 @@ SymbolList *createSymbolList(Node *symbol)
  *
  * @param symbolList pointer to the head of the SymbolList to be freed.
  *
- * Note: After calling this function, the caller should ensure 
- *       that the pointer to the head of the list is set to NULL 
+ * Note: After calling this function, the caller should ensure
+ *       that the pointer to the head of the list is set to NULL
  *       to avoid dangling pointers.
  */
 void freeSymbolList(SymbolList *symbolList)
 {
-    while (symbolList != NULL) 
+    while (symbolList != NULL)
     {
         SymbolList *next = symbolList->next;
-        free(symbolList); 
+        free(symbolList);
         symbolList = next;
     }
 }
@@ -42,7 +42,7 @@ void freeSymbolList(SymbolList *symbolList)
  * @param symbolList to search within.
  * @param symbol to search for.
  * @return a pointer to the symbol if it exists in the SymbolList; otherwise, returns NULL
- */ 
+ */
 Node *findNodeInLevel(SymbolList *symbolList, char *symbol)
 {
     if (symbolList == NULL || symbol == NULL)

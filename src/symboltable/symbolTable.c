@@ -17,8 +17,8 @@ SymbolTable *createSymbolTable()
 }
 
 /**
- * Searches for a symbol in the provided symbol table. 
- * It first starts searching for the symbol at the given level, 
+ * Searches for a symbol in the provided symbol table.
+ * It first starts searching for the symbol at the given level,
  * if it doesn't exist there, it will search on the previous level
  * and so on until it finds it or it runs out of levels to search in.
  *
@@ -51,7 +51,8 @@ Node *findSymbolNode(char *symbol, SymbolTable *table, int level)
         {
             return result;
         }
-        if (i > 0) {
+        if (i > 0)
+        {
             tableAux = tableAux->previous;
         }
     }
@@ -142,7 +143,7 @@ void popLevelFromSymbolTable(SymbolTable *table)
         return;
     }
 
-    if (table->levels <= 0) 
+    if (table->levels <= 0)
     {
         printf("No more levels to pop\n");
         return;
@@ -157,10 +158,10 @@ void popLevelFromSymbolTable(SymbolTable *table)
         tableAux = tableAux->next;
     }
 
-    if (tableAux->levelData != NULL) 
-    {
-        freeSymbolList(tableAux->levelData);
-    }
+    /*  if (tableAux->levelData != NULL)
+        {
+            freeSymbolList(tableAux->levelData);
+        } */
 
     if (prev != NULL)
     {
@@ -168,13 +169,13 @@ void popLevelFromSymbolTable(SymbolTable *table)
     }
 
     table->levels--;
-    free(tableAux);
+    //    free(tableAux);
 }
 
 /**
  * Prints the contents of the symbol table, including all levels and their symbols.
  *
- * @param table pointer to the SymbolTable to be printed. 
+ * @param table pointer to the SymbolTable to be printed.
  */
 void printSymbolTable(SymbolTable *table)
 {
@@ -216,3 +217,166 @@ void printSymbolTable(SymbolTable *table)
         levelAct++;
     }
 }
+
+/**
+ * Performs a semantic analysis on the provided abstract syntax tree (AST)
+ * and builds a symbol table.
+ *
+ * @param ast tree to perform the semantic check on.
+ * @return pointer to the constructed SymbolTable after processing the AST.
+ */
+SymbolTable *semanticCheck(Tree *ast)
+{
+    SymbolTable *table = createSymbolTable();
+    Node *newNode = createNode(PROG, ast->root->type, NULL, "program", NULL);
+    insertSymbolInSymbolTable(table, newNode, 0);
+
+    buildSymbolTable(table, ast);
+    return table;
+}
+
+void buildSymbolTable(SymbolTable *table, Tree *tree)
+{
+    Tag flag = tree->root->flag;
+    if (tree == NULL || tree->root == NULL)
+    {
+        return NULL; // o return; para cortar la recursión.
+    }
+    if (flag == ID) {
+        if (findSymbolNode(tree->root->name, table, table->levels) != NULL)
+        {
+            printf("Var already declared.\n");
+            exit(1);
+        }
+        insertSymbolInSymbolTable(tree->root, table, table->levels);
+        return;
+    }
+    if (flag == METHODDECL) {
+        Node *node = tree->left;
+        // buildSymbolTable (table ,tree->left)
+        pushLevelToSymbolTable(table);
+        insertSymbolInSymbolTable(node, table, table->levels);
+        popLevelFromSymbolTable(table);
+        return;
+    }
+    if (flag == BLOCK) {
+        pushLevelToSymbolTable(table);
+        if (tree->left != NULL)
+        {
+            buildSymbolTable(table, tree->left);
+        }
+        if (tree->right != NULL)
+        {
+            buildSymbolTable(table, tree->right);
+        }
+        popLevelFromSymbolTable(table);
+        return;
+    }
+    buildSymbolTable(table, tree->left);
+    buildSymbolTable(table, tree->right);
+
+
+    /* switch (flag)
+    {
+    case (METHODEND):
+
+        break;
+    case (ID): // diferenciar los id de los parametros del metodo
+        if (findSymbolNode(tree->root->name, table, table->levels) != NULL)
+        {
+            printf("Var already declared.\n");
+            exit(1);
+        }
+        insertSymbolInSymbolTable(tree->root, table, table->levels);
+        break;
+    case (METHODDECL):
+        Node *node = tree->left;
+        // buildSymbolTable (table ,tree->left)
+        pushLevelToSymbolTable(table);
+        insertSymbolInSymbolTable(node, table, table->levels);
+        popLevelFromSymbolTable(table);
+        break;
+    case (BLOCK):
+        pushLevelToSymbolTable(table);
+        if (tree->left != NULL)
+        {
+            buildSymbolTable(table, tree->left);
+        }
+        if (tree->right != NULL)
+        {
+            buildSymbolTable(table, tree->right);
+        }
+        popLevelFromSymbolTable(table);
+        return;
+        break;
+    default:
+        buildSymbolTable(table, tree->left);
+        buildSymbolTable(table, tree->right);
+        break;
+    } */
+}
+// void *interpret(Tree * tree, SymbolTable * table)
+// {
+//     if (tree == NULL || tree->root == NULL)
+//     {
+//         return NULL;
+//     }
+//     if (tree->root->flag == ID)
+//     {
+//         // return findSymbol(table, tree->root->value)->value;
+//     }
+//     if (tree->root->flag == NUMBER)
+//     {
+//         return tree->root->value;
+//     }
+//     if (tree->root->flag == RETURN)
+//     {
+//         void *hi_value = interpret(tree->left, table);
+//         Node *node = findSymbol(table, "main");
+//         node->value = hi_value;
+
+//         printf("RETURN %u\n", node->value);
+//         return NULL;
+//     }
+//     if (tree->root->flag == PLUS)
+//     {
+//         void *hi_value = interpret(tree->left, table);
+//         void *hd_value = interpret(tree->right, table);
+//         int hi = ((int *)hi_value);
+//         int hd = ((int *)hd_value);
+//         int result = hi + hd;
+
+//         return result;
+//     }
+//     if (tree->root->flag == MULTIPLY)
+//     {
+//         void *hi_value = interpret(tree->left, table);
+//         void *hd_value = interpret(tree->right, table);
+//         int hi = ((int *)hi_value);
+//         int hd = ((int *)hd_value);
+//         int result = hi * hd;
+
+//         return result;
+//     }
+//     if (tree->root->flag == ASSIGN)
+//     {
+//         Node *node = findSymbol(table, tree->left->root->value);
+//         if (node == NULL)
+//         {
+//             return NULL;
+//         }
+//         node->value = interpret(tree->right, table);
+//         return NULL;
+//     }
+//     if (tree->root->flag == COLON)
+//     {
+//         return interpret(tree->left, table);
+//     }
+//     if (tree->root->flag == STMTS)
+//     {
+//         interpret(tree->left, table);
+//         interpret(tree->right, table);
+//     }
+
+//     return NULL;
+// }
