@@ -1,8 +1,8 @@
 Program 
 {
-    integer x;
+    integer x = 3;
     
-    integer inc(integer x)
+    integer inc(integer x, integer p)
     {
         return x + x;
     }

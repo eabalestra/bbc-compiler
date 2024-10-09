@@ -156,13 +156,11 @@ alpha_num [a-zA-Z0-9_]
 
 {digit}{digit}* {
     yylval.vint = atoi(yytext);
-    yylval.line_number = yylineno;
     return TINTEGER_LITERAL;
 }
 
 {alpha}{alpha_num}* {
     yylval.vstring = strdup(yytext);
-    yylval.line_number = yylineno;
     return TID;
 }
 
@@ -171,6 +169,5 @@ alpha_num [a-zA-Z0-9_]
 "//"(alpha_num|[+*;()-{},!=|<>%&]|" ")* ; /* single-line comments */
 
 "/*"([^*]|\*+[^*/])*\*+"/" ; /* multi line comments */
-
 
 %%

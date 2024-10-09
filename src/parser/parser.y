@@ -26,8 +26,6 @@
 %token<vbool> TBOOL_LITERAL
 %token<vint> TINTEGER_LITERAL
 %token<vstring> TID
-%token<vint> TDIGIT
-%token<vstring> TALPHA
 
 %token TRETURN
 %token TIF
@@ -95,8 +93,9 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
+                symbolTable = semanticCheck(symbolTable, ast);
 
-                printTree(ast);
+                //printTree(ast);
                 printSymbolTable(symbolTable);
                 printf("PARSER OK\n");
             }
@@ -105,8 +104,10 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
-                printTree(ast);
+                symbolTable = semanticCheck(symbolTable, ast);
 
+                //printTree(ast);
+                printSymbolTable(symbolTable);
                 printf("PARSER OK\n");
             }
             ;
@@ -123,9 +124,6 @@ var_decls:  var_decls var_decl {
 
 var_decl:   type TID TASSIGN expr TCOLON {
                 Node *newNode = createNode(ID, $1, NULL, $2, yylval.line_number);
-                printf("LEVELS: %d", symbolTable->levels);
-                printf("NODO: %s", nodeFlagToString(newNode->flag));
-                insertSymbolInSymbolTable(newNode, symbolTable, symbolTable->levels);
                 Tree *idTree = createTree(newNode, NULL, NULL);
                 $$ = createTree(createNonTerminalNode(VARDECL), idTree, $4);
             }

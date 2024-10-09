@@ -45,12 +45,16 @@ void freeSymbolList(SymbolList *symbolList)
  */
 Node *findNodeInLevel(SymbolList *symbolList, char *symbol)
 {
-    if (symbolList == NULL || symbol == NULL)
+    if (symbolList == NULL)
     {
-        printf("Illegal arguments \n");
+        printf("findNodeInLevel: Illegal arguments, symbolList is NULL \n");
         return NULL;
     }
-
+    if (symbol == NULL)
+    {
+        printf("findNodeInLevel: Illegal arguments, symbol is NULL \n");
+        return NULL;
+    }
     SymbolList *levelAux = symbolList;
     while (levelAux != NULL)
     {

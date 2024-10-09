@@ -27,14 +27,16 @@ SymbolTable *createSymbolTable()
  * @param level in which to search.
  * @return pointer to the symbol if it was found, otherwise returns NULL.
  */
-Node *findSymbolNode(char *symbol, SymbolTable *table, int level)
+Node *findSymbolNode(SymbolTable *table, char *symbol, int level)
 {
+
     if (symbol == NULL || table->levels == -1 || table->levels < level || level < 0)
     {
-        printf("Illegal arguments \n");
-        return NULL;
+        printf("findSymbolNode: Illegal arguments \n");
+        exit(1);
     }
 
+    // printf("name del id es null? %s\n", symbol);
     SymbolTable *tableAux = table;
 
     int currentLevel = 0;
@@ -67,19 +69,17 @@ Node *findSymbolNode(char *symbol, SymbolTable *table, int level)
  * @param table where the symbol will be inserted.
  * @param level of the symbol table where the symbol will be inserted.
  */
-void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level)
+void insertSymbolInSymbolTable(SymbolTable *table, Node *symbol, int level)
 {
-    printf("ENTRE AL INSERT\n");
     if (symbol == NULL || table == NULL)
     {
-        printf("Illegal arguments \n");
-        return;
+        printf("insertSymbolInSymbolTable: Table or Symbol are null\n");
+        exit(1);
     }
-
     if (level > table->levels || level < 0)
     {
-        printf("Level doesn't exist \n");
-        return;
+        printf("insertSymbolInSymbolTable: Level %d doesn't exist. Current levels: %d \n", level, table->levels);
+        exit(1);
     }
 
     SymbolTable *tableAux = table;
@@ -91,6 +91,7 @@ void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level)
     }
 
     SymbolList *levelAux = tableAux->levelData;
+    printSymbolTable(table);
     if (findNodeInLevel(levelAux, symbol->name) != NULL)
     {
         printf("Symbol %s already exists in level %d\n", symbol->name, level);
@@ -115,9 +116,10 @@ void pushLevelToSymbolTable(SymbolTable *table)
 {
     if (table == NULL)
     {
-        printf("Symbol table is null \n");
-        return;
+        printf("pushLevelToSymbolTable: Symbol table is null \n");
+        exit(1);
     }
+
     SymbolTable *newLevel = createSymbolTable();
     SymbolTable *aux = table;
 
@@ -140,13 +142,12 @@ void popLevelFromSymbolTable(SymbolTable *table)
 {
     if (table == NULL)
     {
-        printf("Symbol table is null\n");
+        printf("popLevelFromSymbolTable: Symbol table is null\n");
         return;
     }
-
     if (table->levels <= 0)
     {
-        printf("No more levels to pop\n");
+        printf("popLevelFromSymbolTable: No more levels to pop\n");
         return;
     }
 
@@ -159,10 +160,10 @@ void popLevelFromSymbolTable(SymbolTable *table)
         tableAux = tableAux->next;
     }
 
-    /*  if (tableAux->levelData != NULL)
-        {
-            freeSymbolList(tableAux->levelData);
-        } */
+    //  if (tableAux->levelData != NULL)
+    //  {
+    //      freeSymbolList(tableAux->levelData);
+    //  }
 
     if (prev != NULL)
     {
@@ -182,13 +183,13 @@ void printSymbolTable(SymbolTable *table)
 {
     if (table == NULL)
     {
-        printf("Empty table \n");
+        printf("printSymbolTable: Empty table \n");
         return;
     }
 
     if (table->levelData == NULL)
     {
-        printf("Empty level \n");
+        printf("printSymbolTable: Empty level \n");
         return;
     }
 
@@ -216,5 +217,79 @@ void printSymbolTable(SymbolTable *table)
 
         tableAux = tableAux->next;
         levelAct++;
+    }
+}
+
+/**
+ * Performs a semantic analysis on the provided abstract syntax tree (AST)
+ * and builds a symbol table.
+ *
+ * @param ast tree to perform the semantic check on.
+ * @return pointer to the constructed SymbolTable after processing the AST.
+ */
+SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
+{
+    buildSymbolTable(table, ast);
+    return table;
+}
+
+void buildSymbolTable(SymbolTable *table, Tree *tree)
+{
+    if (tree == NULL || tree->root == NULL)
+    {
+        return;
+    }
+    Tag flag = tree->root->flag;
+    printf("FLAG: %s\n", nodeFlagToString(flag));
+    
+    if (flag == VARDECL)
+    {
+        Node *leftChild = tree->left->root;
+        if (leftChild->name != NULL)
+        {
+            if (findSymbolNode(table, leftChild->name, table->levels) != NULL)
+            {
+                printf("buildSymbolTable: Var already declared: %s.\n", leftChild->name);
+                exit(1);
+            }
+            printf("los levels %d\n",table->levels);
+            insertSymbolInSymbolTable(table, leftChild, table->levels);
+        }
+        else
+        {
+            printf("Error: tree->root->name is NULL\n");
+            exit(1);
+        }
+        
+        // actualizar el nodo en el arbol
+    }
+    if (flag == METHODDECL) {
+        Node *leftChild = tree->left->root;
+        insertSymbolInSymbolTable(table, leftChild, table->levels);
+        
+        buildSymbolTable(table, tree->left);
+        buildSymbolTable(table, tree->right);
+
+    }
+    
+    if (flag == METHODEND) {
+        pushLevelToSymbolTable(table);
+        // pushear parametros y todo lo que tenga qeu ver con BLOCK
+        popLevelFromSymbolTable(table);
+    }
+    
+    // if (flag == BLOCK) {
+    //     pushLevelToSymbolTable(table);
+
+    //     buildSymbolTable(table, tree->left);
+    //     buildSymbolTable(table, tree->right);
+        
+    //     popLevelFromSymbolTable(table);
+    //     return;
+    // }
+    else
+    {
+        buildSymbolTable(table, tree->left);
+        buildSymbolTable(table, tree->right);
     }
 }
