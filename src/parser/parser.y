@@ -90,17 +90,24 @@
 
 %%
 
-program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY { 
+program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
+                symbolTable = createSymbolTable();
+
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
+
                 printTree(ast);
+                printSymbolTable(symbolTable);
                 printf("PARSER OK\n");
             }
             | TPROGRAM TLCURLY method_decls TRCURLY {
-                Node *newNode = createNonTerminalNode(PROG);        
+                symbolTable = createSymbolTable();
+
+                Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
                 printTree(ast);
-                printf("PARSER OK\n"); 
+
+                printf("PARSER OK\n");
             }
             ;
 
@@ -116,6 +123,9 @@ var_decls:  var_decls var_decl {
 
 var_decl:   type TID TASSIGN expr TCOLON {
                 Node *newNode = createNode(ID, $1, NULL, $2, yylval.line_number);
+                printf("LEVELS: %d", symbolTable->levels);
+                printf("NODO: %s", nodeFlagToString(newNode->flag));
+                insertSymbolInSymbolTable(newNode, symbolTable, symbolTable->levels);
                 Tree *idTree = createTree(newNode, NULL, NULL);
                 $$ = createTree(createNonTerminalNode(VARDECL), idTree, $4);
             }

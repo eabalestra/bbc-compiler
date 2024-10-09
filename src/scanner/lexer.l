@@ -174,19 +174,3 @@ alpha_num [a-zA-Z0-9_]
 
 
 %%
-
-void yyerror(){
-    printf("Syntax ERROR at line: %d, near '%s'\n", yylineno, yytext);
-    exit(1);
-}
-
-int main(int argc,char *argv[]){
-	++argv,--argc;
-	if (argc > 0)
-		yyin = fopen(argv[0],"r");
-	else
-		yyin = stdin;
-
-	yyparse();
-
-}

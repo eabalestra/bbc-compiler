@@ -24,6 +24,4 @@ void insertSymbolInSymbolTable(Node *symbol, SymbolTable *table, int level);
 
 void printSymbolTable(SymbolTable *table);
 
-SymbolTable *semanticCheck(Tree *ast);
-
 #endif // SYMBOL_TABLE_H
