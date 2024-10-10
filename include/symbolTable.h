@@ -9,20 +9,20 @@
 
 typedef struct SymbolTable
 {
-    int levels;  // ammount of levels on the SymbolTable
-    SymbolList *levelData;
-    struct SymbolTable *next; 
-    struct SymbolTable *previous;
+    SymbolList* currentLevel;
+    struct SymbolTable* parent;
 } SymbolTable;
 
-SymbolTable *createSymbolTable();   
-void pushLevelToSymbolTable(SymbolTable *table); 
-void popLevelFromSymbolTable(SymbolTable *table);
+SymbolTable* createSymbolTable();
+SymbolTable* pushLevelToSymbolTable(SymbolTable* symbolTable);
+SymbolTable* popLevelFromSymbolTable(SymbolTable* symbolTable);
 
-Node *findSymbolNode(SymbolTable *table, char *symbol, int level);
-void insertSymbolInSymbolTable(SymbolTable *table, Node *symbol, int level);  
-void printSymbolTable(SymbolTable *table);
-SymbolTable *semanticCheck(SymbolTable *table, Tree *ast);
-void buildSymbolTable(SymbolTable *table, Tree *tree);
+void insertSymbolInSymbolTable(SymbolTable* symbolTable, Node* newSymbolNode);
+Node* lookupInSymbolTable(SymbolTable* symbolTable, char* name);
+
+void printSymbolTable(SymbolTable *symbolTable);
+
+SymbolTable *semanticCheck(SymbolTable *symbolTable, Tree *tree);
+void buildSymbolTable(SymbolTable *symbolTable, Tree *tree);
 
 #endif // SYMBOL_TABLE_H

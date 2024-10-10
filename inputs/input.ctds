@@ -1,9 +1,18 @@
 Program 
 {
     integer x = 3;
-    
+    integer y = 2;
+
     integer inc(integer x, integer a)
     {
+        integer z = 2;
+        if (y == z) then {
+            integer w;
+            x = z;
+            if (y == z) then {
+                integer CABJ;
+            }
+        }
         return x + x;
     }
     

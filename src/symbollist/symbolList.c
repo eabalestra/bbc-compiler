@@ -69,3 +69,12 @@ Node *findNodeInLevel(SymbolList *symbolList, char *symbol)
     }
     return NULL;
 }
+
+void insertSymbolInSymbolNodeList(SymbolList *symbolList, Node* newSymbolNode)
+{
+    while (symbolList->next != NULL)
+    {
+        symbolList = symbolList->next;
+    }
+    symbolList->next = createSymbolList(newSymbolNode);
+}
