@@ -2,7 +2,7 @@ Program
 {
     integer x = 3;
     
-    integer inc(integer x, integer p)
+    integer inc(integer x, integer a)
     {
         return x + x;
     }

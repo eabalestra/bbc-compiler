@@ -93,9 +93,9 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
+                //printTree(ast);
                 symbolTable = semanticCheck(symbolTable, ast);
 
-                //printTree(ast);
                 printSymbolTable(symbolTable);
                 printf("PARSER OK\n");
             }
@@ -104,9 +104,9 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
+                //printTree(ast);
                 symbolTable = semanticCheck(symbolTable, ast);
 
-                //printTree(ast);
                 printSymbolTable(symbolTable);
                 printf("PARSER OK\n");
             }

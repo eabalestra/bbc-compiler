@@ -91,11 +91,11 @@ void insertSymbolInSymbolTable(SymbolTable *table, Node *symbol, int level)
     }
 
     SymbolList *levelAux = tableAux->levelData;
-    printSymbolTable(table);
+
     if (findNodeInLevel(levelAux, symbol->name) != NULL)
     {
-        printf("Symbol %s already exists in level %d\n", symbol->name, level);
-        return;
+        printf("insertSymbolInSymbolTable: symbol %s already exists in level %d\n", symbol->name, level);
+        exit(1);
     }
     while (levelAux->next != NULL)
     {
@@ -105,6 +105,7 @@ void insertSymbolInSymbolTable(SymbolTable *table, Node *symbol, int level)
     SymbolList *newSymbolList = createSymbolList(symbol);
     levelAux->next = newSymbolList;
     tableAux->levelData->size++;
+    printSymbolTable(table);
 }
 
 /**
@@ -239,20 +240,16 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
     {
         return;
     }
+
     Tag flag = tree->root->flag;
-    printf("FLAG: %s\n", nodeFlagToString(flag));
+    // printf("FLAG: %s\n", nodeFlagToString(flag));
     
     if (flag == VARDECL)
     {
         Node *leftChild = tree->left->root;
         if (leftChild->name != NULL)
         {
-            if (findSymbolNode(table, leftChild->name, table->levels) != NULL)
-            {
-                printf("buildSymbolTable: Var already declared: %s.\n", leftChild->name);
-                exit(1);
-            }
-            printf("los levels %d\n",table->levels);
+            printf("flag == VARDECL, insertando un %s en el level %d.\n", leftChild->name, table->levels);
             insertSymbolInSymbolTable(table, leftChild, table->levels);
         }
         else
@@ -263,30 +260,45 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
         
         // actualizar el nodo en el arbol
     }
-    if (flag == METHODDECL) {
+    else if (flag == METHODDECL) {
         Node *leftChild = tree->left->root;
+        printf("flag == METHODDECL, insertando un %s en el level %d.\n", leftChild->name, table->levels);
         insertSymbolInSymbolTable(table, leftChild, table->levels);
-        
+        buildSymbolTable(table, tree->right);
+    }
+    else if (flag == METHODEND) {
+        pushLevelToSymbolTable(table);
+        Node *leftChild = tree->left->root;
+        if (leftChild->flag == ID) {
+            printf("flag == METHODEND, insertando un %s en el level %d.\n", leftChild->name, table->levels);
+            insertSymbolInSymbolTable(table, leftChild, table->levels);
+        }
         buildSymbolTable(table, tree->left);
         buildSymbolTable(table, tree->right);
-
-    }
-    
-    if (flag == METHODEND) {
-        pushLevelToSymbolTable(table);
-        // pushear parametros y todo lo que tenga qeu ver con BLOCK
         popLevelFromSymbolTable(table);
     }
-    
-    // if (flag == BLOCK) {
-    //     pushLevelToSymbolTable(table);
 
-    //     buildSymbolTable(table, tree->left);
-    //     buildSymbolTable(table, tree->right);
-        
-    //     popLevelFromSymbolTable(table);
-    //     return;
-    // }
+    else if (flag == PARAMSLIST) {
+        Node *leftChild = tree->left->root;
+        Node *rightChild = tree->right->root;
+
+        if (leftChild->flag == ID) {
+            printf("flag == PARAMSLIST, insertando un %s en el level %d.\n", leftChild->name, table->levels);
+            insertSymbolInSymbolTable(table, leftChild, table->levels);
+        }
+        if (rightChild->flag == ID) {
+            printf("flag == PARAMSLIST, insertando un %s en el level %d.\n", rightChild->name, table->levels);
+            insertSymbolInSymbolTable(table, rightChild, table->levels);
+        }
+        buildSymbolTable(table, tree->left);
+        buildSymbolTable(table, tree->right);
+    }
+
+    else if (flag == BLOCK) {
+        buildSymbolTable(table, tree->left);
+        buildSymbolTable(table, tree->right);
+    }
+
     else
     {
         buildSymbolTable(table, tree->left);
