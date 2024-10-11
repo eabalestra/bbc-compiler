@@ -6,7 +6,7 @@
     #include "../include/tree.h"
     #include "../include/type.h"
     #include "../include/symbolTable.h"
-    
+
     Tree *ast;
     SymbolTable *symbolTable;
 %}
@@ -162,13 +162,12 @@ params:     params_list { $$ = $1; }
             ;
 
 params_list:    type TID  {
-                    Node *idNode = createNode(ID, $1, NULL, $2, yylval.line_number);
+                    Node *idNode = createNode(PARAM, $1, NULL, $2, yylval.line_number);
                     $$ = createTree(idNode, NULL, NULL);
                 }
                 | type TID TCOMMA params_list {
-                    Node *newNode = createNonTerminalNode(PARAMSLIST);
-                    Node *idNode = createNode(ID, $1, NULL, $2, yylval.line_number);
-                    $$ = createTree(newNode, createTree(idNode, NULL, NULL), $4);
+                    Node *idNode = createNode(PARAM, $1, NULL, $2, yylval.line_number);
+                    $$ = createTree(idNode, $4, NULL);
                 }
                 ;
 

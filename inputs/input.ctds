@@ -1,25 +1,23 @@
-Program 
+Program
 {
-    integer x = 3;
-    integer y = 2;
+    //LEVEL 0
+    integer a = 0;
 
-    integer inc(integer x, integer a)
+    integer inc(integer b, integer c)
     {
-        integer z = 2;
-        if (y == z) then {
-            integer w;
-            x = z;
-            if (y == z) then {
-                integer CABJ;
-            }
+        //LEVEL 1
+        integer d = 2;
+        if (b == d) then {
+            // LEVEL 2
+            integer e;
         }
-        return x + x;
+        return b + c;
     }
-    
+
     integer get_int() extern ;
-    
+
     void print_int(integer i) extern ;
-    
+
     void main()
     {
         integer y = 0;
