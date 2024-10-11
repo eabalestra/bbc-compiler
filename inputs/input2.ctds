@@ -8,12 +8,10 @@ Program {
     
     integer inc(integer x)
     {
-        integer y;
         return x + x;
     }
 
     void main() {
-        integer x = 1;
         while (count < 10) {
             count = count + 1;
         }
