@@ -35,24 +35,26 @@ SymbolTable* popLevelFromSymbolTable(SymbolTable* symbolTable)
 
 void insertSymbolInSymbolTable(SymbolTable* symbolTable, Node* newSymbolNode)
 {
-    SymbolList *current = NULL;
-    current = symbolTable->currentLevel;
+    SymbolList *current = symbolTable->currentLevel;
     if (current->symbol == NULL)
     {
-        symbolTable->currentLevel->symbol = newSymbolNode;
-        return;
+        current->symbol = newSymbolNode;
     }
-    insertSymbolInSymbolNodeList(current, newSymbolNode);
+    else
+    {
+        insertSymbolInSymbolNodeList(current, newSymbolNode);
+    }
 }
 
 Node* lookupInSymbolTable(SymbolTable* symbolTable, char* name)
 {
-    if (symbolTable == NULL) {
+    if (symbolTable == NULL || name == NULL)
+    {
         return NULL;
     }
 
     SymbolList *currentSymbolNodeList = symbolTable->currentLevel;
-    while (currentSymbolNodeList != NULL) {
+    while (currentSymbolNodeList->next != NULL) {
         if (strcmp(currentSymbolNodeList->symbol->name, name) == 0) {
             return currentSymbolNodeList->symbol;
         }
@@ -75,15 +77,8 @@ void printSymbolTable(SymbolTable* symbolTable)
         return;
     }
 
-    int level = 0;
+    int level = getSymbolTableSize(symbolTable);
     SymbolTable *currentTable = symbolTable;
-    while (currentTable->parent != NULL)
-    {
-        level++;
-        currentTable = currentTable->parent;
-    }
-
-    currentTable = symbolTable;
     while (currentTable != NULL)
     {
         printf("Level %d:\n", level);
@@ -103,7 +98,7 @@ void printSymbolTable(SymbolTable* symbolTable)
     }
 }
 
-int getCurrentLevel(SymbolTable *symbolTable) {
+int getSymbolTableSize(SymbolTable *symbolTable) {
     int level = 0;
     while (symbolTable->parent != NULL) {
         level++;
@@ -126,10 +121,18 @@ void buildSymbolTable(SymbolTable *symbolTable, Tree *tree)
         return;
     }
     Tag flag = tree->root->flag;
-
     if (flag == VARDECL) {
         Node *leftChild = tree->left->root;
-        int levels = getCurrentLevel(symbolTable);
+        if (leftChild == NULL || leftChild->name == NULL) {
+            printf("ERROR: leftChild or leftChild->name is NULL.\n");
+            exit(1);
+        }
+        if (lookupInSymbolTable(symbolTable, leftChild->name) != NULL)
+        {
+            printf("ERROR: Variable %s already declared in this scope.\n", leftChild->name);
+            exit(1);
+        }
+        int levels = getSymbolTableSize(symbolTable);
         printf("flag == VARDECL, inserting %s at level %d.\n", leftChild->name, levels);
         insertSymbolInSymbolTable(symbolTable, leftChild);
 
@@ -139,11 +142,19 @@ void buildSymbolTable(SymbolTable *symbolTable, Tree *tree)
     else if (flag == METHODDECL)
     {
         Node *leftChild = tree->left->root;
-
-        int levels = getCurrentLevel(symbolTable);
+        if (leftChild == NULL || leftChild->name == NULL) {
+            printf("ERROR: leftChild or leftChild->name is NULL.\n");
+            exit(1);
+        }
+        if (lookupInSymbolTable(symbolTable, leftChild->name) != NULL)
+        {
+            printf("ERROR: Method %s already declared.\n", leftChild->name);
+            exit(1);
+        }
+        int levels = getSymbolTableSize(symbolTable);
         printf("flag == METHODDECL, inserting %s at level %d.\n", leftChild->name, levels);
-        insertSymbolInSymbolTable(symbolTable, leftChild);
 
+        insertSymbolInSymbolTable(symbolTable, leftChild);
         symbolTable = pushLevelToSymbolTable(symbolTable);
         if (tree->right != NULL)
         {
@@ -154,15 +165,14 @@ void buildSymbolTable(SymbolTable *symbolTable, Tree *tree)
     else if (flag == PARAM)
     {
         Node *paramNode = tree->root;
-        int levels = getCurrentLevel(symbolTable);
+        if (paramNode == NULL || paramNode->name == NULL) {
+            printf("ERROR: paramNode or paramNode->name is NULL.\n");
+            exit(1);
+        }
+        int levels = getSymbolTableSize(symbolTable);
         printf("flag == PARAM, inserting %s at level %d.\n", paramNode->name, levels);
         insertSymbolInSymbolTable(symbolTable, paramNode);
 
-        buildSymbolTable(symbolTable, tree->left);
-        buildSymbolTable(symbolTable, tree->right);
-    }
-    else if (flag == METHODEND)
-    {
         buildSymbolTable(symbolTable, tree->left);
         buildSymbolTable(symbolTable, tree->right);
     }

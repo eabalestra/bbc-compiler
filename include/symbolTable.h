@@ -21,6 +21,7 @@ void insertSymbolInSymbolTable(SymbolTable* symbolTable, Node* newSymbolNode);
 Node* lookupInSymbolTable(SymbolTable* symbolTable, char* name);
 
 void printSymbolTable(SymbolTable *symbolTable);
+int getSymbolTableSize(SymbolTable *symbolTable);
 
 SymbolTable *semanticCheck(SymbolTable *symbolTable, Tree *tree);
 void buildSymbolTable(SymbolTable *symbolTable, Tree *tree);
