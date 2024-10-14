@@ -235,8 +235,12 @@ SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
 }
 
 /**
- *
+ * Traverses the provided AST and builds the symbol table.
+ * 
+ * @param table pointer to the symbol table to be built.
+ * @param tree pointer to the AST tree representing the program structure.
  */
+int return_flag = 0;
 void buildSymbolTable(SymbolTable *table, Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -249,6 +253,11 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
 
     if (flag == VARDECL)
     {
+        if (return_flag == 1)
+        {
+            popLevelFromSymbolTable(table);
+            return;
+        }
         Node *leftChild = tree->left->root;
         if (leftChild->name != NULL)
         {
@@ -265,6 +274,11 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
     }
     else if (flag == METHODDECL)
     {
+        if (return_flag == 1)
+        {
+            popLevelFromSymbolTable(table);
+            return;
+        }
         Node *leftChild = tree->left->root;
         printf("flag == METHODDECL, insertando un %s en el level %d.\n", leftChild->name, table->levels);
         insertSymbolInSymbolTable(table, leftChild, table->levels);
@@ -281,11 +295,21 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
         }
         buildSymbolTable(table, tree->left);
         buildSymbolTable(table, tree->right);
+        if (return_flag == 1)
+        {
+            return_flag = 0;
+        }
         popLevelFromSymbolTable(table);
     }
 
     else if (flag == PARAMSLIST)
     {
+        if (return_flag == 1)
+        {
+            popLevelFromSymbolTable(table);
+            return;
+        }
+        //
         Node *leftChild = tree->left->root;
         Node *rightChild = tree->right->root;
 
@@ -305,26 +329,61 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
 
     else if (flag == BLOCK)
     {
+        if (return_flag == 1)
+        {
+            popLevelFromSymbolTable(table);
+            return;
+        }
+        //
         buildSymbolTable(table, tree->left);
         buildSymbolTable(table, tree->right);
+        return_flag = 0;
     }
-    else if (flag == THEN || flag == ELSE)
+    else if (flag == THEN)
     {
+        
+        if(return_flag == 1)
+        {
+            return;
+        }
+        
+        //
         pushLevelToSymbolTable(table);
         buildSymbolTable(table, tree->left);
         popLevelFromSymbolTable(table);
+        //return_flag = 0;
         buildSymbolTable(table, tree->right);
     }
-    else if (flag == WHILE) {
+    else if (flag == ELSE)
+    {
+        
         pushLevelToSymbolTable(table);
         buildSymbolTable(table, tree->left);
         popLevelFromSymbolTable(table);
         buildSymbolTable(table, tree->right);
+
+        //return_flag = 0;
+    }
+    else if (flag == WHILE)
+    {
+        if (return_flag == 1)
+        {
+            //popLevelFromSymbolTable(table);
+            return;
+        }
+        pushLevelToSymbolTable(table);
+        buildSymbolTable(table, tree->left);
+        buildSymbolTable(table, tree->right);
+        popLevelFromSymbolTable(table);
+    }
+    else if (flag == RETURN)
+    {
+        return_flag = 1;
+        return;
     }
     else
     {
         buildSymbolTable(table, tree->left);
         buildSymbolTable(table, tree->right);
     }
-    
 }
