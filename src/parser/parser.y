@@ -93,7 +93,7 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
-                //printTree(ast);
+                printTree(ast);
                 symbolTable = semanticCheck(symbolTable, ast);
 
                 printSymbolTable(symbolTable);
@@ -104,7 +104,7 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
-                //printTree(ast);
+                printTree(ast);
                 symbolTable = semanticCheck(symbolTable, ast);
 
                 printSymbolTable(symbolTable);

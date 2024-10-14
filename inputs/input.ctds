@@ -4,6 +4,16 @@ Program
     
     integer inc(integer x, integer a)
     {
+        if (x == 2) then
+        {
+            integer h = 3;
+        } else {
+            integer h = 3;
+        }
+
+        while (x == 2) {
+            integer h = 3;
+        }
         return x + x;
     }
     
