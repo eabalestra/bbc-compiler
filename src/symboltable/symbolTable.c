@@ -1,4 +1,5 @@
 #include "../../include/symbolTable.h"
+#include "../../include/typeChecker.h"
 
 /**
  * Allocates memory for and creates a new SymbolTable.
@@ -231,6 +232,7 @@ void printSymbolTable(SymbolTable *table)
 SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
 {
     buildSymbolTable(table, ast);
+    checkTypes(ast);
     return table;
 }
 
