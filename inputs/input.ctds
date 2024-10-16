@@ -1,7 +1,6 @@
 Program 
 {
     integer x = 3;
-    
     integer inc(integer x, integer a)
     {
         if (x == 2) then

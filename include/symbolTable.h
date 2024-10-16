@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "symbolList.h"
+#include "typeChecker.h"
 
 typedef struct SymbolTable
 {

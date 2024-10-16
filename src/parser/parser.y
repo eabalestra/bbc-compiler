@@ -215,7 +215,7 @@ statements:     statements statement {
 
 statement:  TID TASSIGN expr TCOLON {
                                     Node *newNode = createNonTerminalNode(ASSIGN);
-                                    Node *newId = createNode(ID, NONTYPE, NULL, $1, yylval.line_number);   
+                                    Node *newId = createNode(ID, NONTYPE, NULL, $1, yylval.line_number);
                                     Tree *idTree = createTree(newId, NULL, NULL);
                                     $$ = createTree(newNode, idTree, $3);
             }

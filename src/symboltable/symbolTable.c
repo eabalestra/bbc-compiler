@@ -1,5 +1,4 @@
 #include "../../include/symbolTable.h"
-#include "../../include/typeChecker.h"
 
 /**
  * Allocates memory for and creates a new SymbolTable.
@@ -254,23 +253,16 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
     if (flag == VARDECL)
     {
         Node *leftChild = tree->left->root;
-        if (leftChild->name != NULL)
+        Node *rightChild = tree->right->root;
+        if (rightChild->value != NULL)
         {
-            printf("flag == VARDECL, insertando un %s en el level %d.\n", leftChild->name, table->levels);
-            insertSymbolInSymbolTable(table, leftChild, table->levels);
+            leftChild->value = rightChild->value;
         }
-        else
-        {
-            printf("Error: tree->root->name is NULL\n");
-            exit(1);
-        }
-
-        // actualizar el nodo en el arbol
+        insertSymbolInSymbolTable(table, leftChild, table->levels);
     }
     else if (flag == METHODDECL)
     {
         Node *leftChild = tree->left->root;
-        printf("flag == METHODDECL, insertando un %s en el level %d.\n", leftChild->name, table->levels);
         insertSymbolInSymbolTable(table, leftChild, table->levels);
         buildSymbolTable(table, tree->right);
     }
@@ -280,7 +272,6 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
         Node *leftChild = tree->left->root;
         if (leftChild->flag == ID)
         {
-            printf("flag == METHODEND, insertando un %s en el level %d.\n", leftChild->name, table->levels);
             insertSymbolInSymbolTable(table, leftChild, table->levels);
         }
         buildSymbolTable(table, tree->left);
@@ -291,18 +282,15 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
 
     else if (flag == PARAMSLIST)
     {
-
         Node *leftChild = tree->left->root;
         Node *rightChild = tree->right->root;
 
         if (leftChild->flag == ID)
         {
-            printf("flag == PARAMSLIST, insertando un %s en el level %d.\n", leftChild->name, table->levels);
             insertSymbolInSymbolTable(table, leftChild, table->levels);
         }
         if (rightChild->flag == ID)
         {
-            printf("flag == PARAMSLIST, insertando un %s en el level %d.\n", rightChild->name, table->levels);
             insertSymbolInSymbolTable(table, rightChild, table->levels);
         }
         buildSymbolTable(table, tree->left);

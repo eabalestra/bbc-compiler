@@ -3,6 +3,6 @@
 
 #include "tree.h"
 
-int checkTypes(Tree *tree);
+void checkTypes(Tree *tree);
 
 #endif //PRECOMPILER_TYPECHECKER_H
