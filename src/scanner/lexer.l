@@ -42,7 +42,6 @@ alpha_num [a-zA-Z0-9_]
     } else {
         yylval.vbool = false;
     }
-    yylval.line_number = yylineno;
     return TBOOL_LITERAL;
 }
 

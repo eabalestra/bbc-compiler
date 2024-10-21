@@ -1,6 +1,6 @@
 #include "../../include/typeChecker.h"
 
-int checkTypes(Tree *tree)
+void checkTypes(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
     {
@@ -14,17 +14,28 @@ int checkTypes(Tree *tree)
         {
             if (leftChild->root->type != rightChild->root->type)
             {
-                // TODO: MEJORAR MENSAJE; NUMERO DE LINEA; ETC; ETC
-                printf("Incorrect types\n");
+                Node *leftChildNode = leftChild->root;
+                Node *rightChildNode = rightChild->root;
+
+                printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
+                       "but is assigned a value of incompatible type '%s'.\n",
+                       leftChildNode->line_number, leftChildNode->name,
+                       nodeTypeToString(leftChildNode->type), nodeTypeToString(rightChildNode->type));
+
                 exit(1);
             }
         }
     }
-    //TODO: EDGAR 
-    if (tree->root->flag == ASSIGN)
+
+    /* if (tree->root->flag == ASSIGN)
     {
         int rType = checkTypes(rightChild);
-        
-    }
-    
+
+    } */
+
+    // caso return
+
+    checkTypes(tree->left);
+    checkTypes(tree->right);
 }
+

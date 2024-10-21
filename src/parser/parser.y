@@ -94,9 +94,9 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
                 printTree(ast);
-                symbolTable = semanticCheck(symbolTable, ast);
-
                 printSymbolTable(symbolTable);
+
+                symbolTable = semanticCheck(symbolTable, ast);
                 printf("PARSER OK\n");
             }
             | TPROGRAM TLCURLY method_decls TRCURLY {
@@ -105,9 +105,9 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
                 printTree(ast);
-                symbolTable = semanticCheck(symbolTable, ast);
-
                 printSymbolTable(symbolTable);
+
+                symbolTable = semanticCheck(symbolTable, ast);
                 printf("PARSER OK\n");
             }
             ;
@@ -123,7 +123,7 @@ var_decls:  var_decls var_decl {
             ;
 
 var_decl:   type TID TASSIGN expr TCOLON {
-                Node *newNode = createNode(ID, $1, NULL, $2, yylval.line_number);
+                Node *newNode = createNode(ID, $1, NULL, $2, yylval.line_number);   // porque no ponerle $4 al value?
                 Tree *idTree = createTree(newNode, NULL, NULL);
                 $$ = createTree(createNonTerminalNode(VARDECL), idTree, $4);
             }

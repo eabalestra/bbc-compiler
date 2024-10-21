@@ -1,6 +1,7 @@
 Program 
 {
-    integer x = 3;
+    integer y = 4
+    integer x = y;
     integer inc(integer x, integer a)
     {
         if (x == 2) then

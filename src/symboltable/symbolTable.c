@@ -208,7 +208,7 @@ void printSymbolTable(SymbolTable *table)
             if (symbolList->symbol != NULL)
             {
                 printf("NODE %s\n", nodeFlagToString(symbolList->symbol->flag));
-                printf("type: %u\n", symbolList->symbol->type);
+                printf("type: %s\n", nodeTypeToString(symbolList->symbol->type));
                 printf("name: %s\n", symbolList->symbol->name);
                 printf("value: %d\n", symbolList->symbol->value);
                 printf("---------\n");
@@ -231,7 +231,9 @@ void printSymbolTable(SymbolTable *table)
 SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
 {
     buildSymbolTable(table, ast);
+    printSymbolTable(table);
     checkTypes(ast);
+    
     return table;
 }
 
@@ -254,10 +256,12 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
     {
         Node *leftChild = tree->left->root;
         Node *rightChild = tree->right->root;
+        
         if (rightChild->value != NULL)
         {
             leftChild->value = rightChild->value;
         }
+        
         insertSymbolInSymbolTable(table, leftChild, table->levels);
     }
     else if (flag == METHODDECL)
@@ -321,4 +325,27 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
         buildSymbolTable(table, tree->left);
         buildSymbolTable(table, tree->right);
     }
+}
+
+void checkTypes1(Node *leftChild, Node *rightChild, SymbolTable *table) {
+    if (rightChild == NULL) {
+        return;
+    }
+
+    if (rightChild->flag == NUMBER)
+
+
+
+
+
+    if (leftChild->type != rightChild->type)
+    {
+        printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
+        "but is assigned a value of incompatible type '%s'.\n",
+        leftChild->line_number, leftChild->name,
+        nodeTypeToString(leftChild->type), nodeTypeToString(rightChild->type));
+
+        exit(1);
+    }
+
 }

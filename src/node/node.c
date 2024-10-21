@@ -134,3 +134,20 @@ char *nodeFlagToString(Tag flag)
             return "UNKNOWN";
     }
 }
+
+char *nodeTypeToString(Type type) 
+{
+    switch (type)
+    {
+        case INTEGER:
+            return "integer";
+        case BOOLEAN:
+            return "bool";
+        case VOID:
+            return "void";
+        case NONTYPE:
+            return "nontype";
+        default:
+            return "UNKNOWN";
+    }
+}
