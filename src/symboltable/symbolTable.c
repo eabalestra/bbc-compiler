@@ -297,21 +297,16 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
 
         popLevelFromSymbolTable(table);
     }
-    else if(flag == METHODCALL)
+    else if (flag == METHODCALL)
     {
         Node *leftChild = tree->left->root;
         Node *nodeFound = findSymbolNode(table, leftChild->name, table->levels);
-        printf("name: %s\n", leftChild->name);
         if (nodeFound == NULL)
         {
             printf("buildSymbolTable: Method %s not declared\n", leftChild->name);
             exit(1);
         }
-        
-        printf("typeeeeeeeeeeeeeeeeeee: %s\n", nodeTypeToString(nodeFound->type));
-        leftChild = nodeFound;
-        tree->left->root = leftChild;
-        printf("typeeeeeeeeeeeeeeeeeee: %s\n", nodeTypeToString(leftChild->type));
+        tree->left->root = nodeFound;
     }
     else if (flag == PARAMSLIST)
     {

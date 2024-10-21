@@ -10,32 +10,27 @@ void checkTypes(Tree *tree)
     Tree *leftChild = tree->left;
     Tree *rightChild = tree->right;
 
-    if (tree->root->flag == VARDECL)
+    if (tree->root->flag == VARDECL && rightChild != NULL)
     {
-        if (rightChild != NULL)
+        Type rightChildType;
+        Node *rightChildNode = rightChild->root;
+        if (rightChildNode->flag == ID || rightChildNode->flag == NUMBER || rightChildNode->flag == BOOL)
         {
-            Type righChildtype;
-            Node *righChildNode = rightChild->root;
+            rightChildType = rightChild->root->type;
+        }
+        else
+        {
+            rightChildType = checkExpressionTypes(rightChild);
+        }
 
-            if (righChildNode->flag != ID || righChildNode->flag != NUMBER || righChildNode->flag != BOOLEAN)
-            {
-                righChildtype = checkExpressionTypes(rightChild);
-            }
-            else
-            {
-                righChildtype = rightChild->root->type;
-            }
-
-            if (leftChild->root->type != righChildtype)
-            {
-                Node *leftChildNode = leftChild->root;
-                printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
-                       "but is assigned a value of incompatible type '%s'.\n",
-                       leftChildNode->line_number, leftChildNode->name,
-                       nodeTypeToString(leftChildNode->type), nodeTypeToString(righChildtype));
-
-                exit(1);
-            }
+        if (leftChild->root->type != rightChildType)
+        {
+            Node *leftChildNode = leftChild->root;
+            printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
+                   "but is assigned a value of incompatible type '%s'.\n",
+                   leftChildNode->line_number, leftChildNode->name,
+                   nodeTypeToString(leftChildNode->type), nodeTypeToString(rightChildType));
+            exit(1);
         }
     }
 
@@ -61,7 +56,11 @@ Type checkExpressionTypes(Tree *tree)
     Node *node = tree->root;
     Tag nodeFlag = node->flag;
 
-    if (nodeFlag == ID || nodeFlag == NUMBER || nodeFlag == BOOL || nodeFlag == METHODCALL)
+    if (nodeFlag == METHODCALL)
+    {
+        return checkExpressionTypes(tree->left);
+    }
+    if (nodeFlag == ID || nodeFlag == NUMBER || nodeFlag == BOOL)
     {
         return node->type;
     }
@@ -71,7 +70,6 @@ Type checkExpressionTypes(Tree *tree)
 
     if (nodeFlag == PLUS || nodeFlag == MINUS || nodeFlag == MULTIPLY || nodeFlag == MOD || nodeFlag == DIVISION)
     {
-
         if (leftType == INTEGER && rightType == INTEGER)
         {
             return INTEGER;
@@ -105,8 +103,10 @@ Type checkExpressionTypes(Tree *tree)
             return BOOLEAN;
         }
     }
-
-    printf("Type Error [Line %d]: Operator '%s' is not defined for types '%s' and '%s'.\n",
+    else
+    {
+        printf("Type Error [Line %d]: Operator '%s' is not defined for types '%s' and '%s'.\n",
            node->line_number, nodeFlagToString(nodeFlag), nodeTypeToString(leftType), nodeTypeToString(rightType));
-    exit(1);
+        exit(1);
+    }
 }
