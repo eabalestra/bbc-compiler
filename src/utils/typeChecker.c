@@ -10,7 +10,8 @@ void checkTypes(Tree *tree)
     Tree *leftChild = tree->left;
     Tree *rightChild = tree->right;
 
-    if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN))
+    if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN || tree->root->flag == EQUALS 
+        || tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN || tree->root->flag == AND || tree->root->flag == OR))
     {
         Type rightChildType;
         Node *rightChildNode = rightChild->root;
@@ -39,7 +40,7 @@ void checkTypes(Tree *tree)
     // TODO
     // caso return
     // caso parametros
-    // caso condiciones 
+    // caso condiciones creo que funciona?
 
     checkTypes(tree->left);
     checkTypes(tree->right);

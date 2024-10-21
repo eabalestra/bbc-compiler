@@ -278,6 +278,7 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
     case ELSE:
         handleThenOrElse(table, tree);
         break;
+    case IF:
     case WHILE:
         handleWhile(table, tree);
         break;
@@ -294,9 +295,41 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
 void handleWhile(SymbolTable *table, Tree *tree)
 {
     pushLevelToSymbolTable(table);
+    handleCondition(table, tree->left);
     buildSymbolTable(table, tree->left);
     buildSymbolTable(table, tree->right);
     popLevelFromSymbolTable(table);
+}
+
+void handleCondition(SymbolTable *table, Tree *tree) {
+    Tree *leftTree = tree->left;
+    Tree *rightTree = tree->right;
+    
+    if(leftTree != NULL){        
+        if (leftTree->root->flag == ID) {
+            
+            Node *nodeFound = findSymbolNode(table, leftTree->root->name, table->levels);
+            if (nodeFound == NULL)
+            {
+                printf("buildSymbolTable: %s not declared. \n", leftTree->root->name);
+                exit(1);
+            }
+            tree->left->root = nodeFound;
+        }
+    }
+    if(rightTree != NULL)
+    {
+        if (rightTree->root->flag == ID) {
+
+            Node *nodeFound = findSymbolNode(table, rightTree->root->name, table->levels);
+            if (nodeFound == NULL)
+            {
+                printf("buildSymbolTable: %s not declared. \n", rightTree->root->name);
+                exit(1);
+            }
+            tree->right->root = nodeFound;
+        }
+    }
 }
 
 void handleThenOrElse(SymbolTable *table, Tree *tree)
