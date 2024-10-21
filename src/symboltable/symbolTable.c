@@ -251,14 +251,18 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
 
     Tag flag = tree->root->flag;
 
-    if (flag == METHODDECL)
+    switch (flag)
     {
-        Node *leftChild = tree->left->root;
-        insertSymbolInSymbolTable(table, leftChild, table->levels);
-        buildSymbolTable(table, tree->right);
-    }
-    else if (flag == METHODEND)
-    {
+    case VARDECL:
+        handleVarDecl(table, tree);
+        break;
+    case METHODDECL:
+        handleMethodDecl(table, tree);
+        break;
+    case METHODCALL:
+        handleMethodCall(table, tree);
+        break;
+    case METHODEND:
         pushLevelToSymbolTable(table);
         Node *leftChild = tree->left->root;
         if (leftChild->flag == ID)
@@ -269,89 +273,81 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
         buildSymbolTable(table, tree->right);
 
         popLevelFromSymbolTable(table);
-    }
-    else if (flag == PARAM)
-    {
-        Node *rootNode = tree->root;
-        if (rootNode != NULL)
-        {
-            insertSymbolInSymbolTable(table, rootNode, table->levels);
-        }
-        buildSymbolTable(table, tree->left);
-    }
-    else if (flag == BLOCK)
-    {
-        buildSymbolTable(table, tree->left);
-        buildSymbolTable(table, tree->right);
-    }
-    else if (flag == THEN || flag == ELSE)
-    {
-        pushLevelToSymbolTable(table);
-        buildSymbolTable(table, tree->left);
-        popLevelFromSymbolTable(table);
-        buildSymbolTable(table, tree->right);
-    }
-    else if (flag == WHILE)
-    {
-        pushLevelToSymbolTable(table);
+        break;
+    case THEN:
+    case ELSE:
+        handleThenOrElse(table, tree);
+        break;
+    case WHILE:
+        handleWhile(table, tree);
+        break;
+    case ASSIGN:
+        handleAssign(table, tree);
+        break;
+    default:
         buildSymbolTable(table, tree->left);
         buildSymbolTable(table, tree->right);
-        popLevelFromSymbolTable(table);
+        break;
     }
-    else if (flag == METHODCALL)
-    {
-        Node *leftChild = tree->left->root;
-        Node *nodeFound = findSymbolNode(table, leftChild->name, table->levels);
-        if (nodeFound == NULL)
-        {
-            printf("buildSymbolTable: Method %s not declared\n", leftChild->name);
-            exit(1);
-        }
-        tree->left->root = nodeFound;
-    }
-    else if (flag == VARDECL)
-    {
-        Node *leftChild = tree->left->root;
-        Tree *rightTree = tree->right;
+}
 
-        if (rightTree != NULL)
-        {
-            Node *rightChild = tree->right->root;
-            if (rightChild->value != NULL)
-            {
-                leftChild->value = rightChild->value;
-            }
-            if (rightChild->flag == ID)
-            {
-                Node *nodeToInsert = findSymbolNode(table, rightChild->name, table->levels);
-                if (nodeToInsert == NULL)
-                {
-                    printf("buildSymbolTable: Variable %s not declared\n", rightChild->name);
-                    exit(1);
-                }
-                leftChild->value = nodeToInsert->value;
-                rightChild->type = nodeToInsert->type;
-            }
-        }
+void handleWhile(SymbolTable *table, Tree *tree)
+{
+    pushLevelToSymbolTable(table);
+    buildSymbolTable(table, tree->left);
+    buildSymbolTable(table, tree->right);
+    popLevelFromSymbolTable(table);
+}
 
+void handleThenOrElse(SymbolTable *table, Tree *tree)
+{
+    pushLevelToSymbolTable(table);
+    buildSymbolTable(table, tree->left);
+    popLevelFromSymbolTable(table);
+    buildSymbolTable(table, tree->right);
+}
+
+void handleMethodCall(SymbolTable *table, Tree *tree)
+{
+    Node *leftChild = tree->left->root;
+    Node *nodeFound = findSymbolNode(table, leftChild->name, table->levels);
+    if (nodeFound == NULL)
+    {
+        printf("buildSymbolTable: Method %s not declared. \n", leftChild->name);
+        exit(1);
+    }
+    tree->left->root = nodeFound;
+}
+
+void handleMethodEnd(SymbolTable *table, Tree *tree)
+{
+    pushLevelToSymbolTable(table);
+    Node *leftChild = tree->left->root;
+    if (leftChild->flag == ID)
+    {
         insertSymbolInSymbolTable(table, leftChild, table->levels);
-        buildSymbolTable(table, tree->right);
     }
-    else if (flag == ASSIGN)
+    buildSymbolTable(table, tree->left);
+    buildSymbolTable(table, tree->right);
+
+    popLevelFromSymbolTable(table);
+}
+
+void handleMethodDecl(SymbolTable *table, Tree *tree)
+{
+    Node *leftChild = tree->left->root;
+    insertSymbolInSymbolTable(table, leftChild, table->levels);
+    buildSymbolTable(table, tree->right);
+}
+
+void handleVarDecl(SymbolTable *table, Tree *tree)
+{
+    Node *leftChild = tree->left->root;
+    Tree *rightTree = tree->right;
+
+    if (rightTree != NULL)
     {
-        Node *leftChild = tree->left->root;
         Node *rightChild = tree->right->root;
-
-        Node *nodeFound = findSymbolNode(table, leftChild->name, table->levels);
-
-        if (nodeFound == NULL)
-        {
-            printf("buildSymbolTable: Variable %s not declared\n", rightChild->name);
-            exit(1);
-        }
-
-        leftChild->type = nodeFound->type;
-
         if (rightChild->value != NULL)
         {
             leftChild->value = rightChild->value;
@@ -359,23 +355,51 @@ void buildSymbolTable(SymbolTable *table, Tree *tree)
         if (rightChild->flag == ID)
         {
             Node *nodeToInsert = findSymbolNode(table, rightChild->name, table->levels);
-
             if (nodeToInsert == NULL)
             {
-                printf("buildSymbolTable: Variable %s not declared\n", rightChild->name);
+                printf("buildSymbolTable: Variable %s not declared. \n", rightChild->name);
                 exit(1);
             }
-
             leftChild->value = nodeToInsert->value;
             rightChild->type = nodeToInsert->type;
         }
+    }
+    insertSymbolInSymbolTable(table, leftChild, table->levels);
+    buildSymbolTable(table, tree->right);
+}
 
-        printf("name: %s, type: %s\n", rightChild->name, nodeFlagToString(rightChild->flag));
-        buildSymbolTable(table, tree->right);
-    }
-    else
+void handleAssign(SymbolTable *table, Tree *tree)
+{
+    Node *leftChild = tree->left->root;
+    Node *rightChild = tree->right->root;
+
+    Node *nodeFound = findSymbolNode(table, leftChild->name, table->levels);
+
+    if (nodeFound == NULL)
     {
-        buildSymbolTable(table, tree->left);
-        buildSymbolTable(table, tree->right);
+        printf("buildSymbolTable: Variable %s not declared. \n", rightChild->name);
+        exit(1);
     }
+
+    leftChild->type = nodeFound->type;
+
+    if (rightChild->value != NULL)
+    {
+        leftChild->value = rightChild->value;
+    }
+    if (rightChild->flag == ID)
+    {
+        Node *nodeToInsert = findSymbolNode(table, rightChild->name, table->levels);
+
+        if (nodeToInsert == NULL)
+        {
+            printf("buildSymbolTable: Variable %s not declared\n", rightChild->name);
+            exit(1);
+        }
+
+        leftChild->value = nodeToInsert->value;
+        rightChild->type = nodeToInsert->type;
+    }
+
+    buildSymbolTable(table, tree->right);
 }

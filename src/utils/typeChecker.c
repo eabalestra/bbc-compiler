@@ -36,22 +36,10 @@ void checkTypes(Tree *tree)
         }
     }
 
-    /*
-    if(tree->root->flag == ASSIGN)
-    {
-        Type rightChildType;
-        Node *rightChildNode = rightChild->root;
-    }
-    */
-
-    
-    /* if (tree->root->flag == ASSIGN)
-    {
-        int rType = checkTypes(rightChild);
-
-    } */
-
+    // TODO
     // caso return
+    // caso parametros
+    // caso condiciones 
 
     checkTypes(tree->left);
     checkTypes(tree->right);

@@ -26,4 +26,12 @@ void printSymbolTable(SymbolTable *table);
 SymbolTable *semanticCheck(SymbolTable *table, Tree *ast);
 void buildSymbolTable(SymbolTable *table, Tree *tree);
 
+void handleVarDecl(SymbolTable *table, Tree *tree);
+void handleMethodDecl(SymbolTable *table, Tree *tree);
+void handleMethodEnd(SymbolTable *table, Tree *tree);
+void handleMethodCall(SymbolTable *table, Tree *tree);
+void handleThenOrElse(SymbolTable *table, Tree *tree);
+void handleWhile(SymbolTable *table, Tree *tree);
+void handleAssign(SymbolTable *table, Tree *tree);
+
 #endif // SYMBOL_TABLE_H
