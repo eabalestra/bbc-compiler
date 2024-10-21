@@ -10,10 +10,11 @@ void checkTypes(Tree *tree)
     Tree *leftChild = tree->left;
     Tree *rightChild = tree->right;
 
-    if (tree->root->flag == VARDECL && rightChild != NULL)
+    if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN))
     {
         Type rightChildType;
         Node *rightChildNode = rightChild->root;
+
         if (rightChildNode->flag == ID || rightChildNode->flag == NUMBER || rightChildNode->flag == BOOL)
         {
             rightChildType = rightChild->root->type;
@@ -25,6 +26,7 @@ void checkTypes(Tree *tree)
 
         if (leftChild->root->type != rightChildType)
         {
+            
             Node *leftChildNode = leftChild->root;
             printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
                    "but is assigned a value of incompatible type '%s'.\n",
@@ -34,6 +36,15 @@ void checkTypes(Tree *tree)
         }
     }
 
+    /*
+    if(tree->root->flag == ASSIGN)
+    {
+        Type rightChildType;
+        Node *rightChildNode = rightChild->root;
+    }
+    */
+
+    
     /* if (tree->root->flag == ASSIGN)
     {
         int rType = checkTypes(rightChild);
@@ -58,7 +69,8 @@ Type checkExpressionTypes(Tree *tree)
 
     if (nodeFlag == METHODCALL)
     {
-        return checkExpressionTypes(tree->left);
+        return checkExpressionTypes(tree->left); // chequea el tipo del metodo
+        
     }
     if (nodeFlag == ID || nodeFlag == NUMBER || nodeFlag == BOOL)
     {

@@ -1,11 +1,15 @@
 Program 
 {
-    bool y;
+    integer y = 5+5;
 
-    integer get_int() extern ;
+    integer get_int(integer aa, integer bb) extern ;
+    bool method1() extern ;
     
     void main()
     {
-        integer p = get_int();
+        integer aa = get_int(aa, bb);
+        bool bb;
+        integer p = get_int(aa, bb);
+        bb = 5 + 5;
     }
 }

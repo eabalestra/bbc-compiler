@@ -162,13 +162,12 @@ params:     params_list { $$ = $1; }
             ;
 
 params_list:    type TID  {
-                    Node *idNode = createNode(ID, $1, NULL, $2, yylval.line_number);
+                    Node *idNode = createNode(PARAM, $1, NULL, $2, yylval.line_number);
                     $$ = createTree(idNode, NULL, NULL);
                 }
                 | type TID TCOMMA params_list {
-                    Node *newNode = createNonTerminalNode(PARAMSLIST);
-                    Node *idNode = createNode(ID, $1, NULL, $2, yylval.line_number);
-                    $$ = createTree(newNode, createTree(idNode, NULL, NULL), $4);
+                    Node *idNode = createNode(PARAM, $1, NULL, $2, yylval.line_number);
+                    $$ = createTree(idNode, $4, NULL);
                 }
                 ;
 
@@ -322,12 +321,10 @@ expr:   TID {
         ;
 
 expr_list:  expr TCOMMA expr_list {
-                Node *newNode = createNonTerminalNode(EXPRLIST);
-                $$ = createTree(newNode, $1, $3);
+                $$ = createTree($1, $3, NULL);
             }
             | expr {
-                Node *newNode = createNonTerminalNode(EXPR);
-                $$ = createTree(newNode, $1, NULL);
+                $$ = createTree($1, NULL, NULL);
             }
             | %empty { $$ = createTree(createNonTerminalNode(EMPTY), NULL, NULL); }
             ;
