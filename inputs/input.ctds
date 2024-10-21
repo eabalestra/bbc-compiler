@@ -1,37 +1,11 @@
 Program 
 {
-    integer y = 4
-    integer x = y;
-    integer inc(integer x, integer a)
-    {
-        if (x == 2) then
-        {
-            integer h = 3;
-        } else {
-            integer h = 3;
-        }
+    bool y;
 
-        while (x == 2) {
-            integer h = 3;
-        }
-        return x + x;
-    }
-    
     integer get_int() extern ;
-    
-    void print_int(integer i) extern ;
     
     void main()
     {
-        integer y = 0;
-        y = get_int();
-        if (y == 1) then
-        {
-            print_int(y);
-        }
-        else
-        {
-           return print_int(inc(y));
-        }
+        integer p = get_int();
     }
 }

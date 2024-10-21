@@ -114,7 +114,7 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
 var_decls:  var_decls var_decl {
                 Node *newNode = createNonTerminalNode(DECLS);
-                $$ = createTree(newNode, $2, $1);
+                $$ = createTree(newNode, $1, $2);
             }
             | var_decl {
                 Node *newNode = createNonTerminalNode(COLON);
@@ -123,7 +123,7 @@ var_decls:  var_decls var_decl {
             ;
 
 var_decl:   type TID TASSIGN expr TCOLON {
-                Node *newNode = createNode(ID, $1, NULL, $2, yylval.line_number);   // porque no ponerle $4 al value?
+                Node *newNode = createNode(ID, $1, $4, $2, yylval.line_number);
                 Tree *idTree = createTree(newNode, NULL, NULL);
                 $$ = createTree(createNonTerminalNode(VARDECL), idTree, $4);
             }
@@ -215,7 +215,7 @@ statements:     statements statement {
 
 statement:  TID TASSIGN expr TCOLON {
                                     Node *newNode = createNonTerminalNode(ASSIGN);
-                                    Node *newId = createNode(ID, NONTYPE, NULL, $1, yylval.line_number);
+                                    Node *newId = createNode(ID, NONTYPE, $3, $1, yylval.line_number);
                                     Tree *idTree = createTree(newId, NULL, NULL);
                                     $$ = createTree(newNode, idTree, $3);
             }

@@ -4,5 +4,6 @@
 #include "tree.h"
 
 void checkTypes(Tree *tree);
+Type checkExpressionTypes(Tree *rightChild);
 
 #endif //PRECOMPILER_TYPECHECKER_H
