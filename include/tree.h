@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "node.h"
+#include "node.h"  // Full definition of Node is needed here
 
 typedef struct Tree {
     Node *root;

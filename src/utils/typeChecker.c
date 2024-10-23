@@ -17,26 +17,25 @@ void checkTypes(Tree *tree)
     {
         currentMethod = tree->left->root;
     }
-    if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN || tree->root->flag == EQUALS || tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN || tree->root->flag == AND || tree->root->flag == OR))
+
+    if (rightChild != NULL && (rootTag == VARDECL || rootTag == ASSIGN || rootTag == EQUALS || rootTag == LESSTHAN || rootTag == GRATERTHAN || rootTag == AND || rootTag == OR))
     {
 
-        Type rightChildType;
+        Node *leftChildNode = leftChild->root;
         Node *rightChildNode = rightChild->root;
         Type leftChildType;
-        Node *leftChildNode = leftChild->root;
+        Type rightChildType;
 
-        // TODO: HACER UNA FUNCIÓN VOID PARA LO SIGUIENTE.
-
-        if (tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN)
+        if (rootTag == LESSTHAN || rootTag == GRATERTHAN)
         {
-
             if (leftChild->root->type == BOOLEAN || rightChild->root->type == BOOLEAN)
             {
                 printf("Type Error [Line %d]: Arithmetic operator with boolean values.\n", leftChildNode->line_number);
                 exit(1);
             }
         }
-        if ((tree->root->flag == AND || tree->root->flag == OR))
+
+        if ((rootTag == AND || rootTag == OR))
         {
 
             if (leftChild->root->type == INTEGER || rightChild->root->type == INTEGER)
@@ -45,6 +44,7 @@ void checkTypes(Tree *tree)
                 exit(1);
             }
         }
+
         if (rightChildNode->flag == ID || rightChildNode->flag == NUMBER || rightChildNode->flag == BOOL)
         {
             rightChildType = rightChild->root->type;
@@ -53,7 +53,7 @@ void checkTypes(Tree *tree)
         {
             rightChildType = checkExpressionTypes(rightChild);
         }
-        //
+
         if (leftChildNode->flag == ID || leftChildNode->flag == NUMBER || leftChildNode->flag == BOOL)
         {
             leftChildType = leftChild->root->type;
@@ -72,10 +72,6 @@ void checkTypes(Tree *tree)
             exit(1);
         }
     }
-    // TODO
-    // caso parametros
-    // caso condiciones creo que funciona?
-
     if (rootTag == RETURN)
     {
         Type currentMethodType = currentMethod->type;
@@ -101,11 +97,20 @@ void checkTypes(Tree *tree)
             }
         }
     }
+    if (rootTag == METHODCALL)
+    {
+        checkParameters(tree->left, tree->left->root->parameters, tree->right->root->parameters);
+    }
 
+    // TODO
+    // caso parametros
     checkTypes(tree->left);
     checkTypes(tree->right);
 }
 
+/**
+ *
+ */
 Type checkExpressionTypes(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -169,4 +174,51 @@ Type checkExpressionTypes(Tree *tree)
                node->line_number, nodeFlagToString(nodeFlag), nodeTypeToString(leftType), nodeTypeToString(rightType));
         exit(1);
     }
+}
+
+void checkParameters(Tree *method, Tree *formalParameters, Tree *actualParameters)
+{
+    if (formalParameters == NULL && actualParameters == NULL)
+    {
+        return;
+    }
+    printf("formalParameters: %d\n", formalParameters == NULL);
+    printf("actualParameteres: %d\n", actualParameters == NULL);
+    if (formalParameters == NULL || actualParameters == NULL)
+    {
+        printf("Type Error [Line (completar)]: Number of parameters does not match for method %s.\n", method->root->name);
+        exit(1);
+    }
+    
+    Node *formalParameter = formalParameters->root;
+    Node *actualParameter = actualParameters->root;
+
+    printf("PARAMETROS\n");
+    printf("formales\n");
+    printTree(formalParameters);
+    printf("name: %s\n", formalParameter->name);
+    printf("actuales\n");
+    printTree(actualParameters);
+    printf("name: %s\n", actualParameter->name);
+
+    if (formalParameter != NULL && actualParameter != NULL)
+    {
+        printf("formalParameter: %s\n", nodeFlagToString(formalParameter->flag));
+        if (formalParameter->type != actualParameter->type)
+        {
+            printf("Type Error [Line %d]: Parameter '%s' is declared as type '%s', "
+                   "but is assigned a value of incompatible type '%s'.\n",
+                   actualParameter->line_number, formalParameter->name,
+                   nodeTypeToString(formalParameter->type), nodeTypeToString(actualParameter->type));
+            exit(1);
+        }
+    }
+    else
+    {
+        printf("Type Error [Line %d]: Number of parameters does not match for method %s.\n", actualParameters->root->line_number, method->root->name);
+        exit(1);
+    }
+
+
+    checkParameters(method, formalParameters->left, actualParameters->left);
 }

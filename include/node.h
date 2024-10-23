@@ -8,12 +8,16 @@
 #include "tag.h"
 #include "type.h"
 
+// Forward declaration of Tree structure
+struct Tree;
+
 typedef struct Node {
     Tag flag;
     Type type;
     void *value;
     char *name;
     int line_number;
+    struct Tree *parameters;  // Use the forward-declared Tree structure here
 } Node;
 
 Node* createNonTerminalNode(Tag flag);

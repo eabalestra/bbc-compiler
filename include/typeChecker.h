@@ -5,5 +5,6 @@
 
 void checkTypes(Tree *tree);
 Type checkExpressionTypes(Tree *rightChild);
+void checkParameters(Tree *method, Tree *formalParameters, Tree *actualParameters);
 
 #endif //PRECOMPILER_TYPECHECKER_H
