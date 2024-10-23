@@ -1,5 +1,7 @@
 #include "../../include/typeChecker.h"
 
+Node *currentMethod; // variable global para la funcion actual en la que estoy
+
 void checkTypes(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -9,39 +11,40 @@ void checkTypes(Tree *tree)
 
     Tree *leftChild = tree->left;
     Tree *rightChild = tree->right;
+    Tag rootTag = tree->root->flag;
 
-    if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN || tree->root->flag == EQUALS 
-        || tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN || tree->root->flag == AND || tree->root->flag == OR))
-        {
+    if (rootTag == METHODDECL)
+    {
+        currentMethod = tree->left->root;
+    }
+    if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN || tree->root->flag == EQUALS || tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN || tree->root->flag == AND || tree->root->flag == OR))
+    {
 
-        
         Type rightChildType;
         Node *rightChildNode = rightChild->root;
-        //new
+        Type leftChildType;
         Node *leftChildNode = leftChild->root;
-        
-        //TODO: HACER UNA FUNCIÓN VOID PARA LO SIGUIENTE.
-        
-        if(tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN){
-            
 
-            if(leftChild->root->type == BOOLEAN || rightChild->root->type == BOOLEAN)
+        // TODO: HACER UNA FUNCIÓN VOID PARA LO SIGUIENTE.
+
+        if (tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN)
+        {
+
+            if (leftChild->root->type == BOOLEAN || rightChild->root->type == BOOLEAN)
             {
                 printf("Type Error [Line %d]: Arithmetic operator with boolean values.\n", leftChildNode->line_number);
                 exit(1);
             }
-         
         }
-        if((tree->root->flag == AND || tree->root->flag == OR)){
+        if ((tree->root->flag == AND || tree->root->flag == OR))
+        {
 
-            if(leftChild->root->type == INTEGER || rightChild->root->type == INTEGER)
-            {    
+            if (leftChild->root->type == INTEGER || rightChild->root->type == INTEGER)
+            {
                 printf("Type Error [Line %d]: Boolean operator with integer values.\n", leftChildNode->line_number);
                 exit(1);
             }
         }
-        //
-
         if (rightChildNode->flag == ID || rightChildNode->flag == NUMBER || rightChildNode->flag == BOOL)
         {
             rightChildType = rightChild->root->type;
@@ -50,9 +53,18 @@ void checkTypes(Tree *tree)
         {
             rightChildType = checkExpressionTypes(rightChild);
         }
+        //
+        if (leftChildNode->flag == ID || leftChildNode->flag == NUMBER || leftChildNode->flag == BOOL)
+        {
+            leftChildType = leftChild->root->type;
+        }
+        else
+        {
+            leftChildType = checkExpressionTypes(leftChild);
+        }
 
-        if (leftChild->root->type != rightChildType)
-        {            
+        if (leftChildType != rightChildType)
+        {
             printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
                    "but is assigned a value of incompatible type '%s'.\n",
                    leftChildNode->line_number, leftChildNode->name,
@@ -60,11 +72,35 @@ void checkTypes(Tree *tree)
             exit(1);
         }
     }
-
     // TODO
-    // caso return
     // caso parametros
     // caso condiciones creo que funciona?
+
+    if (rootTag == RETURN)
+    {
+        Type currentMethodType = currentMethod->type;
+        if (tree->left != NULL)
+        {
+            Type returnType = checkExpressionTypes(tree->left);
+            if (currentMethodType != returnType)
+            {
+                printf("Type Error [Line %d]: Function '%s' with return type '%s' is different from actual return type '%s'.\n",
+                       tree->left->root->line_number, currentMethod->name,
+                       nodeTypeToString(currentMethodType), nodeTypeToString(returnType));
+                exit(1);
+            }
+        }
+        else
+        {
+            if (currentMethodType != VOID)
+            {
+                printf("Type Error [Line %d]: Function '%s' with return type '%s' has no actual return type.\n",
+                       tree->root->line_number, currentMethod->name,
+                       nodeTypeToString(currentMethodType));
+                exit(1);
+            }
+        }
+    }
 
     checkTypes(tree->left);
     checkTypes(tree->right);
@@ -83,7 +119,6 @@ Type checkExpressionTypes(Tree *tree)
     if (nodeFlag == METHODCALL)
     {
         return checkExpressionTypes(tree->left); // chequea el tipo del metodo
-        
     }
     if (nodeFlag == ID || nodeFlag == NUMBER || nodeFlag == BOOL)
     {
@@ -131,9 +166,7 @@ Type checkExpressionTypes(Tree *tree)
     else
     {
         printf("Type Error [Line %d]: Operator '%s' is not defined for types '%s' and '%s'.\n",
-           node->line_number, nodeFlagToString(nodeFlag), nodeTypeToString(leftType), nodeTypeToString(rightType));
+               node->line_number, nodeFlagToString(nodeFlag), nodeTypeToString(leftType), nodeTypeToString(rightType));
         exit(1);
     }
 }
-
-

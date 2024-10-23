@@ -1,15 +1,32 @@
 Program 
 {
     integer y = 5+5;
-    bool x = true < true;
 
     integer get_int(integer aa, integer bb) extern ;
-    bool method1() extern ;
     
-    void main()
+    integer method1() 
     {
-        if(x == 1)then{
+        while (true || false == (get_int() < 1)) {
 
         }
+        return 1;
+    }
+
+    void holaMundo() {
+        return;
+    }
+
+    void main()
+    {
+        
+        integer x = get_int();
+
+        if(y == 1)then{
+
+        }
+        return;
     }
 }
+
+// bool x = 1 < get_int(); no funca esto
+// bool x =  < 1; no funca esto
