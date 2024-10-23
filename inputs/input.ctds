@@ -1,15 +1,15 @@
 Program 
 {
     integer y = 5+5;
+    bool x = true < true;
 
     integer get_int(integer aa, integer bb) extern ;
     bool method1() extern ;
     
     void main()
     {
-        integer aa = get_int(aa, bb);
-        bool bb;
-        integer p = get_int(aa, bb);
-        bb = 5 + 5;
+        if(x == 1)then{
+
+        }
     }
 }

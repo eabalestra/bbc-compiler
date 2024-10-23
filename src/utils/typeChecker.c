@@ -12,9 +12,35 @@ void checkTypes(Tree *tree)
 
     if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN || tree->root->flag == EQUALS 
         || tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN || tree->root->flag == AND || tree->root->flag == OR))
-    {
+        {
+
+        
         Type rightChildType;
         Node *rightChildNode = rightChild->root;
+        //new
+        Node *leftChildNode = leftChild->root;
+        
+        //TODO: HACER UNA FUNCIÓN VOID PARA LO SIGUIENTE.
+        
+        if(tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN){
+            
+
+            if(leftChild->root->type == BOOLEAN || rightChild->root->type == BOOLEAN)
+            {
+                printf("Type Error [Line %d]: Arithmetic operator with boolean values.\n", leftChildNode->line_number);
+                exit(1);
+            }
+         
+        }
+        if((tree->root->flag == AND || tree->root->flag == OR)){
+
+            if(leftChild->root->type == INTEGER || rightChild->root->type == INTEGER)
+            {    
+                printf("Type Error [Line %d]: Boolean operator with integer values.\n", leftChildNode->line_number);
+                exit(1);
+            }
+        }
+        //
 
         if (rightChildNode->flag == ID || rightChildNode->flag == NUMBER || rightChildNode->flag == BOOL)
         {
@@ -26,9 +52,7 @@ void checkTypes(Tree *tree)
         }
 
         if (leftChild->root->type != rightChildType)
-        {
-            
-            Node *leftChildNode = leftChild->root;
+        {            
             printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
                    "but is assigned a value of incompatible type '%s'.\n",
                    leftChildNode->line_number, leftChildNode->name,
@@ -111,3 +135,5 @@ Type checkExpressionTypes(Tree *tree)
         exit(1);
     }
 }
+
+
