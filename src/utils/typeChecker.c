@@ -1,113 +1,55 @@
 #include "../../include/typeChecker.h"
 
-void checkTypes(Tree *tree)
-{
-    if (tree == NULL || tree->root == NULL)
-    {
+void checkTypes(Tree *tree) {
+    if (tree == NULL || tree->root == NULL) {
         return;
     }
 
-    Tree *leftChild = tree->left;
-    Tree *rightChild = tree->right;
+    Tree *lTree = tree->left;
+    Tree *rTree = tree->right;
+    Tag rootTag = tree->root->flag;
 
-    if (rightChild != NULL && (tree->root->flag == VARDECL || tree->root->flag == ASSIGN || tree->root->flag == EQUALS 
-        || tree->root->flag == LESSTHAN || tree->root->flag == GRATERTHAN || tree->root->flag == AND || tree->root->flag == OR))
-    {
+    if ((rootTag == VARDECL || rootTag == ASSIGN) ||
+        (rootTag == AND || rootTag == OR) ||
+        (rootTag == PLUS || rootTag == MINUS || rootTag == MULTIPLY || rootTag == DIVISION || rootTag == MOD)) {
+
+        Type leftChildType = getTreeType(tree->left);
         Type rightChildType;
-        Node *rightChildNode = rightChild->root;
 
-        if (rightChildNode->flag == ID || rightChildNode->flag == NUMBER || rightChildNode->flag == BOOL)
+        if (rTree == NULL)
         {
-            rightChildType = rightChild->root->type;
+            rightChildType = leftChildType;
         }
         else
         {
-            rightChildType = checkExpressionTypes(rightChild);
+            rightChildType = getTreeType(tree->right);
         }
 
-        if (leftChild->root->type != rightChildType)
+        // TODO VER ESTA PARTE
+        if (leftChildType != rightChildType)
         {
-            
-            Node *leftChildNode = leftChild->root;
+            Node *lChildNode = tree->left->root;
             printf("Type Error [Line %d]: Variable '%s' is declared as type '%s', "
                    "but is assigned a value of incompatible type '%s'.\n",
-                   leftChildNode->line_number, leftChildNode->name,
-                   nodeTypeToString(leftChildNode->type), nodeTypeToString(rightChildType));
+                   lChildNode->line_number, lChildNode->name,
+                   nodeTypeToString(leftChildType), nodeTypeToString(rightChildType));
             exit(1);
         }
     }
+    if (rootTag == GRATERTHAN || rootTag == LESSTHAN || rootTag == EQUALS) {
+        // chequear tipo de los hijos
+    }
+    if (rootTag == RETURN) {
 
-    // TODO
-    // caso return
-    // caso parametros
-    // caso condiciones creo que funciona?
+    }
+    if (rootTag == MINUS) // UNARIOS
+    {
+
+    }
+    if (rootTag == METHODCALL) {
+
+    }
 
     checkTypes(tree->left);
     checkTypes(tree->right);
-}
-
-Type checkExpressionTypes(Tree *tree)
-{
-    if (tree == NULL || tree->root == NULL)
-    {
-        return;
-    }
-
-    Node *node = tree->root;
-    Tag nodeFlag = node->flag;
-
-    if (nodeFlag == METHODCALL)
-    {
-        return checkExpressionTypes(tree->left); // chequea el tipo del metodo
-        
-    }
-    if (nodeFlag == ID || nodeFlag == NUMBER || nodeFlag == BOOL)
-    {
-        return node->type;
-    }
-
-    Type leftType = checkExpressionTypes(tree->left);
-    Type rightType = checkExpressionTypes(tree->right);
-
-    if (nodeFlag == PLUS || nodeFlag == MINUS || nodeFlag == MULTIPLY || nodeFlag == MOD || nodeFlag == DIVISION)
-    {
-        if (leftType == INTEGER && rightType == INTEGER)
-        {
-            return INTEGER;
-        }
-    }
-    if (nodeFlag == AND || nodeFlag == OR || nodeFlag == NOT)
-    {
-        if (leftType == BOOLEAN && rightType == BOOLEAN)
-        {
-            return BOOLEAN;
-        }
-    }
-    if (nodeFlag == NOT)
-    {
-        if (leftType == BOOLEAN)
-        {
-            return BOOLEAN;
-        }
-    }
-    if (nodeFlag == EQUALS)
-    {
-        if (leftType == BOOLEAN && rightType == BOOLEAN || leftType == INTEGER && rightType == INTEGER)
-        {
-            return BOOLEAN;
-        }
-    }
-    if (nodeFlag == GRATERTHAN || nodeFlag == LESSTHAN)
-    {
-        if (leftType == INTEGER && rightType == INTEGER)
-        {
-            return BOOLEAN;
-        }
-    }
-    else
-    {
-        printf("Type Error [Line %d]: Operator '%s' is not defined for types '%s' and '%s'.\n",
-           node->line_number, nodeFlagToString(nodeFlag), nodeTypeToString(leftType), nodeTypeToString(rightType));
-        exit(1);
-    }
 }

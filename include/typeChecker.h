@@ -4,6 +4,6 @@
 #include "tree.h"
 
 void checkTypes(Tree *tree);
-Type checkExpressionTypes(Tree *rightChild);
+void validateTypeCompatibility(Tree *lTree, Type *leftChildType, Type *rightChildType);
 
 #endif //PRECOMPILER_TYPECHECKER_H

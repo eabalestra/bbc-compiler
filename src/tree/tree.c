@@ -60,3 +60,24 @@ void printTreeRecursive(Tree *tree, char *prefix, int isLast) {
         printTreeRecursive(tree->right, newPrefix, 1); 
     }
 }
+
+Type getTreeType(Tree *tree) {
+    if (tree == NULL || tree->root == NULL) {
+        return NONTYPE;
+    }
+    if (tree->root->type != NONTYPE) {
+        return tree->root->type;
+    }
+
+    Type leftChildType = getTreeType(tree->left);
+    Type rightChildType = getTreeType(tree->right);
+
+    if (leftChildType == rightChildType)
+    {
+        return leftChildType;
+    }
+    else
+    {
+        return rightChildType;
+    }
+}

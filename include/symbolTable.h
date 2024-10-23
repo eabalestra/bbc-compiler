@@ -33,5 +33,6 @@ void handleMethodCall(SymbolTable *table, Tree *tree);
 void handleThenOrElse(SymbolTable *table, Tree *tree);
 void handleWhile(SymbolTable *table, Tree *tree);
 void handleAssign(SymbolTable *table, Tree *tree);
+void handleCondition(SymbolTable *table, Tree *tree);
 
 #endif // SYMBOL_TABLE_H
