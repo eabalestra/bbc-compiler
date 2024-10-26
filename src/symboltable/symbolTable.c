@@ -301,13 +301,16 @@ void handleWhile(SymbolTable *table, Tree *tree)
     popLevelFromSymbolTable(table);
 }
 
-void handleCondition(SymbolTable *table, Tree *tree) {
+void handleCondition(SymbolTable *table, Tree *tree)
+{
     Tree *leftTree = tree->left;
     Tree *rightTree = tree->right;
-    
-    if(leftTree != NULL){        
-        if (leftTree->root->flag == ID) {
-            
+
+    if (leftTree != NULL)
+    {
+        if (leftTree->root->flag == ID)
+        {
+
             Node *nodeFound = findSymbolNode(table, leftTree->root->name, table->levels);
             if (nodeFound == NULL)
             {
@@ -317,9 +320,10 @@ void handleCondition(SymbolTable *table, Tree *tree) {
             tree->left->root = nodeFound;
         }
     }
-    if(rightTree != NULL)
+    if (rightTree != NULL)
     {
-        if (rightTree->root->flag == ID) {
+        if (rightTree->root->flag == ID)
+        {
 
             Node *nodeFound = findSymbolNode(table, rightTree->root->name, table->levels);
             if (nodeFound == NULL)
@@ -350,6 +354,26 @@ void handleMethodCall(SymbolTable *table, Tree *tree)
         exit(1);
     }
     tree->left->root = nodeFound;
+    tree->left->root->parameters = nodeFound->parameters;   
+
+    printf(tree->right->root->name);
+    /* Tree *paramList = tree->right;  // This contains the list of parameters in the left nodes
+    while (paramList != NULL) {
+        Node *paramNode = paramList->root;
+        printf(paramNode->name);
+        // Check if the parameter exists in the symbol table
+        Node *paramFound = findSymbolNode(table, paramNode->name, table->levels);
+        if (paramFound == NULL) {
+            printf("buildSymbolTable: Parameter %s not declared. \n", paramNode->name);
+            exit(1);
+        }
+        
+        // Update the parameter node in the tree with the found node from the symbol table
+        paramList->root = paramFound;
+
+        // Move to the next parameter (assuming parameters are linked via 'left' child)
+        paramList = paramList->left;
+    } */
 }
 
 void handleMethodEnd(SymbolTable *table, Tree *tree)
@@ -369,6 +393,10 @@ void handleMethodEnd(SymbolTable *table, Tree *tree)
 void handleMethodDecl(SymbolTable *table, Tree *tree)
 {
     Node *leftChild = tree->left->root;
+    if (tree->right->left->root->flag != EMPTY)
+    {
+        leftChild->parameters = tree->right->left;
+    }
     insertSymbolInSymbolTable(table, leftChild, table->levels);
     buildSymbolTable(table, tree->right);
 }

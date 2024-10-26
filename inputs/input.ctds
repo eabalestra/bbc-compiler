@@ -1,15 +1,13 @@
 Program 
 {
-    integer y = 5+5;
+    integer y = 5 + 5;
 
-    integer get_int(integer aa, integer bb) extern ;
-    bool method1() extern ;
+    integer get_int(integer a) extern ;
     
-    void main()
-    {
-        integer aa = get_int(aa, bb);
-        bool bb;
-        integer p = get_int(aa, bb);
-        bb = 5 + 5;
+    void main() {
+        integer result = get_int(y);
     }
 }
+
+// bool x = 1 < get_int(); no funca esto
+// bool x =  < 1; no funca esto
