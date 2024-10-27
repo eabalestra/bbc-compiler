@@ -20,9 +20,12 @@ SymbolTable *createSymbolTable();
 void pushLevelToSymbolTable(SymbolTable *table); 
 void popLevelFromSymbolTable(SymbolTable *table);
 
-Node *findSymbolNode(SymbolTable *table, char *symbol, int level);
+Node *searchSymbolInTable(SymbolTable *table, char *symbol, int level);
 void insertSymbolInSymbolTable(SymbolTable *table, Node *symbol, int level);  
 void printSymbolTable(SymbolTable *table);
+
+Node *searchAndValidateSymbol(SymbolTable *table, Node* nodeToSearch);
+
 SymbolTable *semanticCheck(SymbolTable *table, Tree *ast);
 void buildSymbolTable(SymbolTable *pTable, Tree *pTree);
 

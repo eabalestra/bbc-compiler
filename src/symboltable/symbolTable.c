@@ -1,5 +1,7 @@
 #include "../../include/symbolTable.h"
 
+void checkForDuplicateParameters(Tree *tree, const Node *leftChild);
+
 /**
  * Allocates memory for and creates a new SymbolTable.
  *
@@ -27,12 +29,12 @@ SymbolTable *createSymbolTable()
  * @param level in which to search.
  * @return pointer to the symbol if it was found, otherwise returns NULL.
  */
-Node *findSymbolNode(SymbolTable *table, char *symbol, int level)
+Node *searchSymbolInTable(SymbolTable *table, char *symbol, int level)
 {
 
     if (symbol == NULL || table->levels == -1 || table->levels < level || level < 0)
     {
-        printf("findSymbolNode: Illegal arguments \n");
+        printf("searchSymbolInTable: Illegal arguments \n");
         exit(1);
     }
 
@@ -242,8 +244,6 @@ SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
     return table;
 }
 
-void checkForDuplicateParameters(Tree *tree, const Node *leftChild);
-
 /**
  * Traverses the provided AST and builds the symbol pTable.
  *
@@ -266,7 +266,7 @@ void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
             break;
         case PARAM:
             insertSymbolInSymbolTable(pTable, pTree->root, pTable->levels);
-            pTree->root = findSymbolNode(pTable, pTree->root->name, pTable->levels);
+            pTree->root = searchSymbolInTable(pTable, pTree->root->name, pTable->levels);
             buildSymbolTable(pTable, pTree->left);
             break;
         case METHODDECL:
@@ -317,38 +317,24 @@ void handleWhile(SymbolTable *table, Tree *tree)
     popLevelFromSymbolTable(table);
 }
 
-// TODO: cambiar esto
 void handleCondition(SymbolTable *table, Tree *tree)
 {
-    Tree *leftTree = tree->left;
-    Tree *rightTree = tree->right;
+    if (tree == NULL)
+        return;
 
-    if (leftTree != NULL)
+    if (tree->root->flag == ID || tree->root->flag == PARAM)
     {
-        if (leftTree->root->flag == PARAM || leftTree->root->flag == ID)
+        Node *nodeFound = searchSymbolInTable(table, tree->root->name, table->levels);
+        if (nodeFound == NULL)
         {
-            Node *nodeFound = findSymbolNode(table, leftTree->root->name, table->levels);
-            if (nodeFound == NULL)
-            {
-                printf("buildSymbolTable: %s not declared. \n", leftTree->root->name);
-                exit(1);
-            }
-            tree->left->root = nodeFound;
+            printf("buildSymbolTable: Variable %s not declared. \n", tree->root->name);
+            exit(1);
         }
+        tree->root = nodeFound;
     }
-    if (rightTree != NULL)
-    {
-        if (rightTree->root->flag == ID || rightTree->root->flag == PARAM)
-        {
-            Node *nodeFound = findSymbolNode(table, rightTree->root->name, table->levels);
-            if (nodeFound == NULL)
-            {
-                printf("buildSymbolTable: %s not declared. \n", rightTree->root->name);
-                exit(1);
-            }
-            tree->right->root = nodeFound;
-        }
-    }
+
+    handleCondition(table, tree->left);
+    handleCondition(table, tree->right);
 }
 
 void handleThenOrElse(SymbolTable *table, Tree *tree)
@@ -362,32 +348,14 @@ void handleThenOrElse(SymbolTable *table, Tree *tree)
 void handleMethodCall(SymbolTable *table, Tree *tree)
 {
     Node *leftChild = tree->left->root;
-    Node *nodeFound = findSymbolNode(table, leftChild->name, table->levels);
+    Node *nodeFound = searchSymbolInTable(table, leftChild->name, table->levels);
     if (nodeFound == NULL)
     {
         printf("buildSymbolTable: Method %s not declared. \n", leftChild->name);
         exit(1);
     }
     tree->left->root = nodeFound;
-    tree->left->root->parameters = nodeFound->parameters;   
-
-    /* Tree *paramList = tree->right;  // This contains the list of parameters in the left nodes
-    while (paramList != NULL) {
-        Node *paramNode = paramList->root;
-        printf(paramNode->name);
-        // Check if the parameter exists in the symbol table
-        Node *paramFound = findSymbolNode(table, paramNode->name, table->levels);
-        if (paramFound == NULL) {
-            printf("buildSymbolTable: Parameter %s not declared. \n", paramNode->name);
-            exit(1);
-        }
-        
-        // Update the parameter node in the tree with the found node from the symbol table
-        paramList->root = paramFound;
-
-        // Move to the next parameter (assuming parameters are linked via 'left' child)
-        paramList = paramList->left;
-    } */
+    tree->left->root->parameters = nodeFound->parameters;
 }
 
 void handleMethodEnd(SymbolTable *table, Tree *tree)
@@ -431,7 +399,7 @@ void handleVarDecl(SymbolTable *table, Tree *tree)
         }
         if (rightChild->flag == ID)
         {
-            Node *nodeToInsert = findSymbolNode(table, rightChild->name, table->levels);
+            Node *nodeToInsert = searchSymbolInTable(table, rightChild->name, table->levels);
             if (nodeToInsert == NULL)
             {
                 printf("buildSymbolTable: Variable %s not declared. \n", rightChild->name);
@@ -450,7 +418,7 @@ void handleAssign(SymbolTable *table, Tree *tree)
     Node *leftChild = tree->left->root;
     Node *rightChild = tree->right->root;
 
-    Node *nodeFound = findSymbolNode(table, leftChild->name, table->levels);
+    Node *nodeFound = searchSymbolInTable(table, leftChild->name, table->levels);
 
     if (nodeFound == NULL)
     {
@@ -466,7 +434,7 @@ void handleAssign(SymbolTable *table, Tree *tree)
     }
     if (rightChild->flag == ID)
     {
-        Node *nodeToInsert = findSymbolNode(table, rightChild->name, table->levels);
+        Node *nodeToInsert = searchSymbolInTable(table, rightChild->name, table->levels);
 
         if (nodeToInsert == NULL)
         {
@@ -479,6 +447,17 @@ void handleAssign(SymbolTable *table, Tree *tree)
     }
 
     buildSymbolTable(table, tree->right);
+}
+
+Node *searchAndValidateSymbol(SymbolTable *table, Node* nodeToSearch)
+{
+    Node *searchedNode = searchSymbolInTable(table, nodeToSearch->name, table->levels);
+    if (searchedNode == NULL)
+    {
+        printf("Variable %s not declared. \n", nodeToSearch->name);
+        exit(1);
+    }
+    return searchedNode;
 }
 
 void checkForDuplicateParameters(Tree *tree, const Node *leftChild) {
