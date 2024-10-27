@@ -28,13 +28,26 @@ Type checkTypes(Tree *tree)
             return root->type;
             break;
         // Expr cases
-        case PLUS:
         case MINUS:
-        case MULTIPLY:
+            hi = checkTypes(tree->left);
+            
+            if(hi != INTEGER)
+            {
+                printf("ERROR. MINUS CON UN NONTYPE\n");
+                exit(1);
+            }
+
+            return INTEGER;
+            break;
+
         case MOD:
+        case PLUS:
+        case MULTIPLY:
         case DIVISION:
             hi = checkTypes(tree->left);
             hd = checkTypes(tree->right);
+
+
             if(hi != INTEGER || hd != INTEGER)
             {
                 printf("OPERADOR INTEGER CON VALORES NO INTEGER\n");
@@ -42,6 +55,7 @@ Type checkTypes(Tree *tree)
             }
             return INTEGER;
             break;
+            
         case AND:
         case OR:
             hi = checkTypes(tree->left);
