@@ -321,10 +321,12 @@ expr:   TID {
         ;
 
 expr_list:  expr TCOMMA expr_list {
-                $$ = createTree($1, $3, NULL);
+                Node *newNode = createNonTerminalNode(EXPR);
+                $$ = createTree(newNode, $1, $3);
             }
             | expr {
-                $$ = createTree($1, NULL, NULL);
+                Node *newNode = createNonTerminalNode(EXPR);
+                $$ = createTree(newNode, $1, NULL);
             }
             | %empty { $$ = createTree(createNonTerminalNode(EMPTY), NULL, NULL); }
             ;

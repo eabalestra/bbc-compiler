@@ -3,11 +3,11 @@
 void checkForDuplicateParameters(Tree *tree, const Node *leftChild);
 void handleVarDecl(SymbolTable *table, Tree *tree);
 void handleMethodDecl(SymbolTable *table, Tree *tree);
-void handleMethodCall(SymbolTable *table, Tree *tree);
+void handleMethodCall(SymbolTable *table, Tree *methodTree);
 void handleThenOrElse(SymbolTable *table, Tree *tree);
 void handleWhile(SymbolTable *table, Tree *tree);
 void handleAssign(SymbolTable *table, Tree *tree);
-void handleCondition(SymbolTable *table, Tree *tree);
+void handleExpresion(SymbolTable *table, Tree *tree);
 
 /**
  * Allocates memory for and creates a new SymbolTable.
@@ -299,15 +299,19 @@ void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
         case ASSIGN:
             handleAssign(pTable, pTree);
             break;
+
+        // Expressions cases
+        case PLUS:
         case GRATERTHAN:
         case LESSTHAN:
         case MINUS:
         case MULTIPLY:
         case MOD:
+        case EQUALS:
         case DIVISION:
-        case PLUS:
-            handleCondition(pTable, pTree);
+            handleExpresion(pTable, pTree);
             break;
+
         default:
             buildSymbolTable(pTable, pTree->left);
             buildSymbolTable(pTable, pTree->right);
@@ -318,17 +322,16 @@ void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
 void handleWhile(SymbolTable *table, Tree *tree)
 {
     pushLevelToSymbolTable(table);
-    handleCondition(table, tree->left);
+    handleExpresion(table, tree->left);
     buildSymbolTable(table, tree->left);
     buildSymbolTable(table, tree->right);
     popLevelFromSymbolTable(table);
 }
 
-void handleCondition(SymbolTable *table, Tree *tree)
+void handleExpresion(SymbolTable *table, Tree *tree)
 {
     if (tree == NULL)
         return;
-
     if (tree->root->flag == ID || tree->root->flag == PARAM)
     {
         Node *nodeFound = searchSymbolInTable(table, tree->root->name, table->levels);
@@ -339,9 +342,8 @@ void handleCondition(SymbolTable *table, Tree *tree)
         }
         tree->root = nodeFound;
     }
-
-    handleCondition(table, tree->left);
-    handleCondition(table, tree->right);
+    handleExpresion(table, tree->left);
+    handleExpresion(table, tree->right);
 }
 
 void handleThenOrElse(SymbolTable *table, Tree *tree)
@@ -352,17 +354,40 @@ void handleThenOrElse(SymbolTable *table, Tree *tree)
     buildSymbolTable(table, tree->right);
 }
 
-void handleMethodCall(SymbolTable *table, Tree *tree)
+void handleMethodCall(SymbolTable *table, Tree *methodTree)
 {
-    Node *leftChild = tree->left->root;
-    Node *nodeFound = searchSymbolInTable(table, leftChild->name, table->levels);
-    if (nodeFound == NULL)
+    Node *leftChild = methodTree->left->root;
+
+    Node *methodNode = searchSymbolInTable(table, leftChild->name, table->levels);
+    if (methodNode == NULL)
     {
         printf("buildSymbolTable: Method %s not declared. \n", leftChild->name);
         exit(1);
     }
-    tree->left->root = nodeFound;
-    tree->left->root->parameters = nodeFound->parameters;
+
+    methodTree->left->root = methodNode;
+    methodTree->left->root->parameters = methodNode->parameters;
+
+    Tree * methodParameters = methodTree->right;
+    Tree * actualMethodParameter = methodParameters->left;
+
+    while (methodParameters != NULL)
+    {
+        if (actualMethodParameter != NULL && actualMethodParameter->root->flag == ID)
+        {
+            Node * searchedNode = searchAndValidateSymbol(table, actualMethodParameter->root);
+            actualMethodParameter->root = searchedNode;
+        }
+        else
+        {
+            buildSymbolTable(table, actualMethodParameter);
+        }
+        methodParameters = methodParameters->right;
+        if (methodParameters != NULL)
+        {
+            actualMethodParameter = methodParameters->left;
+        }
+    }
 }
 
 void handleMethodDecl(SymbolTable *table, Tree *tree)

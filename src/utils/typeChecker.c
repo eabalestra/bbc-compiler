@@ -2,6 +2,8 @@
 
 Node *currentMethod; // variable global para la funcion actual en la que estoy
 
+Type currentMethodType;
+int flagReturn = 0;
 Type checkTypes(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -12,9 +14,6 @@ Type checkTypes(Tree *tree)
     Node *root = tree->root;
     Type hi;
     Type hd;
-    Type typeID;
-    Type typeReturn;
-    Type currentMethodType;
 
     switch (root->flag)
     {
@@ -28,25 +27,21 @@ Type checkTypes(Tree *tree)
         case ID:
             return root->type;
             break;
-
+        // Expr cases
         case PLUS:
         case MINUS:
         case MULTIPLY:
         case MOD:
         case DIVISION:
-
             hi = checkTypes(tree->left);
             hd = checkTypes(tree->right);
-
             if(hi != INTEGER || hd != INTEGER)
             {
-
                 printf("OPERADOR INTEGER CON VALORES NO INTEGER\n");
                 exit(1);
             }
             return INTEGER;
             break;
-
         case AND:
         case OR:
             hi = checkTypes(tree->left);
@@ -58,7 +53,6 @@ Type checkTypes(Tree *tree)
             }
             return BOOLEAN;
             break;
-
         case NOT:
             hi = checkTypes(tree->left);
 
@@ -67,12 +61,10 @@ Type checkTypes(Tree *tree)
                 exit(1);
             }
             return BOOLEAN;
-
             break;
 
         case GRATERTHAN:
         case LESSTHAN:
-
             hi = checkTypes(tree->left);
             hd = checkTypes(tree->right);
 
@@ -86,15 +78,23 @@ Type checkTypes(Tree *tree)
             break;
 
         case ASSIGN:
+            hi = checkTypes(tree->left);
+            hd = checkTypes(tree->right);
+            if(hi != hd)
+            {
+                printf("ERROR. ASSIGN\n");
+                exit(1);
+            }
+            break;
         case EQUALS:
             hi = checkTypes(tree->left);
             hd = checkTypes(tree->right);
-
             if(hi != hd)
             {
                 printf("ERROR. EQUALS\n");
                 exit(1);
             }
+            return BOOLEAN;
             break;
 
         case VARDECL:
@@ -104,7 +104,6 @@ Type checkTypes(Tree *tree)
             {
                 return;
             }
-
             if(hi != hd)
             {
                 printf("ERROR. VARDECL\n");
@@ -112,45 +111,33 @@ Type checkTypes(Tree *tree)
             }
             break;
         case RETURN:
-        case BLOCK:
-        case COLON:
-            return checkTypes(tree->left);
+            hi = checkTypes(tree->left);
+            if (hi != currentMethodType)
+            {
+                printf("ERROR TYPE RETURN\n");
+                exit(1);
+            }
+            flagReturn = 1;
             break;
-
+        case EXTERN:
+            flagReturn = 1;
+            break;
         case METHODCALL:
             Tree *formalParameters = tree->left->root->parameters;
-            Tree *actualParameters = NULL;
-            if (tree->right != NULL)
-            {
-                actualParameters = tree->right->root->parameters;
-            }
+            Tree *actualParameters = tree->right;
             checkParameters(tree->left, formalParameters, actualParameters);
             return checkTypes(tree->left);
             break;
-
         case METHODDECL:
-            typeID = checkTypes(tree->left);
-            typeReturn = checkTypes(tree->right);
-
-            if (typeID == VOID)
+            currentMethodType = checkTypes(tree->left);
+            checkTypes(tree->right);
+            if (currentMethodType != VOID && flagReturn == 0)
             {
-                if (typeReturn != NONTYPE)
-                {
-                    printf("ERROR RETURN VOID.\n");
-                    exit(1);
-                }
-
+                printf("ERROR. NO RETURN\n");
+                exit(1);
             }
-            else
-            {
-                if(typeReturn != typeID)
-                {
-                    printf("ERROR RETURN.\n");
-                    exit(1);
-                }
-            }
+            flagReturn = 0;
             break;
-
         default:
             break;
     }
@@ -161,7 +148,7 @@ Type checkTypes(Tree *tree)
 /**
  *
  */
-Type checkExpressionTypes(Tree *tree)
+Type getExprType(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
     {
@@ -173,15 +160,15 @@ Type checkExpressionTypes(Tree *tree)
 
     if (nodeFlag == METHODCALL)
     {
-        return checkExpressionTypes(tree->left); // chequea el tipo del metodo
+        return getExprType(tree->left); // chequea el tipo del metodo
     }
     if (nodeFlag == ID || nodeFlag == NUMBER || nodeFlag == BOOL || nodeFlag == PARAM)
     {
         return node->type;
     }
 
-    Type leftType = checkExpressionTypes(tree->left);
-    Type rightType = checkExpressionTypes(tree->right);
+    Type leftType = getExprType(tree->left);
+    Type rightType = getExprType(tree->right);
 
     if (nodeFlag == PLUS || nodeFlag == MINUS || nodeFlag == MULTIPLY || nodeFlag == MOD || nodeFlag == DIVISION)
     {
@@ -228,29 +215,32 @@ Type checkExpressionTypes(Tree *tree)
 
 void checkParameters(Tree *method, Tree *formalParameters, Tree *actualParameters)
 {
-    while (formalParameters != NULL && actualParameters != NULL)
+    while (formalParameters != NULL && actualParameters != NULL && actualParameters->root->flag != EMPTY)
     {
-        Node *formalParameter = formalParameters->root;
-        Node *actualParameter = actualParameters->root;
+        Tree *expression = actualParameters->left;
 
-        if (formalParameter->type != actualParameter->type)
+        Node *formalParameter = formalParameters->root;
+        Node *actualParameterNode = expression->root;
+        Type actualParameterType = getExprType(expression);
+
+        if (formalParameter->type != actualParameterType)
         {
             printf("Type Error [Line %d]: Parameter '%s' is declared as type '%s', "
                    "but is assigned a value of incompatible type '%s'.\n",
-                   actualParameter->line_number, formalParameter->name,
-                   nodeTypeToString(formalParameter->type), nodeTypeToString(actualParameter->type));
+                   actualParameterNode->line_number, formalParameter->name,
+                   nodeTypeToString(formalParameter->type), nodeTypeToString(actualParameterType));
             exit(1);
         }
 
         formalParameters = formalParameters->left;
-        actualParameters = actualParameters->left;
+        actualParameters = actualParameters->right;
     }
     if (formalParameters != NULL)
     {
         printf("Type Error [Line %d]: Too few parameters in method call.\n", method->root->line_number);
         exit(1);
     }
-    if (actualParameters != NULL)
+    if (actualParameters != NULL && actualParameters->root->flag != EMPTY)
     {
         printf("Type Error [Line %d]: Too many parameters in method call.\n", method->root->line_number);
         exit(1);

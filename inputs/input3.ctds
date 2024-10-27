@@ -15,7 +15,7 @@ Program {
         if (n > 5) then {
             x = n * 2; 
         } else {
-            x = n - (-2); 
+            x = n - (-2);
         }
 
         if (mod_value == 0) then {
@@ -26,13 +26,10 @@ Program {
         } else {
             x = x - 1; 
         }
-        
-        return;
     }
 
     void main() {
         integer val = get_value();
         process_value(val);
-        return;
     }
 }

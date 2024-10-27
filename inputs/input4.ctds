@@ -24,6 +24,5 @@ Program {
         integer a = 10; 
         integer b = 25; 
         check_values(a, b);
-        return; 
     }
 }

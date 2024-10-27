@@ -1,7 +1,5 @@
 Program
 {
-    integer x = 1;
-
     integer inc(integer x)
     {
         return x + x;
@@ -13,6 +11,15 @@ Program
 
     void main()
     {
-        print_int();
+        integer y = 0;
+        y = get_int();
+        if (y == 1) then
+        {
+            print_int(y);
+        }
+        else
+        {
+            return print_int(inc(y));
+        }
     }
 }

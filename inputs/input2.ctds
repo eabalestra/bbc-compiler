@@ -15,9 +15,8 @@ Program {
         while (count < 10) {
             count = count + 1;
         }
-        if (flag && count == 0) then {
+        if (flag && (count == 0)) then {
             count = 1;
         }
-        return;
     }
 }
