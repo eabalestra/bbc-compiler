@@ -1,13 +1,27 @@
-Program 
+Program
 {
-    integer y = 5 + 5;
+    integer x = 1;
 
-    integer get_int(integer a) extern ;
-    
-    void main() {
-        integer result = get_int(y);
+    integer inc(integer x)
+    {
+        return x + x;
+    }
+
+    integer get_int() extern;
+
+    void print_int(integer i) extern ;
+
+    void main()
+    {
+        integer y = 0;
+        y = get_int();
+        if (y == 1) then
+        {
+            print_int(y);
+        }
+        else
+        {
+            return print_int(inc(y));
+        }
     }
 }
-
-// bool x = 1 < get_int(); no funca esto
-// bool x =  < 1; no funca esto

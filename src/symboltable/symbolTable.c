@@ -104,7 +104,7 @@ void insertSymbolInSymbolTable(SymbolTable *table, Node *symbol, int level)
     SymbolList *newSymbolList = createSymbolList(symbol);
     levelAux->next = newSymbolList;
     tableAux->levelData->size++;
-    // printSymbolTable(table);
+    printSymbolTable(table);
 }
 
 /**
@@ -196,35 +196,41 @@ void printSymbolTable(SymbolTable *table)
     SymbolTable *tableAux = table;
     int levelAct = 0;
 
-    printf("\n-- SYMBOL TABLE --\n");
+    printf("\n+------------------ SYMBOL TABLE ------------------+\n");
     while (tableAux != NULL)
     {
-        printf("\n--- LEVEL %d ---\n", levelAct);
+        printf("\n+-------------------- LEVEL %d --------------------+\n", levelAct);
         SymbolList *symbolList = tableAux->levelData;
+
+        printf("| %-10s | %-10s | %-10s | %-10s |\n", "NODE", "TYPE", "NAME", "VALUE");
+        printf("+------------+------------+------------+------------+\n");
 
         while (symbolList != NULL)
         {
             if (symbolList->symbol != NULL)
             {
-                printf("NODE %s\n", nodeFlagToString(symbolList->symbol->flag));
-                printf("type: %s\n", nodeTypeToString(symbolList->symbol->type));
-                printf("name: %s\n", symbolList->symbol->name);
-                printf("value: %d\n", symbolList->symbol->value);
-                printf("---------\n");
+                printf("| %-10s | %-10s | %-10s | %-10d |\n",
+                       nodeFlagToString(symbolList->symbol->flag),
+                       nodeTypeToString(symbolList->symbol->type),
+                       symbolList->symbol->name,
+                       symbolList->symbol->value);
             }
             symbolList = symbolList->next;
         }
 
+        printf("+------------+------------+------------+------------+\n");
+
         tableAux = tableAux->next;
         levelAct++;
     }
+    printf("+--------------------------------------------------+\n");
 }
 
 /**
  * Performs a semantic analysis on the provided abstract syntax tree (AST)
  * and builds a symbol table.
  *
- * @param ast tree to perform the semantic check on.
+ * @param ast tree to perform the semantic checkForDuplicateParameters on.
  * @return pointer to the constructed SymbolTable after processing the AST.
  */
 SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
@@ -236,59 +242,69 @@ SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
     return table;
 }
 
+void checkForDuplicateParameters(Tree *tree, const Node *leftChild);
+
 /**
- * Traverses the provided AST and builds the symbol table.
+ * Traverses the provided AST and builds the symbol pTable.
  *
- * @param table pointer to the symbol table to be built.
- * @param tree pointer to the AST tree representing the program structure.
+ * @param pTable pointer to the symbol pTable to be built.
+ * @param pTree pointer to the AST pTree representing the program structure.
  */
-void buildSymbolTable(SymbolTable *table, Tree *tree)
+void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
 {
-    if (tree == NULL || tree->root == NULL)
+    if (pTree == NULL || pTree->root == NULL)
     {
         return;
     }
 
-    Tag flag = tree->root->flag;
+    Tag flag = pTree->root->flag;
 
     switch (flag)
     {
-    case VARDECL:
-        handleVarDecl(table, tree);
-        break;
-    case METHODDECL:
-        handleMethodDecl(table, tree);
-        break;
-    case METHODCALL:
-        handleMethodCall(table, tree);
-        break;
-    case METHODEND:
-        pushLevelToSymbolTable(table);
-        Node *leftChild = tree->left->root;
-        if (leftChild->flag == ID)
-        {
-            insertSymbolInSymbolTable(table, leftChild, table->levels);
-        }
-        buildSymbolTable(table, tree->left);
-        buildSymbolTable(table, tree->right);
-
-        popLevelFromSymbolTable(table);
-        break;
-    case THEN:
-    case ELSE:
-        handleThenOrElse(table, tree);
-        break;
-    case IF:
-    case WHILE:
-        handleWhile(table, tree);
-        break;
-    case ASSIGN:
-        handleAssign(table, tree);
-        break;
-    default:
-        buildSymbolTable(table, tree->left);
-        buildSymbolTable(table, tree->right);
-        break;
+        case VARDECL:
+            handleVarDecl(pTable, pTree);
+            break;
+        case PARAM:
+            insertSymbolInSymbolTable(pTable, pTree->root, pTable->levels);
+            pTree->root = findSymbolNode(pTable, pTree->root->name, pTable->levels);
+            buildSymbolTable(pTable, pTree->left);
+            break;
+        case METHODDECL:
+            handleMethodDecl(pTable, pTree);
+            break;
+        case METHODCALL:
+            handleMethodCall(pTable, pTree);
+            break;
+        case METHODEND:
+            pushLevelToSymbolTable(pTable);
+            buildSymbolTable(pTable, pTree->left);
+            buildSymbolTable(pTable, pTree->right);
+            popLevelFromSymbolTable(pTable);
+            break;
+        case THEN:
+        case ELSE:
+            handleThenOrElse(pTable, pTree);
+            break;
+        case IF:
+        case WHILE:
+            handleWhile(pTable, pTree);
+            break;
+        case ASSIGN:
+            handleAssign(pTable, pTree);
+            break;
+        case GRATERTHAN:
+        case LESSTHAN:
+        case MINUS:
+        case MULTIPLY:
+        case MOD:
+        case DIVISION:
+        case PLUS:
+            handleCondition(pTable, pTree);
+            break;
+        default:
+            buildSymbolTable(pTable, pTree->left);
+            buildSymbolTable(pTable, pTree->right);
+            break;
     }
 }
 
@@ -301,6 +317,7 @@ void handleWhile(SymbolTable *table, Tree *tree)
     popLevelFromSymbolTable(table);
 }
 
+// TODO: cambiar esto
 void handleCondition(SymbolTable *table, Tree *tree)
 {
     Tree *leftTree = tree->left;
@@ -308,9 +325,8 @@ void handleCondition(SymbolTable *table, Tree *tree)
 
     if (leftTree != NULL)
     {
-        if (leftTree->root->flag == ID)
+        if (leftTree->root->flag == PARAM || leftTree->root->flag == ID)
         {
-
             Node *nodeFound = findSymbolNode(table, leftTree->root->name, table->levels);
             if (nodeFound == NULL)
             {
@@ -322,9 +338,8 @@ void handleCondition(SymbolTable *table, Tree *tree)
     }
     if (rightTree != NULL)
     {
-        if (rightTree->root->flag == ID)
+        if (rightTree->root->flag == ID || rightTree->root->flag == PARAM)
         {
-
             Node *nodeFound = findSymbolNode(table, rightTree->root->name, table->levels);
             if (nodeFound == NULL)
             {
@@ -356,7 +371,6 @@ void handleMethodCall(SymbolTable *table, Tree *tree)
     tree->left->root = nodeFound;
     tree->left->root->parameters = nodeFound->parameters;   
 
-    printf(tree->right->root->name);
     /* Tree *paramList = tree->right;  // This contains the list of parameters in the left nodes
     while (paramList != NULL) {
         Node *paramNode = paramList->root;
@@ -397,9 +411,11 @@ void handleMethodDecl(SymbolTable *table, Tree *tree)
     {
         leftChild->parameters = tree->right->left;
     }
+    checkForDuplicateParameters(tree, leftChild);
     insertSymbolInSymbolTable(table, leftChild, table->levels);
     buildSymbolTable(table, tree->right);
 }
+
 
 void handleVarDecl(SymbolTable *table, Tree *tree)
 {
@@ -463,4 +479,25 @@ void handleAssign(SymbolTable *table, Tree *tree)
     }
 
     buildSymbolTable(table, tree->right);
+}
+
+void checkForDuplicateParameters(Tree *tree, const Node *leftChild) {
+    Tree *paramList = tree->right->left;
+    char *paramNames[100];
+    int paramCount = 0;
+
+    while (paramList != NULL)
+    {
+        Node *paramNode = paramList->root;
+        for (int i = 0; i < paramCount; i++)
+        {
+            if (strcmp(paramNames[i], paramNode->name) == 0)
+            {
+                printf("Parameter %s is duplicated in method %s\n", paramNode->name, leftChild->name);
+                exit(1);
+            }
+        }
+        paramNames[paramCount++] = paramNode->name;
+        paramList = paramList->left;
+    }
 }
