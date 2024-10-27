@@ -16,7 +16,9 @@ typedef struct SymbolTable
     struct SymbolTable *previous;
 } SymbolTable;
 
-SymbolTable *createSymbolTable();   
+static const int MAX_PARAMS_ALLOWED = 100;
+
+SymbolTable *createSymbolTable();
 void pushLevelToSymbolTable(SymbolTable *table); 
 void popLevelFromSymbolTable(SymbolTable *table);
 
@@ -28,14 +30,5 @@ Node *searchAndValidateSymbol(SymbolTable *table, Node* nodeToSearch);
 
 SymbolTable *semanticCheck(SymbolTable *table, Tree *ast);
 void buildSymbolTable(SymbolTable *pTable, Tree *pTree);
-
-void handleVarDecl(SymbolTable *table, Tree *tree);
-void handleMethodDecl(SymbolTable *table, Tree *tree);
-void handleMethodEnd(SymbolTable *table, Tree *tree);
-void handleMethodCall(SymbolTable *table, Tree *tree);
-void handleThenOrElse(SymbolTable *table, Tree *tree);
-void handleWhile(SymbolTable *table, Tree *tree);
-void handleAssign(SymbolTable *table, Tree *tree);
-void handleCondition(SymbolTable *table, Tree *tree);
 
 #endif // SYMBOL_TABLE_H

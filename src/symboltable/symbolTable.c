@@ -1,6 +1,13 @@
 #include "../../include/symbolTable.h"
 
 void checkForDuplicateParameters(Tree *tree, const Node *leftChild);
+void handleVarDecl(SymbolTable *table, Tree *tree);
+void handleMethodDecl(SymbolTable *table, Tree *tree);
+void handleMethodCall(SymbolTable *table, Tree *tree);
+void handleThenOrElse(SymbolTable *table, Tree *tree);
+void handleWhile(SymbolTable *table, Tree *tree);
+void handleAssign(SymbolTable *table, Tree *tree);
+void handleCondition(SymbolTable *table, Tree *tree);
 
 /**
  * Allocates memory for and creates a new SymbolTable.
@@ -358,20 +365,6 @@ void handleMethodCall(SymbolTable *table, Tree *tree)
     tree->left->root->parameters = nodeFound->parameters;
 }
 
-void handleMethodEnd(SymbolTable *table, Tree *tree)
-{
-    pushLevelToSymbolTable(table);
-    Node *leftChild = tree->left->root;
-    if (leftChild->flag == ID)
-    {
-        insertSymbolInSymbolTable(table, leftChild, table->levels);
-    }
-    buildSymbolTable(table, tree->left);
-    buildSymbolTable(table, tree->right);
-
-    popLevelFromSymbolTable(table);
-}
-
 void handleMethodDecl(SymbolTable *table, Tree *tree)
 {
     Node *leftChild = tree->left->root;
@@ -462,7 +455,7 @@ Node *searchAndValidateSymbol(SymbolTable *table, Node* nodeToSearch)
 
 void checkForDuplicateParameters(Tree *tree, const Node *leftChild) {
     Tree *paramList = tree->right->left;
-    char *paramNames[100];
+    char *paramNames[MAX_PARAMS_ALLOWED];
     int paramCount = 0;
 
     while (paramList != NULL)
