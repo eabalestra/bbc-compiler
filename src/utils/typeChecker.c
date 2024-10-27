@@ -12,8 +12,8 @@ Type checkTypes(Tree *tree)
     }
 
     Node *root = tree->root;
-    Type hi;
-    Type hd;
+    Type hiType;
+    Type hdType;
 
     switch (root->flag)
     {
@@ -29,14 +29,23 @@ Type checkTypes(Tree *tree)
             break;
         // Expr cases
         case MINUS:
-            hi = checkTypes(tree->left);
+            hiType = checkTypes(tree->left);
             
-            if(hi != INTEGER)
-            {
-                printf("ERROR. MINUS CON UN NONTYPE\n");
-                exit(1);
+            if (tree->right == NULL) { // unary minus case
+                if(hiType != INTEGER)
+                {
+                    printf("Type Mismatch Error [Line %d]: Unary '-' operator requires INTEGER type, but got '%s'.\n",
+                    root->line_number, nodeTypeToString(hiType));
+                    exit(1);
+                }
+            } else {
+                hdType = checkTypes(tree->right);
+                if (hiType != INTEGER || hdType != INTEGER) {
+                    printf("Type Mismatch Error [Line %d]: Binary '-' operator requires INTEGER types, but got '%s' and '%s'.\n",
+                    root->line_number, nodeTypeToString(hiType), nodeTypeToString(hdType));
+                    exit(1);
+                }
             }
-
             return INTEGER;
             break;
 
@@ -44,13 +53,14 @@ Type checkTypes(Tree *tree)
         case PLUS:
         case MULTIPLY:
         case DIVISION:
-            hi = checkTypes(tree->left);
-            hd = checkTypes(tree->right);
+            hiType = checkTypes(tree->left);
+            hdType = checkTypes(tree->right);
 
 
-            if(hi != INTEGER || hd != INTEGER)
+            if(hiType != INTEGER || hdType != INTEGER)
             {
-                printf("OPERADOR INTEGER CON VALORES NO INTEGER\n");
+                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires INTEGER types, but got '%s' and '%s'.\n",
+                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
                 exit(1);
             }
             return INTEGER;
@@ -58,20 +68,22 @@ Type checkTypes(Tree *tree)
             
         case AND:
         case OR:
-            hi = checkTypes(tree->left);
-            hd = checkTypes(tree->right);
-            if(hi != BOOLEAN || hd != BOOLEAN)
+            hiType = checkTypes(tree->left);
+            hdType = checkTypes(tree->right);
+            if(hiType != BOOLEAN || hdType != BOOLEAN)
             {
-                printf("OPERADOR BOOLEANO CON VALORES NO BOOLEANOS\n");
+                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires BOOLEAN types, but got '%s' and '%s'.\n",
+                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
                 exit(1);
             }
             return BOOLEAN;
             break;
         case NOT:
-            hi = checkTypes(tree->left);
+            hiType = checkTypes(tree->left);
 
-            if(hi != BOOLEAN){
-                printf("ERROR.3\n");
+            if(hiType != BOOLEAN){
+                printf("Type Mismatch Error [Line %d]: Unary '%s' operator requires BOOLEAN types, but got '%s'.\n",
+                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType));
                 exit(1);
             }
             return BOOLEAN;
@@ -79,12 +91,13 @@ Type checkTypes(Tree *tree)
 
         case GRATERTHAN:
         case LESSTHAN:
-            hi = checkTypes(tree->left);
-            hd = checkTypes(tree->right);
+            hiType = checkTypes(tree->left);
+            hdType = checkTypes(tree->right);
 
-            if(hi != INTEGER || hd != INTEGER)
+            if(hiType != INTEGER || hdType != INTEGER)
             {
-                printf("OPERADOR INTEGER CON VALORES NO INTEGER\n");
+                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires INTEGER types, but got '%s' and '%s'.\n",
+                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
                 exit(1);
             }
 
@@ -92,43 +105,47 @@ Type checkTypes(Tree *tree)
             break;
 
         case ASSIGN:
-            hi = checkTypes(tree->left);
-            hd = checkTypes(tree->right);
-            if(hi != hd)
+            hiType = checkTypes(tree->left);
+            hdType = checkTypes(tree->right);
+            if(hiType != hdType)
             {
-                printf("ERROR. ASSIGN\n");
+                printf("Type Mismatch Error [Line %d]: Expected matching types for assignment but found '%s' and '%s'.\n", 
+                root->line_number, nodeTypeToString(hiType), nodeTypeToString(hdType));
                 exit(1);
             }
             break;
         case EQUALS:
-            hi = checkTypes(tree->left);
-            hd = checkTypes(tree->right);
-            if(hi != hd)
+            hiType = checkTypes(tree->left);
+            hdType = checkTypes(tree->right);
+            if(hiType != hdType)
             {
-                printf("ERROR. EQUALS\n");
+                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires matching types, but got '%s' and '%s'.\n",
+                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
                 exit(1);
             }
             return BOOLEAN;
             break;
 
         case VARDECL:
-            hi = checkTypes(tree->left);
-            hd = checkTypes(tree->right);
-            if(hd == NONTYPE)
+            hiType = checkTypes(tree->left);
+            hdType = checkTypes(tree->right);
+            if(hdType == NONTYPE)
             {
                 return;
             }
-            if(hi != hd)
+            if(hiType != hdType)
             {
-                printf("ERROR. VARDECL\n");
+                printf("Type Mismatch Error [Line %d]: Expected matching types for declaration but found '%s' and '%s'.\n", 
+                root->line_number, nodeTypeToString(hiType), nodeTypeToString(hdType));
                 exit(1);
             }
             break;
         case RETURN:
-            hi = checkTypes(tree->left);
-            if (hi != currentMethodType)
+            hiType = checkTypes(tree->left);
+            if (hiType != currentMethodType)
             {
-                printf("ERROR TYPE RETURN\n");
+                printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got '%s'.\n",
+                root->line_number, nodeTypeToString(currentMethodType), nodeTypeToString(hiType));
                 exit(1);
             }
             flagReturn = 1;
@@ -147,7 +164,8 @@ Type checkTypes(Tree *tree)
             checkTypes(tree->right);
             if (currentMethodType != VOID && flagReturn == 0)
             {
-                printf("ERROR. NO RETURN\n");
+                printf("Type Mismatch Error [Line %d]: Method '%s' expected a return statement of type '%s' and got none.\n",
+                root->line_number, tree->left->root->name, nodeTypeToString(currentMethodType));
                 exit(1);
             }
             flagReturn = 0;
@@ -221,7 +239,7 @@ Type getExprType(Tree *tree)
     }
     else
     {
-        printf("Type Error [Line %d]: Operator '%s' is not defined for types '%s' and '%s'.\n",
+        printf("Type Mismatch Error [Line %d]: Operator '%s' is not defined for types '%s' and '%s'.\n",
                node->line_number, nodeFlagToString(nodeFlag), nodeTypeToString(leftType), nodeTypeToString(rightType));
         exit(1);
     }

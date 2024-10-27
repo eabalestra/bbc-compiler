@@ -309,6 +309,9 @@ void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
         case MOD:
         case EQUALS:
         case DIVISION:
+        case AND:
+        case OR:
+        case NOT:
             handleExpresion(pTable, pTree);
             break;
 
