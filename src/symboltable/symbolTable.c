@@ -113,7 +113,7 @@ void insertSymbolInSymbolTable(SymbolTable *table, Node *symbol, int level)
     SymbolList *newSymbolList = createSymbolList(symbol);
     levelAux->next = newSymbolList;
     tableAux->levelData->size++;
-    printSymbolTable(table);
+    // printSymbolTable(table);
 }
 
 /**

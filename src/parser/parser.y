@@ -6,6 +6,7 @@
     #include "../include/tree.h"
     #include "../include/type.h"
     #include "../include/symbolTable.h"
+    #include "../include/threeAddressGenerator.h"
     
     Tree *ast;
     SymbolTable *symbolTable;
@@ -94,8 +95,8 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
                 printTree(ast);
-                //printSymbolTable(symbolTable);
-
+                generateThreeAddressCode(ast);
+                
                 symbolTable = semanticCheck(symbolTable, ast);
                 printf("PARSER OK\n");
             }
@@ -105,7 +106,7 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
                 printTree(ast);
-                //printSymbolTable(symbolTable);
+                generateThreeAddressCode(ast);
 
                 symbolTable = semanticCheck(symbolTable, ast);
                 printf("PARSER OK\n");
