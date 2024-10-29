@@ -129,6 +129,8 @@ char *nodeFlagToString(Tag flag)
         return "EMPTY";
     case PARAM:
         return "PARAM";
+    case CALL:
+        return "CALL";
     default:
         return "UNKNOWN";
     }

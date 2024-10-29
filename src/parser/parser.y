@@ -95,7 +95,7 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
-                //symbolTable = semanticCheck(symbolTable, ast);
+                // symbolTable = semanticCheck(symbolTable, ast);
                 generateThreeAddressCode(ast);
 
                 QuadrupleLinkedList *qll = getQuadrupleList();
@@ -103,14 +103,14 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 printTree(ast);
                 printQuadrupleLinkedList(qll);
 
-                printf("PARSER OK\n");
+                printf("\nPARSER OK\n");
             }
             | TPROGRAM TLCURLY method_decls TRCURLY {
                 symbolTable = createSymbolTable();
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
-                //symbolTable = semanticCheck(symbolTable, ast);
+                // symbolTable = semanticCheck(symbolTable, ast);
                 generateThreeAddressCode(ast);
 
                 QuadrupleLinkedList *qll = getQuadrupleList();
@@ -118,7 +118,7 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 printTree(ast);
                 printQuadrupleLinkedList(qll);
 
-                printf("PARSER OK\n");
+                printf("\nPARSER OK\n");
             }
             ;
 
