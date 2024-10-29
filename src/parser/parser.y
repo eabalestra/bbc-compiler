@@ -7,6 +7,7 @@
     #include "../include/type.h"
     #include "../include/symbolTable.h"
     #include "../include/threeAddressGenerator.h"
+    #include "../include/quadrupleLinkedList.h"
     
     Tree *ast;
     SymbolTable *symbolTable;
@@ -94,10 +95,14 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
-                printTree(ast);
+                //symbolTable = semanticCheck(symbolTable, ast);
                 generateThreeAddressCode(ast);
-                
-                symbolTable = semanticCheck(symbolTable, ast);
+
+                QuadrupleLinkedList *qll = getQuadrupleList();
+
+                printTree(ast);
+                printQuadrupleLinkedList(qll);
+
                 printf("PARSER OK\n");
             }
             | TPROGRAM TLCURLY method_decls TRCURLY {
@@ -105,10 +110,14 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
-                printTree(ast);
+                //symbolTable = semanticCheck(symbolTable, ast);
                 generateThreeAddressCode(ast);
 
-                symbolTable = semanticCheck(symbolTable, ast);
+                QuadrupleLinkedList *qll = getQuadrupleList();
+
+                printTree(ast);
+                printQuadrupleLinkedList(qll);
+
                 printf("PARSER OK\n");
             }
             ;

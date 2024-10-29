@@ -1,90 +1,61 @@
 #include "../../include/threeAddressGenerator.h"
 
-QuadrupleLinkedList *quadrupleList = NULL;
+QuadrupleLinkedList *quadrupleList;
 
 Node *newTemp();
 
-Node *generateThreeAddressCode(Tree *tree)
-{
-    if (tree == NULL || tree->root == NULL)
-    {
+QuadrupleLinkedList *getQuadrupleList() {
+    return quadrupleList;
+}
+
+Node *generateThreeAddressCode(Tree *tree) {
+    if (tree == NULL || tree->root == NULL) {
         return NULL;
     }
-
+    printf("\nENTRE A GENERATE\n");
     Tag flag = tree->root->flag;
-    Node *temp;
-    Node *arg1;
-    Node *arg2;
-    Quadruple *quad;
+    printf("FLAG: %s\n", nodeFlagToString(flag));
+    Node *temp = NULL;
+    Node *arg1 = NULL;
+    Node *arg2 = NULL;
+    Quadruple *quad = NULL;
 
-    switch (flag)
-    {
-    case PROG:
-        quadrupleList = newQuadrupleLinkedList(NULL);
-        break;
-    case ID:
-        return tree->root;
-        break;
-    case ASSIGN:
-        temp = newTemp();
-        arg1 = generateThreeAddressCode(tree->right);
-        quad = newUnaryQuadruple(flag, arg1, temp);
-        addQuadrupleLinkedList(quadrupleList, temp);
-        return temp;
-        break;
-    case PLUS:
-        temp = newTemp();
-        arg1 = generateThreeAddressCode(tree->left);
-        arg2 = generateThreeAddressCode(tree->right);
-        Quadruple *quad = newQuadruple(flag, arg1, arg2, temp);
-        addQuadrupleLinkedList(quadrupleList, temp);
-        return temp;
-        break;
-    default:
-        break;
+    switch (flag) {
+        case PROG:
+            quadrupleList = newQuadrupleLinkedList(NULL);
+            break;
+        case PARAM:
+        case ID:
+            return tree->root;
+        case ASSIGN:
+            printf("ENTRE A ASSIGN\n");
+            temp = newTemp();
+            arg1 = generateThreeAddressCode(tree->right);
+            quad = newUnaryQuadruple(flag, arg1, temp);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList,  quad);
+            return temp;
+        case PLUS:
+            temp = newTemp();
+            arg1 = generateThreeAddressCode(tree->left);
+            arg2 = generateThreeAddressCode(tree->right);
+            quad = newQuadruple(flag, arg1, arg2, temp);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+            return temp;
+        default:
+            break;
     }
     generateThreeAddressCode(tree->left);
     generateThreeAddressCode(tree->right);
-    if (quadrupleList != NULL)
-    {
-        printQuadrupleLinkedList(quadrupleList);
-    }
+    return NULL;
 }
 
 int i = 0;
 Node *newTemp()
 {
-    char *name = "t" + i;
+    char name[10];
+    sprintf(name, "t%d", i);
     i = i + 1;
     Node *temp = malloc(sizeof(Node));
-    temp->name = name;
+    temp->name = strdup(name);
     return temp;
 }
-
-/*
-
-QuadrupleLinkedList *quadrupleList
-
-void *recorrer(Tree *tree)
-{
-    if (tree == NULL)
-    {
-        return NULL;
-    }
-
-    recorrer(tree->left);
-    acción(tree->root, quadrupleList);
-    recorrer(tree->right);
-
-}
-
-void acción(Node *node, QuadrupleLinkedList *list)
-{
-    Tag tag = node->flag;
-
-
-    
-
-}
-
-*/

@@ -21,9 +21,9 @@ QuadrupleLinkedList *addQuadrupleLinkedList(QuadrupleLinkedList *list, Quadruple
 void printQuadrupleLinkedList(QuadrupleLinkedList *list)
 {
     QuadrupleLinkedList *current = list;
-    while (current != NULL)
+    while (current->next != NULL)
     {
         printQuadruple(current->quadruple);
         current = current->next;
-    }   
+    }
 }

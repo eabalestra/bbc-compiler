@@ -10,5 +10,6 @@
 #include "quadrupleLinkedList.h"
 
 Node *generateThreeAddressCode(Tree *tree);
+QuadrupleLinkedList *getQuadrupleList();
 
 #endif // THREE_ADDRESS_GENERATOR_H
