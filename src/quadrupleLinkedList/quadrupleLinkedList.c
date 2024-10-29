@@ -14,14 +14,23 @@ QuadrupleLinkedList *newQuadrupleLinkedList(Quadruple *quad)
 QuadrupleLinkedList *addQuadrupleLinkedList(QuadrupleLinkedList *list, Quadruple *quad)
 {
     QuadrupleLinkedList *newQuadLinkedList = newQuadrupleLinkedList(quad);
-    newQuadLinkedList->next = list;
-    return newQuadLinkedList;
+    if (list == NULL)
+    {
+        return newQuadLinkedList;
+    }
+    QuadrupleLinkedList *current = list;
+    while (current->next != NULL)
+    {
+        current = current->next;
+    }
+    current->next = newQuadLinkedList;
+    return list;
 }
 
 void printQuadrupleLinkedList(QuadrupleLinkedList *list)
 {
     QuadrupleLinkedList *current = list;
-    while (current->next != NULL)
+    while (current != NULL)
     {
         printQuadruple(current->quadruple);
         current = current->next;

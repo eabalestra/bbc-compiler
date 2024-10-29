@@ -1,9 +1,7 @@
 Program
 {
-    integer inc(integer x)
+    void inc(integer a)
     {
-        integer a;
-        a = x + x;
-        return a;
+        a = (b*(-c))+(b*(-c));
     }
 }
