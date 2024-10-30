@@ -45,13 +45,27 @@ Quadruple *newSimpleQuadruple(Tag op, Node *arg1)
  */
 void printQuadruple(Quadruple *quad)
 {
-    // VERSION CUADRUPLOS
-    // printf("%s %s %s %s\n", nodeFlagToString(quad->op),
-    //        quad->arg1 ? quad->arg1->name : "",
-    //        quad->arg2 ? quad->arg2->name : "",
-    //        quad->result ? quad->result->name : "");
+    // Manejo de etiquetas y saltos
+    if (quad->op == LABEL)
+    {
+        printf("LABEL %s\n", quad->arg1 ? quad->arg1->name : "");
+        return;
+    }
 
-    if (quad->result && quad->result->name[0] != '\0' && quad->op != JMPF && quad->op != GOTO)
+    if (quad->op == JMPF)
+    {
+        printf("JMPF %s %s\n", quad->arg2 ? quad->arg2->name : "", quad->result ? quad->result->name : "");
+        return;
+    }
+
+    if (quad->op == GOTO)
+    {
+        printf("GOTO %s\n", quad->arg1 ? quad->arg1->name : "");
+        return;
+    }
+
+    // Manejo de operaciones generales
+    if (quad->result && quad->result->name[0] != '\0')
     {
         printf("%s = ", quad->result->name);
     }
@@ -64,20 +78,8 @@ void printQuadruple(Quadruple *quad)
         }
         else
         {
-            printf("%s ", quad->arg1->name); //
+            printf("%s ", quad->arg1->name);
         }
-    }
-
-    if (quad->op == JMPF)
-    {
-        printf("JMPF %s %s\n", quad->arg2 ? quad->arg2->name : "", quad->result ? quad->result->name : "");
-        return;
-    }
-
-    if (quad->op == LABEL)
-    {
-        printf("\n");
-        return;
     }
 
     printf("%s ", nodeFlagToString(quad->op));
@@ -93,6 +95,5 @@ void printQuadruple(Quadruple *quad)
             printf("%s", quad->arg2->name);
         }
     }
-
     printf("\n");
 }

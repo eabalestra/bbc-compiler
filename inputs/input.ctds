@@ -8,18 +8,7 @@ Program
     integer main()
     {
         integer x = 12;
-        inc(x+x);
-        if (x < 12) then
-        {
-            x = x + x;
-        } 
-        else {
-            x = 2;
-        }
-        while (x < 23)
-        {
-            x = x + x;
-        }
+        inc(x, y+1, z, w, a, v, b, c);
         return 1;
     }
 }

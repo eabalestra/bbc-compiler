@@ -1,5 +1,5 @@
 #include "../../include/threeAddressGenerator.h"
-
+// 🏳️‍🌈
 QuadrupleLinkedList *quadrupleList = NULL;
 
 Node *newTemp();
@@ -26,20 +26,22 @@ Node *generateBinaryQuadruple(Tag flag, Node *arg1, Node *arg2)
     return temp;
 }
 
-//************************* */ NO BORRAR PLISS *************************
-/* Node *generateExprWithOrder(Tree *methodParameters, int order)
+Node *generateExprWithOrder(Tree *methodParameters, int order)
 {
-    if (methodParameters->root->flag != EMPTY) {
-        printf("entro aca??????\n");
+    if (methodParameters == NULL || methodParameters->root == NULL)
+    {
+        return NULL;
+    }
+    if (methodParameters->root->flag != EMPTY)
+    {
         Node *arg1 = generateThreeAddressCode(methodParameters->left);
         Node *paramOrder = createNode(NUMBER, NONTYPE, order, NULL, NULL);
-        printf(paramOrder->value);
-        Quadruple *quad = generateBinaryQuadruple(PARAM, arg1, order);
+        Quadruple *quad = newQuadruple(PARAM, arg1, paramOrder, NULL);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        printQuadruple(quad);
     }
-
     return NULL;
-} */
+}
 
 Node *generateThreeAddressCode(Tree *tree)
 {
@@ -57,12 +59,6 @@ Node *generateThreeAddressCode(Tree *tree)
 
     switch (flag)
     {
-    case EXPR:
-        // TODO agregarle el numero del parametro (orden)
-        arg1 = generateThreeAddressCode(tree->left);
-        quad = newUnaryQuadruple(PARAM, arg1, NULL);
-        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        return NULL;
     case NUMBER:
     case BOOL:
     case ID:
@@ -99,7 +95,7 @@ Node *generateThreeAddressCode(Tree *tree)
         arg2 = generateThreeAddressCode(tree->right);
         quad = newUnaryQuadruple(ASSIGN, arg2, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        return NULL;
+        return arg1;
 
     case DIVISION:
     case MOD:
@@ -131,16 +127,15 @@ Node *generateThreeAddressCode(Tree *tree)
 
         Tree *methodParameters = tree->right;
         int i = 0;
-        while (methodParameters != NULL)
+        while (methodParameters != NULL && methodParameters->root->flag != EMPTY)
         {
             i++;
-            Node *param = generateThreeAddressCode(methodParameters);
-            // Node *param = generateExprWithOrder(methodParameters, i);
+            Node *param = generateExprWithOrder(methodParameters, i);
             methodParameters = methodParameters->right;
         }
         Node *paramsNode = createNode(NUMBER, NONTYPE, i, NULL, NULL);
-        quad = generateBinaryQuadruple(CALL, arg1, paramsNode);
-        return NULL;
+        temp = generateBinaryQuadruple(CALL, arg1, paramsNode);
+        return temp;
 
     case METHODDECL:
         arg1 = generateThreeAddressCode(tree->left);
@@ -151,8 +146,8 @@ Node *generateThreeAddressCode(Tree *tree)
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
         return NULL;
 
-    case IF: // if-then
-        if (tree->right->right == NULL)
+    case IF:
+        if (tree->right->right == NULL) // case if-then
         {
             arg1 = generateThreeAddressCode(tree->left);
             label = newLabel();
@@ -163,19 +158,19 @@ Node *generateThreeAddressCode(Tree *tree)
             quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
             return NULL;
         }
-        arg1 = generateThreeAddressCode(tree->left); // condicion del if
+        arg1 = generateThreeAddressCode(tree->left);
         label = newLabel();
-        quad = newUnaryQuadruple(JMPF, arg1, label); // JMPF T L
+        quad = newUnaryQuadruple(JMPF, arg1, label);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        generateThreeAddressCode(tree->right->left); // then
+        generateThreeAddressCode(tree->right->left);
         Node *labelGoto = newLabel();
-        quad = newSimpleQuadruple(GOTO, labelGoto); // GOTO del THEN
+        quad = newSimpleQuadruple(GOTO, labelGoto);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
 
-        quad = newSimpleQuadruple(LABEL, label); // LABEL del else
+        quad = newSimpleQuadruple(LABEL, label);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        generateThreeAddressCode(tree->right->right); // else
-        quad = newSimpleQuadruple(LABEL, labelGoto);  // LABEL del THEN
+        generateThreeAddressCode(tree->right->right);
+        quad = newSimpleQuadruple(LABEL, labelGoto);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
         return NULL;
 
@@ -183,17 +178,17 @@ Node *generateThreeAddressCode(Tree *tree)
         Node *labelBeginWhile = newLabel();
         quad = newSimpleQuadruple(LABEL, labelBeginWhile);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-    
+
         arg1 = generateThreeAddressCode(tree->left);
         Node *labelEndWhile = newLabel();
         quad = newUnaryQuadruple(JMPF, arg1, labelEndWhile);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        
+
         generateThreeAddressCode(tree->right);
-        
+
         quad = newSimpleQuadruple(GOTO, labelBeginWhile);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        
+
         quad = newSimpleQuadruple(LABEL, labelEndWhile);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
 
@@ -202,64 +197,30 @@ Node *generateThreeAddressCode(Tree *tree)
     default:
         break;
     }
-
-    /**
-     * if (x == 2) then {
-     *      y = x + x;
-     * } else {
-     *      y = x;
-     * }
-     *
-     *
-     *
-     *
-     */
-
-    // opearadores bool, int, and relational -- OK
-    // asignaciones -- OK
-    // return ---- OK
-    // method call ---- OK
-    // if, if-else,  ---- OK
-    // while ---- OK
-    // method decl ---- OK
-
-    // TODO:
-    // paramNumber ---- ???
-
     generateThreeAddressCode(tree->left);
     generateThreeAddressCode(tree->right);
+
     return NULL;
 }
 
-int i = 1;
+int tempCount = 1;
 Node *newTemp()
 {
     char name[10];
-    sprintf(name, "t%d", i);
-    i = i + 1;
+    sprintf(name, "t%d", tempCount);
+    tempCount++;
     Node *temp = malloc(sizeof(Node));
     temp->name = strdup(name);
     return temp;
 }
 
-int j = 0;
+int labelCount = 0;
 Node *newLabel()
 {
     char name[10];
-    sprintf(name, "L%d", j);
-    j = j + 1;
+    sprintf(name, "L%d", labelCount);
+    labelCount++;
     Node *label = malloc(sizeof(Node));
     label->name = strdup(name);
     return label;
 }
-
-/*
-LESS, A, B, T1
-IF, T1, -, L1
-RET, - , - , 1
-GOTO, , L2
-
-
-LABEL 2
-
-*/
