@@ -3,6 +3,7 @@
 QuadrupleLinkedList *quadrupleList = NULL;
 
 Node *newTemp();
+Node *newLabel();
 
 QuadrupleLinkedList *getQuadrupleList()
 {
@@ -25,6 +26,21 @@ Node *generateBinaryQuadruple(Tag flag, Node *arg1, Node *arg2)
     return temp;
 }
 
+//************************* */ NO BORRAR PLISS *************************
+/* Node *generateExprWithOrder(Tree *methodParameters, int order)
+{
+    if (methodParameters->root->flag != EMPTY) {
+        printf("entro aca??????\n");
+        Node *arg1 = generateThreeAddressCode(methodParameters->left);
+        Node *paramOrder = createNode(NUMBER, NONTYPE, order, NULL, NULL);
+        printf(paramOrder->value);
+        Quadruple *quad = generateBinaryQuadruple(PARAM, arg1, order);
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+    }
+
+    return NULL;
+} */
+
 Node *generateThreeAddressCode(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -37,17 +53,18 @@ Node *generateThreeAddressCode(Tree *tree)
     Node *temp = NULL;
     Node *arg1 = NULL;
     Node *arg2 = NULL;
+    Node *label = NULL;
 
     switch (flag)
     {
     case EXPR:
+        // TODO agregarle el numero del parametro (orden)
         arg1 = generateThreeAddressCode(tree->left);
         quad = newUnaryQuadruple(PARAM, arg1, NULL);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
         return NULL;
     case NUMBER:
     case BOOL:
-    case PARAM:
     case ID:
         return tree->root;
 
@@ -97,7 +114,6 @@ Node *generateThreeAddressCode(Tree *tree)
         arg2 = generateThreeAddressCode(tree->right);
         return generateBinaryQuadruple(flag, arg1, arg2);
 
-    // TODO: PREGUNTAR si como devolver el return al pancho o si hay que devolverlo
     case RETURN:
         if (tree->left == NULL)
         {
@@ -110,7 +126,6 @@ Node *generateThreeAddressCode(Tree *tree)
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
         return NULL;
 
-    // TODO: Preguntar al pancho si concide esta idea con el del libro.
     case METHODCALL:
         arg1 = generateThreeAddressCode(tree->left);
 
@@ -120,29 +135,96 @@ Node *generateThreeAddressCode(Tree *tree)
         {
             i++;
             Node *param = generateThreeAddressCode(methodParameters);
+            // Node *param = generateExprWithOrder(methodParameters, i);
             methodParameters = methodParameters->right;
         }
-
         Node *paramsNode = createNode(NUMBER, NONTYPE, i, NULL, NULL);
         quad = generateBinaryQuadruple(CALL, arg1, paramsNode);
         return NULL;
 
-        // param x1
-        // param x2
-        // param x3
-        // param xn
-        // call p n
+    case METHODDECL:
+        arg1 = generateThreeAddressCode(tree->left);
+        quad = newSimpleQuadruple(INITMETHOD, arg1);
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        generateThreeAddressCode(tree->right);
+        quad = newSimpleQuadruple(ENDMETHOD, arg1);
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        return NULL;
+
+    case IF: // if-then
+        if (tree->right->right == NULL)
+        {
+            arg1 = generateThreeAddressCode(tree->left);
+            label = newLabel();
+            quad = newUnaryQuadruple(JMPF, arg1, label);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+            generateThreeAddressCode(tree->right);
+            quad = newSimpleQuadruple(LABEL, label);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+            return NULL;
+        }
+        arg1 = generateThreeAddressCode(tree->left); // condicion del if
+        label = newLabel();
+        quad = newUnaryQuadruple(JMPF, arg1, label); // JMPF T L
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        generateThreeAddressCode(tree->right->left); // then
+        Node *labelGoto = newLabel();
+        quad = newSimpleQuadruple(GOTO, labelGoto); // GOTO del THEN
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+
+        quad = newSimpleQuadruple(LABEL, label); // LABEL del else
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        generateThreeAddressCode(tree->right->right); // else
+        quad = newSimpleQuadruple(LABEL, labelGoto);  // LABEL del THEN
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        return NULL;
+
+    case WHILE:
+        Node *labelBeginWhile = newLabel();
+        quad = newSimpleQuadruple(LABEL, labelBeginWhile);
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+    
+        arg1 = generateThreeAddressCode(tree->left);
+        Node *labelEndWhile = newLabel();
+        quad = newUnaryQuadruple(JMPF, arg1, labelEndWhile);
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        
+        generateThreeAddressCode(tree->right);
+        
+        quad = newSimpleQuadruple(GOTO, labelBeginWhile);
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        
+        quad = newSimpleQuadruple(LABEL, labelEndWhile);
+        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+
+        return NULL;
+
     default:
         break;
     }
+
+    /**
+     * if (x == 2) then {
+     *      y = x + x;
+     * } else {
+     *      y = x;
+     * }
+     *
+     *
+     *
+     *
+     */
 
     // opearadores bool, int, and relational -- OK
     // asignaciones -- OK
     // return ---- OK
     // method call ---- OK
+    // if, if-else,  ---- OK
+    // while ---- OK
+    // method decl ---- OK
 
-    // if, if-else, while
-    /// method decl
+    // TODO:
+    // paramNumber ---- ???
 
     generateThreeAddressCode(tree->left);
     generateThreeAddressCode(tree->right);
@@ -159,3 +241,25 @@ Node *newTemp()
     temp->name = strdup(name);
     return temp;
 }
+
+int j = 0;
+Node *newLabel()
+{
+    char name[10];
+    sprintf(name, "L%d", j);
+    j = j + 1;
+    Node *label = malloc(sizeof(Node));
+    label->name = strdup(name);
+    return label;
+}
+
+/*
+LESS, A, B, T1
+IF, T1, -, L1
+RET, - , - , 1
+GOTO, , L2
+
+
+LABEL 2
+
+*/

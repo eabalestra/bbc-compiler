@@ -1,9 +1,29 @@
 Program
 {
+    integer inc(integer x)
+    {
+        return x + x;
+    }
+
     integer main()
     {
         integer x = 12;
-        inc(x+x, x*x, -x, x);
-        return x + x;
+        inc(x+x);
+        if (x < 12) then
+        {
+            x = x + x;
+        } 
+        else {
+            x = 2;
+        }
+        while (x < 23)
+        {
+            x = x + x;
+        }
+        return 1;
     }
 }
+
+// en param guardar el numero del parametro
+// t1 = a LESSTHAN b
+// if (t1) goto L // goto no es necesario que esté

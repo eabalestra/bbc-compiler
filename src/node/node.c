@@ -131,6 +131,14 @@ char *nodeFlagToString(Tag flag)
         return "PARAM";
     case CALL:
         return "CALL";
+    case INITMETHOD:
+        return "INITMETHOD";
+    case ENDMETHOD:
+        return "ENDMETHOD";
+    case GOTO:
+        return "GOTO";
+    case JMPF:
+        return "JMPF";
     default:
         return "UNKNOWN";
     }

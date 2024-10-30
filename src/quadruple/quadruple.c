@@ -17,12 +17,12 @@ Quadruple *newQuadruple(Tag op, Node *arg1, Node *arg2, Node *result)
  *
  * For cases like x = 1 or x = -a,
  */
-Quadruple *newUnaryQuadruple(Tag op, Node *arg1, Node *result)
+Quadruple *newUnaryQuadruple(Tag op, Node *arg2, Node *result)
 {
     Quadruple *quad = (Quadruple *)malloc(sizeof(Quadruple));
     quad->op = op;
-    quad->arg2 = arg1;
     quad->arg1 = NULL;
+    quad->arg2 = arg2;
     quad->result = result;
     return quad;
 }
@@ -51,7 +51,7 @@ void printQuadruple(Quadruple *quad)
     //        quad->arg2 ? quad->arg2->name : "",
     //        quad->result ? quad->result->name : "");
 
-    if (quad->result && quad->result->name[0] != '\0')
+    if (quad->result && quad->result->name[0] != '\0' && quad->op != JMPF && quad->op != GOTO)
     {
         printf("%s = ", quad->result->name);
     }
@@ -64,8 +64,20 @@ void printQuadruple(Quadruple *quad)
         }
         else
         {
-            printf("%s ", quad->arg1->name);
+            printf("%s ", quad->arg1->name); //
         }
+    }
+
+    if (quad->op == JMPF)
+    {
+        printf("JMPF %s %s\n", quad->arg2 ? quad->arg2->name : "", quad->result ? quad->result->name : "");
+        return;
+    }
+
+    if (quad->op == LABEL)
+    {
+        printf("\n");
+        return;
     }
 
     printf("%s ", nodeFlagToString(quad->op));
