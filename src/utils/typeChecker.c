@@ -109,8 +109,8 @@ Type checkTypes(Tree *tree)
             hdType = checkTypes(tree->right);
             if(hiType != hdType)
             {
-                printf("Type Mismatch Error [Line %d]: Expected matching types for assignment but found '%s' and '%s'.\n", 
-                root->line_number, nodeTypeToString(hiType), nodeTypeToString(hdType));
+                printf("Type Mismatch Error [Line %d]: Assignment type mismatch. Cannot assign '%s' to '%s'.\n", 
+                root->line_number, nodeTypeToString(hdType), nodeTypeToString(hiType));
                 exit(1);
             }
             break;
@@ -135,8 +135,8 @@ Type checkTypes(Tree *tree)
             }
             if(hiType != hdType)
             {
-                printf("Type Mismatch Error [Line %d]: Expected matching types for declaration but found '%s' and '%s'.\n", 
-                root->line_number, nodeTypeToString(hiType), nodeTypeToString(hdType));
+                printf("Type Mismatch Error [Line %d]: Declaration type mismatch. Cannot assign '%s' to '%s'.\n", 
+                root->line_number, nodeTypeToString(hdType), nodeTypeToString(hiType));
                 exit(1);
             }
             break;
@@ -184,6 +184,14 @@ Type checkTypes(Tree *tree)
             }
             flagReturn = 0;
             break;
+        case IF:
+        case WHILE:
+            hiType = checkTypes(tree->left);
+            if (hiType != BOOLEAN) {
+                printf("Type Mismatch Error [Line %d]: Conditional mismatch. Condition type should be 'bool' but found '%s'.\n",
+                root->line_number, nodeTypeToString(hiType));
+                exit(1);
+            }
         default:
             break;
     }
@@ -283,12 +291,12 @@ void checkParameters(Tree *method, Tree *formalParameters, Tree *actualParameter
     }
     if (formalParameters != NULL)
     {
-        printf("Type Error [Line %d]: Too few parameters in method call.\n", method->root->line_number);
+        printf("Type Error [Line %d]: Too few parameters in method call for method '%s'.\n", method->root->line_number, method->root->name);
         exit(1);
     }
     if (actualParameters != NULL && actualParameters->root->flag != EMPTY)
     {
-        printf("Type Error [Line %d]: Too many parameters in method call.\n", method->root->line_number);
+        printf("Type Error [Line %d]: Too many parameters in method call for method '%s'.\n", method->root->line_number, method->root->name);
         exit(1);
     }
 }
