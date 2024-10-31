@@ -1,5 +1,5 @@
 #include "../../include/threeAddressGenerator.h"
-// 🏳️‍🌈
+
 QuadrupleLinkedList *quadrupleList = NULL;
 
 Node *newTemp();

@@ -141,12 +141,26 @@ Type checkTypes(Tree *tree)
             }
             break;
         case RETURN:
-            hiType = checkTypes(tree->left);
-            if (hiType != currentMethodType)
-            {
-                printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got '%s'.\n",
-                root->line_number, nodeTypeToString(currentMethodType), nodeTypeToString(hiType));
-                exit(1);
+            if (currentMethodType == VOID) {
+                if (tree->left != NULL) {
+                    printf("Type Mismatch Error [Line %d]: Void function should not return a value.\n", 
+                    root->line_number);
+                    exit(1);
+                }
+            } else {
+                if (tree->left == NULL) {
+                    printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got nothing.\n",
+                    root->line_number, nodeTypeToString(currentMethodType));
+                    exit(1);
+                }
+                hiType = checkTypes(tree->left);
+                printf("TYPE: %s\n",  nodeTypeToString(hiType));
+                if (hiType != currentMethodType)
+                {
+                    printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got '%s'.\n",
+                    root->line_number, nodeTypeToString(currentMethodType), nodeTypeToString(hiType));
+                    exit(1);
+                }
             }
             flagReturn = 1;
             break;

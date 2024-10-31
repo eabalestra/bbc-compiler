@@ -299,7 +299,8 @@ void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
         case ASSIGN:
             handleAssign(pTable, pTree);
             break;
-
+        case RETURN:
+            handleExpresion(pTable, pTree);
         // Expressions cases
         case PLUS:
         case GRATERTHAN:
