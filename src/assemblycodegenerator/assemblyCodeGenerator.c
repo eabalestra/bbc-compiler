@@ -14,6 +14,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
     }
 
     fprintf(file, ".file \"%s\"\n", fileName);
+    fprintf(file, ".text\n");
 
     QuadrupleLinkedList *quadList = quadrupleLinkedList;
 
@@ -28,6 +29,14 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         case GASSIGN:
             fprintf(file, "%s:\n", current->result->name);
             fprintf(file, "    .long %d\n", current->arg2->value);
+            break;
+
+        case INITMETHOD:
+            if (strcmp(current->arg1->name, "main") == 0)
+            {
+                fprintf(file, ".globl main\n");
+            }
+            fprintf(file, "%s:\n", current->arg1->name);
             break;
 
         case RETURN:
