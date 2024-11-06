@@ -1,11 +1,10 @@
 Program {
     bool vtrue = true;
     bool vfalse = false;
-    integer z = 1 + 1;
+    integer cero = 0 + 0;
 
     integer add(integer x, integer y)
     {
-        integer a = 0;
         return x + y;
     }
 

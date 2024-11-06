@@ -72,7 +72,7 @@ void printQuadruple(Quadruple *quad)
 
     if (quad->arg1)
     {
-        if (quad->arg1->flag == NUMBER)
+        if (quad->arg1->flag == NUMBER || quad->arg1->flag == BOOL)
         {
             printf("%d ", quad->arg1->value);
         }
@@ -86,7 +86,7 @@ void printQuadruple(Quadruple *quad)
 
     if (quad->arg2)
     {
-        if (quad->arg2->flag == NUMBER)
+        if (quad->arg2->flag == NUMBER || quad->arg2->flag == BOOL)
         {
             printf("%d", quad->arg2->value);
         }

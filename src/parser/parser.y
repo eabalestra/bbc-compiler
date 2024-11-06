@@ -383,7 +383,6 @@ integer_literal : TINTEGER_LITERAL {
 
 bool_literal : TBOOL_LITERAL {
                     Node *newNode = createNode(BOOL, BOOLEAN, (void *) $1, NULL, yylval.line_number);
-                    printf("NODO %s en el parser, con valor: %d\n", newNode->name, newNode->value);
                     $$ = createTree(newNode, NULL, NULL);
                 }
             ;

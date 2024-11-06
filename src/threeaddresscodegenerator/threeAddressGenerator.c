@@ -61,6 +61,7 @@ Node *generateThreeAddressCode(Tree *tree)
     switch (flag)
     {
     case NUMBER:
+    case PARAM:
     case BOOL:
     case ID:
         return tree->root;

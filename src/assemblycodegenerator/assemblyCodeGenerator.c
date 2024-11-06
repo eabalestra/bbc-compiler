@@ -27,11 +27,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             break;
         case GASSIGN:
             fprintf(file, "%s:\n", current->result->name);
-            if (current->result->type == BOOLEAN)
-            {
-                printf("valorrrr: %d\n", current->result->value);
-            }
-            fprintf(file, "    .long %d\n", current->result->value);
+            fprintf(file, "    .long %d\n", current->arg2->value);
             break;
 
         case RETURN:
