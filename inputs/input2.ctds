@@ -1,8 +1,5 @@
 Program {
-    /*
-        Example to test while loops
-    */
-    
+   
     integer count = 0;
     bool flag = true;
     

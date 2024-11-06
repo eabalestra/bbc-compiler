@@ -9,6 +9,7 @@
 SymbolList *createSymbolList(Node *symbol)
 {
     SymbolList *newSymbolList = (SymbolList *)malloc(sizeof(SymbolList));
+    
     newSymbolList->symbol = symbol;
     newSymbolList->next = NULL;
     newSymbolList->size = 0;

@@ -36,12 +36,13 @@ alpha_num [a-zA-Z0-9_]
     return TRETURN;
 }
 
-"true"|"false" {
-    if (strcmp(yytext, "true") == 0) {
-        yylval.vbool = true;
-    } else {
-        yylval.vbool = false;
-    }
+"true" {
+    yylval.vbool = 1;
+    return TBOOL_LITERAL;
+}
+
+"false" {
+    yylval.vbool = 0;
     return TBOOL_LITERAL;
 }
 

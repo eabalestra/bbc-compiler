@@ -139,6 +139,8 @@ char *nodeFlagToString(Tag flag)
         return "GOTO";
     case JMPF:
         return "JMPF";
+    case GASSIGN:
+        return "GASSIGN";
     default:
         return "UNKNOWN";
     }

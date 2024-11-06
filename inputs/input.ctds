@@ -1,18 +1,15 @@
-Program
-{
-    integer inc(integer x)
+Program {
+    bool vtrue = true;
+    bool vfalse = false;
+    integer z = 1 + 1;
+
+    integer add(integer x, integer y)
     {
-        return x + x;
+        integer a = 0;
+        return x + y;
     }
 
-    integer main()
-    {
-        integer x = 12;
-        inc(x, y+1, z, w, a, v, b, c);
-        return 1;
+    void main() {
     }
+
 }
-
-// en param guardar el numero del parametro
-// t1 = a LESSTHAN b
-// if (t1) goto L // goto no es necesario que esté

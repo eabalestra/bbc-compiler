@@ -16,3 +16,6 @@
 # Build files
 /cmake-build-debug/
 /build/
+
+# Notes
+notas.txt

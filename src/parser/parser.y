@@ -8,6 +8,7 @@
     #include "../include/symbolTable.h"
     #include "../include/threeAddressGenerator.h"
     #include "../include/quadrupleLinkedList.h"
+    #include "../include/assemblyCodeGenerator.h"
     
     Tree *ast;
     SymbolTable *symbolTable;
@@ -95,11 +96,12 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
-                // symbolTable = semanticCheck(symbolTable, ast);
+                symbolTable = semanticCheck(symbolTable, ast);
                 generateThreeAddressCode(ast);
 
                 QuadrupleLinkedList *qll = getQuadrupleList();
-
+                generateAssemblyCode(qll);
+                
                 printTree(ast);
                 printQuadrupleLinkedList(qll);
 
@@ -110,10 +112,11 @@ program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
 
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
-                // symbolTable = semanticCheck(symbolTable, ast);
+                symbolTable = semanticCheck(symbolTable, ast);
                 generateThreeAddressCode(ast);
 
                 QuadrupleLinkedList *qll = getQuadrupleList();
+                generateAssemblyCode(qll);
 
                 printTree(ast);
                 printQuadrupleLinkedList(qll);
@@ -380,6 +383,7 @@ integer_literal : TINTEGER_LITERAL {
 
 bool_literal : TBOOL_LITERAL {
                     Node *newNode = createNode(BOOL, BOOLEAN, (void *) $1, NULL, yylval.line_number);
+                    printf("NODO %s en el parser, con valor: %d\n", newNode->name, newNode->value);
                     $$ = createTree(newNode, NULL, NULL);
                 }
             ;

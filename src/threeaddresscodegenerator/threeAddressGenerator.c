@@ -43,6 +43,7 @@ Node *generateExprWithOrder(Tree *methodParameters, int order)
     return NULL;
 }
 
+int methodDeclaredflag = 0;
 Node *generateThreeAddressCode(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -83,17 +84,28 @@ Node *generateThreeAddressCode(Tree *tree)
         {
             arg1 = generateThreeAddressCode(tree->left);
             arg2 = generateThreeAddressCode(tree->right);
-            quad = newUnaryQuadruple(ASSIGN, arg2, arg1);
+            if (methodDeclaredflag == 1) {
+                quad = newUnaryQuadruple(ASSIGN, arg2, arg1);
+            } else {
+                quad = newUnaryQuadruple(GASSIGN, arg2, arg1);
+            }
             quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
             return NULL;
         }
         arg1 = generateThreeAddressCode(tree->left);
-        return generateUnaryQuadruple(ASSIGN, arg1);
+        if (methodDeclaredflag == 1) {
+            return generateUnaryQuadruple(ASSIGN, arg1);
+        }
+        return generateUnaryQuadruple(GASSIGN, arg1);
 
     case ASSIGN:
         arg1 = generateThreeAddressCode(tree->left);
         arg2 = generateThreeAddressCode(tree->right);
-        quad = newUnaryQuadruple(ASSIGN, arg2, arg1);
+        if (methodDeclaredflag == 1) {
+            quad = newUnaryQuadruple(ASSIGN, arg2, arg1);
+        } else {
+            quad = newUnaryQuadruple(GASSIGN, arg2, arg1);
+        }
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
         return arg1;
 
@@ -138,6 +150,7 @@ Node *generateThreeAddressCode(Tree *tree)
         return temp;
 
     case METHODDECL:
+        methodDeclaredflag = 1;
         arg1 = generateThreeAddressCode(tree->left);
         quad = newSimpleQuadruple(INITMETHOD, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
