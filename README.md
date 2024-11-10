@@ -16,7 +16,7 @@ cd bbc-compiler
 ### Building the Project
 To compile the lexer and parser, run:
 ```
-make parse
+make build
 ```
 
 ### Running the Project
