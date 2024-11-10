@@ -245,7 +245,6 @@ void printSymbolTable(SymbolTable *table)
 SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
 {
     buildSymbolTable(table, ast);
-    printSymbolTable(table);
     checkTypes(ast);
 
     return table;

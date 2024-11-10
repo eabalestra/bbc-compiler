@@ -5,13 +5,8 @@
 
     #include "../include/tree.h"
     #include "../include/type.h"
-    #include "../include/symbolTable.h"
-    #include "../include/threeAddressGenerator.h"
-    #include "../include/quadrupleLinkedList.h"
-    #include "../include/assemblyCodeGenerator.h"
-    
-    Tree *ast;
-    SymbolTable *symbolTable;
+
+    extern Tree *ast;
 %}
 
 %union{
@@ -92,36 +87,12 @@
 %%
 
 program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
-                symbolTable = createSymbolTable();
-
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
-                symbolTable = semanticCheck(symbolTable, ast);
-                generateThreeAddressCode(ast);
-
-                QuadrupleLinkedList *qll = getQuadrupleList();
-                generateAssemblyCode(qll);
-                
-                printTree(ast);
-                printQuadrupleLinkedList(qll);
-
-                printf("\nPARSER OK\n");
             }
             | TPROGRAM TLCURLY method_decls TRCURLY {
-                symbolTable = createSymbolTable();
-
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
-                symbolTable = semanticCheck(symbolTable, ast);
-                generateThreeAddressCode(ast);
-
-                QuadrupleLinkedList *qll = getQuadrupleList();
-                generateAssemblyCode(qll);
-
-                printTree(ast);
-                printQuadrupleLinkedList(qll);
-
-                printf("\nPARSER OK\n");
             }
             ;
 

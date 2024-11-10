@@ -20,6 +20,12 @@ c-tds:
 	@./compiler $(word 2, $(MAKECMDGOALS))
 	@echo "Compilation finished"
 
-.PHONY: build c-tds
+clean:
+	@rm -rf build
+	@rm -f compiler
+	@rm -f output.s
+	@rm -f output.out
+
+.PHONY: build c-tds clean
 
 # 2>/dev/null
