@@ -61,9 +61,14 @@ Node *generateThreeAddressCode(Tree *tree)
     switch (flag)
     {
     case PARAM:
-        currentOffset++;
-        tree->root->offset = currentOffset;
-        return tree->root;
+        Node *paramNode = tree->root;
+        if (paramNode->offset == NULL)
+        {
+            currentOffset++;
+            paramNode->offset = currentOffset;
+        }
+        generateThreeAddressCode(tree->left);
+        return paramNode;
 
     case NUMBER:
     case BOOL:
@@ -164,7 +169,7 @@ Node *generateThreeAddressCode(Tree *tree)
     case METHODDECL:
         methodDeclaredflag = 1;
         arg1 = generateThreeAddressCode(tree->left);
-        
+
         quad = newSimpleQuadruple(INITMETHOD, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
         generateThreeAddressCode(tree->right);
