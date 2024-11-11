@@ -38,11 +38,11 @@ Node *generateExprWithOrder(Tree *methodParameters, int order)
         Node *paramOrder = createNode(NUMBER, NONTYPE, order, NULL, NULL);
         Quadruple *quad = newQuadruple(PARAM, arg1, paramOrder, NULL);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        printQuadruple(quad);
     }
     return NULL;
 }
 
+int currentOffset = 0;
 int methodDeclaredflag = 0;
 Node *generateThreeAddressCode(Tree *tree)
 {
@@ -60,8 +60,12 @@ Node *generateThreeAddressCode(Tree *tree)
 
     switch (flag)
     {
-    case NUMBER:
     case PARAM:
+        currentOffset++;
+        tree->root->offset = currentOffset;
+        return tree->root;
+
+    case NUMBER:
     case BOOL:
     case ID:
         return tree->root;
@@ -85,16 +89,20 @@ Node *generateThreeAddressCode(Tree *tree)
         {
             arg1 = generateThreeAddressCode(tree->left);
             arg2 = generateThreeAddressCode(tree->right);
-            if (methodDeclaredflag == 1) {
+            if (methodDeclaredflag == 1)
+            {
                 quad = newUnaryQuadruple(ASSIGN, arg2, arg1);
-            } else {
+            }
+            else
+            {
                 quad = newUnaryQuadruple(GASSIGN, arg2, arg1);
             }
             quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
             return NULL;
         }
         arg1 = generateThreeAddressCode(tree->left);
-        if (methodDeclaredflag == 1) {
+        if (methodDeclaredflag == 1)
+        {
             return generateUnaryQuadruple(ASSIGN, arg1);
         }
         return generateUnaryQuadruple(GASSIGN, arg1);
@@ -102,9 +110,12 @@ Node *generateThreeAddressCode(Tree *tree)
     case ASSIGN:
         arg1 = generateThreeAddressCode(tree->left);
         arg2 = generateThreeAddressCode(tree->right);
-        if (methodDeclaredflag == 1) {
+        if (methodDeclaredflag == 1)
+        {
             quad = newUnaryQuadruple(ASSIGN, arg2, arg1);
-        } else {
+        }
+        else
+        {
             quad = newUnaryQuadruple(GASSIGN, arg2, arg1);
         }
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
@@ -153,11 +164,17 @@ Node *generateThreeAddressCode(Tree *tree)
     case METHODDECL:
         methodDeclaredflag = 1;
         arg1 = generateThreeAddressCode(tree->left);
+        
         quad = newSimpleQuadruple(INITMETHOD, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
         generateThreeAddressCode(tree->right);
+
+        arg1->offset = currentOffset;
+        printf("EL OFFSET para %s: %d\n", arg1->name, currentOffset);
         quad = newSimpleQuadruple(ENDMETHOD, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+
+        currentOffset = 0;
         return NULL;
 
     case IF:
@@ -225,6 +242,9 @@ Node *newTemp()
     tempCount++;
     Node *temp = malloc(sizeof(Node));
     temp->name = strdup(name);
+
+    currentOffset++;
+    temp->offset = currentOffset;
     return temp;
 }
 

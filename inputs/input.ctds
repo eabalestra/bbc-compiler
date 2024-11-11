@@ -1,14 +1,20 @@
 Program {
-    bool vtrue = true;
-    bool vfalse = false;
-    integer cero = 0 + 0;
-
-    integer add(integer x, integer y)
-    {
-        return x + y;
+    
+    integer inc(integer x) {
+        return x + 1;
     }
 
+    integer get_integer() extern;
+    void printInteger(integer x) extern;
+    
     void main() {
+        integer y;
+        y = inc(get_integer());
+        if (y == 1) then {
+            printInteger(1);
+        } else {
+            printInteger(0);
+        }
+        return;
     }
-
 }

@@ -17,6 +17,7 @@ typedef struct Node {
     char *name;
     int line_number;
     struct Tree *parameters;
+    int offset;
 } Node;
 
 Node* createNonTerminalNode(Tag flag);

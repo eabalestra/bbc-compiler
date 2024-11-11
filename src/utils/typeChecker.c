@@ -154,7 +154,6 @@ Type checkTypes(Tree *tree)
                     exit(1);
                 }
                 hiType = checkTypes(tree->left);
-                printf("TYPE: %s\n",  nodeTypeToString(hiType));
                 if (hiType != currentMethodType)
                 {
                     printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got '%s'.\n",

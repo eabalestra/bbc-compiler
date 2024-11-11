@@ -34,9 +34,12 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         case INITMETHOD:
             if (strcmp(current->arg1->name, "main") == 0)
             {
-                fprintf(file, ".globl main\n");
+                fprintf(file, "    .globl main\n");
             }
             fprintf(file, "%s:\n", current->arg1->name);
+            int offset = current->arg1->offset;
+            fprintf(file, "    enter   $(8 * %d), $0 \n", offset);
+            fprintf(file, "\n");
             break;
 
         case RETURN:
