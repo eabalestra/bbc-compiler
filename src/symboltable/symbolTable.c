@@ -267,58 +267,65 @@ void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
 
     switch (flag)
     {
-        case VARDECL:
-            handleVarDecl(pTable, pTree);
-            break;
-        case PARAM:
-            insertSymbolInSymbolTable(pTable, pTree->root, pTable->levels);
-            pTree->root = searchSymbolInTable(pTable, pTree->root->name, pTable->levels);
-            buildSymbolTable(pTable, pTree->left);
-            break;
-        case METHODDECL:
-            handleMethodDecl(pTable, pTree);
-            break;
-        case METHODCALL:
-            handleMethodCall(pTable, pTree);
-            break;
-        case METHODEND:
-            pushLevelToSymbolTable(pTable);
-            buildSymbolTable(pTable, pTree->left);
-            buildSymbolTable(pTable, pTree->right);
-            popLevelFromSymbolTable(pTable);
-            break;
-        case THEN:
-        case ELSE:
-            handleThenOrElse(pTable, pTree);
-            break;
-        case IF:
-        case WHILE:
-            handleWhile(pTable, pTree);
-            break;
-        case ASSIGN:
-            handleAssign(pTable, pTree);
-            break;
-        case RETURN:
-            handleExpresion(pTable, pTree);
-        // Expressions cases
-        case PLUS:
-        case GRATERTHAN:
-        case LESSTHAN:
-        case MINUS:
-        case MULTIPLY:
-        case MOD:
-        case EQUALS:
-        case DIVISION:
-        case AND:
-        case OR:
-        case NOT:
-            handleExpresion(pTable, pTree);
-            break;
+    case VARDECL:
+        handleVarDecl(pTable, pTree);
+        break;
+    case PARAM:
+        break;
+    case METHODDECL:
+        handleMethodDecl(pTable, pTree);
+        break;
+    case METHODCALL:
+        handleMethodCall(pTable, pTree);
+        break;
+    case METHODEND:
+        pushLevelToSymbolTable(pTable);
+        Tree *aux = pTree->left;
+        if (pTree->left->root->flag != EMPTY)
+        {
+            while (aux != NULL)
+            {
+                insertSymbolInSymbolTable(pTable, aux->root, pTable->levels);
+                aux = aux->left;
+            }
+        }
+        buildSymbolTable(pTable, pTree->left);
+        buildSymbolTable(pTable, pTree->right);
+        popLevelFromSymbolTable(pTable);
+        break;
 
-        default:
-            buildSymbolTable(pTable, pTree->left);
-            buildSymbolTable(pTable, pTree->right);
-            break;
+    case THEN:
+    case ELSE:
+        handleThenOrElse(pTable, pTree);
+        break;
+    case IF:
+    case WHILE:
+        handleWhile(pTable, pTree);
+        break;
+    case ASSIGN:
+        handleAssign(pTable, pTree);
+        break;
+    case RETURN:
+        handleExpresion(pTable, pTree);
+    // Expressions cases
+    case PLUS:
+    case GRATERTHAN:
+    case LESSTHAN:
+    case MINUS:
+    case MULTIPLY:
+    case MOD:
+    case EQUALS:
+    case DIVISION:
+    case AND:
+    case OR:
+    case NOT:
+        handleExpresion(pTable, pTree);
+        break;
+
+    default:
+        buildSymbolTable(pTable, pTree->left);
+        buildSymbolTable(pTable, pTree->right);
+        break;
     }
 }
 
@@ -371,14 +378,14 @@ void handleMethodCall(SymbolTable *table, Tree *methodTree)
     methodTree->left->root = methodNode;
     methodTree->left->root->parameters = methodNode->parameters;
 
-    Tree * methodParameters = methodTree->right;
-    Tree * actualMethodParameter = methodParameters->left;
+    Tree *methodParameters = methodTree->right;
+    Tree *actualMethodParameter = methodParameters->left;
 
     while (methodParameters != NULL)
     {
         if (actualMethodParameter != NULL && actualMethodParameter->root->flag == ID)
         {
-            Node * searchedNode = searchAndValidateSymbol(table, actualMethodParameter->root);
+            Node *searchedNode = searchAndValidateSymbol(table, actualMethodParameter->root);
             actualMethodParameter->root = searchedNode;
         }
         else
@@ -405,7 +412,6 @@ void handleMethodDecl(SymbolTable *table, Tree *tree)
     buildSymbolTable(table, tree->right);
 }
 
-
 void handleVarDecl(SymbolTable *table, Tree *tree)
 {
     Node *leftChild = tree->left->root;
@@ -430,9 +436,9 @@ void handleVarDecl(SymbolTable *table, Tree *tree)
                 exit(1);
             }
             leftChild->value = nodeToInsert->value;
-            rightChild->type = nodeToInsert->type;
+            rightChild = nodeToInsert;
         }
-    } 
+    }
     insertSymbolInSymbolTable(table, leftChild, table->levels);
     buildSymbolTable(table, tree->right);
 }
@@ -473,7 +479,7 @@ void handleAssign(SymbolTable *table, Tree *tree)
     buildSymbolTable(table, tree->right);
 }
 
-Node *searchAndValidateSymbol(SymbolTable *table, Node* nodeToSearch)
+Node *searchAndValidateSymbol(SymbolTable *table, Node *nodeToSearch)
 {
     Node *searchedNode = searchSymbolInTable(table, nodeToSearch->name, table->levels);
     if (searchedNode == NULL)
@@ -484,7 +490,8 @@ Node *searchAndValidateSymbol(SymbolTable *table, Node* nodeToSearch)
     return searchedNode;
 }
 
-void checkForDuplicateParameters(Tree *tree, const Node *leftChild) {
+void checkForDuplicateParameters(Tree *tree, const Node *leftChild)
+{
     Tree *paramList = tree->right->left;
     char *paramNames[MAX_PARAMS_ALLOWED];
     int paramCount = 0;
