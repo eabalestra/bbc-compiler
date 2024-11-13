@@ -1,8 +1,10 @@
 #include "../../include/assemblyCodeGenerator.h"
 #include "../../include/tree.h"
 
-char *getPlantillaRegister(int offset);
-void generateAddPlantilla(FILE *file, Quadruple *current);
+char *getRegisterNameByOffset(int offset);
+void generateAddition(FILE *file, char *result, char *arg1, char *arg2);
+void generateMultiplication(FILE *file, char *result, char *arg1, char *arg2);
+char *getValueToString(Node *node);
 
 /**
  *
@@ -25,7 +27,6 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
     while (quadList != NULL)
     {
         Quadruple *current = quadList->quadruple;
-
         char *result = getValueToString(current->result);
         char *arg1 = getValueToString(current->arg1);
         char *arg2 = getValueToString(current->arg2);
@@ -33,11 +34,21 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         switch (current->op)
         {
         case PLUS:
+            generateAddition(file, result, arg1, arg2);
+            fprintf(file, "\n");
+            break;
 
+        case MULTIPLY:
+            generateMultiplication(file, result, arg1, arg2);
+            fprintf(file, "\n");
             break;
 
         case ASSIGN:
+            fprintf(file, "    movl   %s, %%r10\n", arg2);
+            fprintf(file, "    movl   %%r10, %s\n", result);
+            fprintf(file, "\n");
             break;
+
         case GASSIGN:
             fprintf(file, "%s:\n", current->result->name);
             fprintf(file, "    .long %d\n", current->arg2->value);
@@ -58,7 +69,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             while (methodParameters != NULL)
             {
                 int parameterOffset = methodParameters->root->offset;
-                char *registerName = getPlantillaRegister(parameterOffset);
+                char *registerName = getRegisterNameByOffset(parameterOffset);
                 fprintf(file, "    movl   %s, -%d(%%rbp)\n", registerName, parameterOffset * 8);
                 methodParameters = methodParameters->left;
             }
@@ -67,6 +78,15 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             break;
 
         case RETURN:
+            if (current->arg2 == NULL)
+            {
+                fprintf(file, "    mov   $0, %%rax \n");
+            }
+            else
+            {
+                fprintf(file, "    mov   %s, %%rax \n", arg2);
+            }
+            fprintf(file, "    leave \n");
             fprintf(file, "    ret");
             fprintf(file, "\n");
             break;
@@ -87,35 +107,14 @@ void generateAddition(FILE *file, char *result, char *arg1, char *arg2)
     fprintf(file, "    movl   %%r10, %s\n", result);
 }
 
-void generateAddPlantilla(FILE *file, Quadruple *current)
+void generateMultiplication(FILE *file, char *result, char *arg1, char *arg2)
 {
-    // Suma con literales.
-    //  -%d(%%rbp) -> parameterOffset * 8
-    fprintf(file, "    movl   -%d(%%rbp), %%r10\n", current->arg1->offset * 8);
-    fprintf(file, "    addl   %d, %%r10\n", current->arg2->value); //%s -> literal
-    fprintf(file, "    movl   %%r10, -%d(%%rbp)\n", current->arg1->offset * 8);
+    fprintf(file, "    movl   %s, %%r10\n", arg1);
+    fprintf(file, "    imull   %s, %%r10\n", arg2);
+    fprintf(file, "    movl   %%r10, %s\n", result);
 }
 
-void generateAddition2(FILE *file, Quadruple *current)
-{
-    if (current->arg1->type == INTEGER || current->arg1->type == BOOLEAN)
-    {
-        fprintf(file, "    movl   -%d(%%rbp), %%r10\n", current->arg1->offset * 8);
-    } else {
-        fprintf(file, "    movl   $%s, %%r10\n", current->arg1->value);
-    }
-
-    fprintf(file, "    addl   %d, %%r10\n", current->arg2->value); 
-    
-    if (current->arg1->type == INTEGER || current->arg1->type == BOOLEAN)
-    {
-        fprintf(file, "    movl   %%r10, -%d(%%rbp)\n", current->arg1->offset * 8);    
-    } else {
-        fprintf(file, "    movl   $%s, %%r10\n", current->arg1->value);
-    }
-}
-
-char *getPlantillaRegister(int offset)
+char *getRegisterNameByOffset(int offset)
 {
     switch (offset)
     {
@@ -138,14 +137,28 @@ char *getPlantillaRegister(int offset)
 
 char *getValueToString(Node *node)
 {
+    if (node == NULL)
+    {
+        return "";
+    }
+
+    char *result = malloc(100);
+
     Tag tag = node->flag;
-    char *result = NULL;
+
     switch (tag)
     {
+    case NUMBER:
     case BOOL:
-    case INTEGER:
-        return snprintf(result, 12, "%d", node->value);
-    default:
-        return;
+        sprintf(result, "$%d", node->value);
+        break;
+
+    case TEMP:
+    case PARAM:
+    case ID:
+        sprintf(result, "-%d(%%rbp)", node->offset * 8);
+        break;
     }
+
+    return result;
 }

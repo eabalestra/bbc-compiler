@@ -72,7 +72,14 @@ Node *generateThreeAddressCode(Tree *tree)
 
     case NUMBER:
     case BOOL:
+        return tree->root;
     case ID:
+        Node *idNode = tree->root;
+        if (idNode->offset == NULL)
+        {
+            currentOffset++;
+            idNode->offset = currentOffset;
+        }
         return tree->root;
 
     case MINUS:
@@ -175,7 +182,6 @@ Node *generateThreeAddressCode(Tree *tree)
         generateThreeAddressCode(tree->right);
 
         arg1->offset = currentOffset;
-        printf("EL OFFSET para %s: %d\n", arg1->name, currentOffset);
         quad = newSimpleQuadruple(ENDMETHOD, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
 
@@ -246,6 +252,7 @@ Node *newTemp()
     sprintf(name, "t%d", tempCount);
     tempCount++;
     Node *temp = malloc(sizeof(Node));
+    temp->flag = TEMP;
     temp->name = strdup(name);
 
     currentOffset++;
