@@ -158,7 +158,10 @@ Node *generateThreeAddressCode(Tree *tree)
         arg1 = generateThreeAddressCode(tree->left);
         if (methodDeclaredflag == 1)
         {
-            return generateUnaryQuadruple(ASSIGN, arg1);
+            // case for only declaration without assignment, ej: integer y;
+            Quadruple *quad = newUnaryQuadruple(WASSIGN, arg1, NULL);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+            return arg1;
         }
         return generateUnaryQuadruple(GASSIGN, arg1);
 

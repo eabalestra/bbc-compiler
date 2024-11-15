@@ -143,7 +143,9 @@ char *nodeFlagToString(Tag flag)
         return "GASSIGN";
     case TEMP:
         return "TEMP";
-    default:
+    case WASSIGN:
+        return "WASSIGN";
+    default : 
         return "UNKNOWN";
     }
 }
