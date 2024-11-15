@@ -82,16 +82,6 @@ Node *generateThreeAddressCode(Tree *tree)
         }
         generateThreeAddressCode(tree->left);
         return paramNode;
-        /* case PARAM:
-            Node *paramNode = tree->root;
-            if (paramNode->offset == 0)
-            {
-                printf("INCREMENTE POR %s\n", paramNode->name);
-                currentOffset++;
-                paramNode->offset = currentOffset;
-            }
-            generateThreeAddressCode(tree->left);
-            return paramNode; */
 
     case ID:
         Node *idNode = tree->root;
@@ -111,16 +101,6 @@ Node *generateThreeAddressCode(Tree *tree)
         }
         return tree->root;
 
-        /* case ID:
-            Node *idNode = tree->root;
-            if (idNode->offset == 0 && methodFlag != 1)
-            {
-                printf("INCREMENTE POR %s\n", idNode->name);
-                currentOffset++;
-                idNode->offset = currentOffset;
-            }
-            return tree->root; */
-
     case NUMBER:
     case BOOL:
         return tree->root;
@@ -130,7 +110,7 @@ Node *generateThreeAddressCode(Tree *tree)
         {
             arg1 = generateThreeAddressCode(tree->left);
             arg2 = generateThreeAddressCode(tree->right);
-            return generateBinaryQuadruple(flag, arg1, arg2);
+            return generateBinaryQuadruple(SUBTRACTION, arg1, arg2);
         }
         arg1 = generateThreeAddressCode(tree->left);
         return generateUnaryQuadruple(flag, arg1);

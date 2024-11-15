@@ -145,7 +145,9 @@ char *nodeFlagToString(Tag flag)
         return "TEMP";
     case WASSIGN:
         return "WASSIGN";
-    default : 
+    case SUBTRACTION:
+        return "SUBTRACTION";
+    default:
         return "UNKNOWN";
     }
 }
