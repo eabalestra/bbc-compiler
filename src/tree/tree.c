@@ -20,11 +20,13 @@ Tree *createTree(Node *root, Tree *left, Tree *right)
 
 /**
  * Prints the structure of a binary tree.
- * 
+ *
  * @param tree pointer to the tree to print.
  */
-void printTree(Tree *tree) {
-    if (tree == NULL || tree->root == NULL) {
+void printTree(Tree *tree)
+{
+    if (tree == NULL || tree->root == NULL)
+    {
         printf("(empty tree)\n");
         return;
     }
@@ -33,12 +35,13 @@ void printTree(Tree *tree) {
 
 /**
  * Recursively prints the structure of a binary tree.
- * 
+ *
  * @param tree pointer to the tree to print.
  * @param prefix to print before the node (to maintain visual hierarchy).
  * @param isLast indicates whether the current node is the last child of its parent.
  */
-void printTreeRecursive(Tree *tree, char *prefix, int isLast) {
+void printTreeRecursive(Tree *tree, char *prefix, int isLast)
+{
     if (tree == NULL || tree->root == NULL)
         return;
 
@@ -52,11 +55,40 @@ void printTreeRecursive(Tree *tree, char *prefix, int isLast) {
     int hasLeftChild = tree->left != NULL;
     int hasRightChild = tree->right != NULL;
 
-    if (hasLeftChild) {
-        printTreeRecursive(tree->left, newPrefix, !hasRightChild); 
+    if (hasLeftChild)
+    {
+        printTreeRecursive(tree->left, newPrefix, !hasRightChild);
     }
 
-    if (hasRightChild) {
-        printTreeRecursive(tree->right, newPrefix, 1); 
+    if (hasRightChild)
+    {
+        printTreeRecursive(tree->right, newPrefix, 1);
     }
+}
+
+Node *findNodeInTree(Tree *tree, char *nodeName)
+{
+    if (tree == NULL || tree->root == NULL)
+    {
+        return NULL;
+    }
+
+    if (strcmp(tree->root->name, nodeName) == 0)
+    {
+        return tree->root;
+    }
+
+    Node *leftResult = findNodeInTree(tree->left, nodeName);
+    if (leftResult != NULL)
+    {
+        return leftResult;
+    }
+
+    Node *rightResult = findNodeInTree(tree->right, nodeName);
+    if (rightResult != NULL)
+    {
+        return rightResult;
+    }
+
+    return NULL;
 }

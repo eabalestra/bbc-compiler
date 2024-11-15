@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     // Parse the input file and build the AST
     yyparse();
-
+    
     // Perform semantic checks
     symbolTable = createSymbolTable();
     symbolTable = semanticCheck(symbolTable, ast);
@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
     // Generate assembly code
     qll = getQuadrupleList();
     generateAssemblyCode(qll);
+
 
     // Print debugging information if requested
     if (1)

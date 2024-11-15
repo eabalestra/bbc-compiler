@@ -44,6 +44,10 @@ Node *generateExprWithOrder(Tree *methodParameters, int order)
 
 int currentOffset = 0;
 int methodDeclaredflag = 0;
+
+Tree *idsDeclaredTreeList = NULL;
+int methodFlag = 0;
+
 Node *generateThreeAddressCode(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -62,24 +66,63 @@ Node *generateThreeAddressCode(Tree *tree)
     {
     case PARAM:
         Node *paramNode = tree->root;
-        if (paramNode->offset == NULL)
+        if (idsDeclaredTreeList == NULL)
         {
             currentOffset++;
             paramNode->offset = currentOffset;
+            printf("INCREMENTE POR %s\n", paramNode->name);
+            idsDeclaredTreeList = createTree(paramNode, NULL, NULL);
+        }
+        else if (findNodeInTree(idsDeclaredTreeList, paramNode->name) == NULL)
+        {
+            currentOffset++;
+            paramNode->offset = currentOffset;
+            printf("INCREMENTE POR %s\n", paramNode->name);
+            idsDeclaredTreeList = createTree(paramNode, idsDeclaredTreeList, NULL);
         }
         generateThreeAddressCode(tree->left);
         return paramNode;
+        /* case PARAM:
+            Node *paramNode = tree->root;
+            if (paramNode->offset == 0)
+            {
+                printf("INCREMENTE POR %s\n", paramNode->name);
+                currentOffset++;
+                paramNode->offset = currentOffset;
+            }
+            generateThreeAddressCode(tree->left);
+            return paramNode; */
 
-    case NUMBER:
-    case BOOL:
-        return tree->root;
     case ID:
         Node *idNode = tree->root;
-        if (idNode->offset == NULL)
+        if (idsDeclaredTreeList == NULL && methodFlag != 1)
         {
             currentOffset++;
             idNode->offset = currentOffset;
+            printf("INCREMENTE POR %s\n", idNode->name);
+            idsDeclaredTreeList = createTree(idNode, NULL, NULL);
         }
+        else if (findNodeInTree(idsDeclaredTreeList, idNode->name) == NULL && methodFlag != 1)
+        {
+            currentOffset++;
+            idNode->offset = currentOffset;
+            printf("INCREMENTE POR %s\n", idNode->name);
+            idsDeclaredTreeList = createTree(idNode, idsDeclaredTreeList, NULL);
+        }
+        return tree->root;
+
+        /* case ID:
+            Node *idNode = tree->root;
+            if (idNode->offset == 0 && methodFlag != 1)
+            {
+                printf("INCREMENTE POR %s\n", idNode->name);
+                currentOffset++;
+                idNode->offset = currentOffset;
+            }
+            return tree->root; */
+
+    case NUMBER:
+    case BOOL:
         return tree->root;
 
     case MINUS:
@@ -159,7 +202,9 @@ Node *generateThreeAddressCode(Tree *tree)
         return NULL;
 
     case METHODCALL:
+        methodFlag = 1;
         arg1 = generateThreeAddressCode(tree->left);
+        methodFlag = 0;
 
         Tree *methodParameters = tree->right;
         int i = 0;
@@ -175,17 +220,21 @@ Node *generateThreeAddressCode(Tree *tree)
 
     case METHODDECL:
         methodDeclaredflag = 1;
+        methodFlag = 1;
         arg1 = generateThreeAddressCode(tree->left);
 
         quad = newSimpleQuadruple(INITMETHOD, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+        methodFlag = 0;
         generateThreeAddressCode(tree->right);
 
         arg1->offset = currentOffset;
         quad = newSimpleQuadruple(ENDMETHOD, arg1);
         quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
 
+        // reset
         currentOffset = 0;
+        idsDeclaredTreeList = NULL;
         return NULL;
 
     case IF:
@@ -252,9 +301,15 @@ Node *newTemp()
     sprintf(name, "t%d", tempCount);
     tempCount++;
     Node *temp = malloc(sizeof(Node));
+    if (temp == NULL)
+    {
+        printf("Error creating temp node\n");
+        exit(1);
+    }
     temp->flag = TEMP;
     temp->name = strdup(name);
 
+    printf("INCREMENTE POR %s\n", temp->name);
     currentOffset++;
     temp->offset = currentOffset;
     return temp;
@@ -267,6 +322,11 @@ Node *newLabel()
     sprintf(name, "L%d", labelCount);
     labelCount++;
     Node *label = malloc(sizeof(Node));
+    if (label == NULL)
+    {
+        printf("Error creating label node\n");
+        exit(1);
+    }
     label->name = strdup(name);
     return label;
 }

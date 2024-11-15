@@ -16,5 +16,8 @@ typedef struct Tree {
 Tree* createTree(Node *root, Tree *left, Tree *right);
 void printTree(Tree *tree);
 void printTreeRecursive(Tree *tree, char *prefix, int isLast);
+Node *findNodeInTree(Tree *tree, char *nodeName);
+Node *findNodeInTreeRecursive(Tree *tree, char *nodeName);
+
 
 #endif // TREE_H
