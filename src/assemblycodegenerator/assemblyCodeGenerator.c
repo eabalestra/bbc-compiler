@@ -47,6 +47,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
 
     fprintf(file, ".file \"%s\"\n", fileName);
     fprintf(file, ".text\n");
+    //fprintf(file, ".section .note.GNU-stack,\"\",@progbits\n");
 
     QuadrupleLinkedList *quadList = quadrupleLinkedList;
 
@@ -114,8 +115,8 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             fprintf(file, "%s:\n", current->arg1->name);
             break;
         case ASSIGN:
-            fprintf(file, "    movl   %s, %%r10\n", arg2);
-            fprintf(file, "    movl   %%r10, %s\n", result);
+            fprintf(file, "    movq   %s, %%r10\n", arg2);
+            fprintf(file, "    movq   %%r10, %s\n", result);
             fprintf(file, "\n");
             break;
         case GASSIGN:
@@ -139,7 +140,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             {
                 int parameterOffset = methodParameters->root->offset;
                 char *registerName = getRegisterNameByOffset(parameterOffset);
-                fprintf(file, "    movl   %s, -%d(%%rbp)\n", registerName, parameterOffset * 8);
+                fprintf(file, "    movq   %s, -%d(%%rbp)\n", registerName, parameterOffset * 8);
                 methodParameters = methodParameters->left;
             }
 
@@ -167,15 +168,16 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
     }
 
     fprintf(file, ".ident   \"GCC: (Ubuntu 13.2.0-23ubuntu4) 13.2.0\" \n");
+    fprintf(file, ".section .note.GNU-stack,\"\",@progbits\n");
 }
 
 void generateNot(FILE *file, char *result, char *arg1)
 {
-    fprintf(file, "    movl   %s, %%eax\n", arg1);  // Load the value of arg1 into %eax.
-    fprintf(file, "    cmpl   $0, %%eax\n");    // Compare %eax with 0.
-    fprintf(file, "    sete   %%al\n"); // If %eax is zero, set %eax to 1 (logical NOT).
-    fprintf(file, "    movzbl %%al, %%eax\n");  // Zero-extend %al to %eax.
-    fprintf(file, "    movl   %%eax, %s\n", result);     // Store the result in the result variable.
+    fprintf(file, "    movl   %s, %%eax\n", arg1);   // Load the value of arg1 into %eax.
+    fprintf(file, "    cmpl   $0, %%eax\n");         // Compare %eax with 0.
+    fprintf(file, "    sete   %%al\n");              // If %eax is zero, set %eax to 1 (logical NOT).
+    fprintf(file, "    movzbl %%al, %%eax\n");       // Zero-extend %al to %eax.
+    fprintf(file, "    movl   %%eax, %s\n", result); // Store the result in the result variable.
     fprintf(file, "\n");
 }
 
@@ -194,7 +196,7 @@ void generateJumpByFalse(FILE *pFile, char *arg1, char *result)
 
 void generateLoadParameter(FILE *pFile, char *arg1, char *arg2)
 {
-    fprintf(pFile, "    movl    %s, %s\n", arg1, arg2);
+    fprintf(pFile, "    movq    %s, %s\n", arg1, arg2);
 }
 
 void generateMethodCall(FILE *pFile, char *arg1, char *arg2)
@@ -208,8 +210,8 @@ void generateModule(FILE *pFile, char *result, char *arg1, char *arg2)
 {
     fprintf(pFile, "    movl   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
     fprintf(pFile, "    cltd\n");                     // Sign-extend %eax into %edx for division.
-    fprintf(pFile, "    movl   %s, %%r10\n", arg2);   // Load divisor (arg2) into %r10.
-    fprintf(pFile, "    idivl  %%r10\n");             // Perform signed division, result in %eax.
+    fprintf(pFile, "    movq   %s, %%r10\n", arg2);   // Load divisor (arg2) into %r10.
+    fprintf(pFile, "    idivq  %%r10\n");             // Perform signed division, result in %eax.
     fprintf(pFile, "    movl   %%edx, %s\n", result); // Store quotient from %eax into result.
     fprintf(pFile, "\n");
 }
@@ -234,9 +236,9 @@ void generateGreaterThan(FILE *pFile, char *result, char *arg1, char *arg2)
  */
 void generateAddition(FILE *file, char *result, char *arg1, char *arg2)
 {
-    fprintf(file, "    movl   %s, %%r10\n", arg1);
-    fprintf(file, "    addl   %s, %%r10\n", arg2);
-    fprintf(file, "    movl   %%r10, %s\n", result);
+    fprintf(file, "    movq   %s, %%r10\n", arg1);
+    fprintf(file, "    addq   %s, %%r10\n", arg2);
+    fprintf(file, "    movq   %%r10, %s\n", result);
     fprintf(file, "\n");
 }
 
@@ -250,9 +252,9 @@ void generateAddition(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateMultiplication(FILE *file, char *result, char *arg1, char *arg2)
 {
-    fprintf(file, "    movl   %s, %%r10\n", arg1);
-    fprintf(file, "    imull   %s, %%r10\n", arg2);
-    fprintf(file, "    movl   %%r10, %s\n", result);
+    fprintf(file, "    movq   %s, %%r10\n", arg1);
+    fprintf(file, "    imulq   %s, %%r10\n", arg2);
+    fprintf(file, "    movq   %%r10, %s\n", result);
     fprintf(file, "\n");
 }
 
@@ -265,9 +267,9 @@ void generateMultiplication(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateNegation(FILE *file, char *result, char *arg1)
 {
-    fprintf(file, "    movl   %s, %%r10\n", arg1); // Load operand into r10.
-    fprintf(file, "    negl   %%r10\n");           // Negate the value in r10.
-    fprintf(file, "    movl   %%r10, %s\n", arg1); // Store the result.
+    fprintf(file, "    movq   %s, %%r10\n", arg1); // Load operand into r10.
+    fprintf(file, "    negq   %%r10\n");           // Negate the value in r10.
+    fprintf(file, "    movq   %%r10, %s\n", arg1); // Store the result.
     fprintf(file, "\n");
 }
 
@@ -280,9 +282,9 @@ void generateNegation(FILE *file, char *result, char *arg1)
  */
 void generateSubtraction(FILE *file, char *result, char *arg1, char *arg2)
 {
-    fprintf(file, "    movl   %s, %%r10\n", arg1);
-    fprintf(file, "    subl   %s, %%r10\n", arg2);
-    fprintf(file, "    movl   %%r10, %s\n", result);
+    fprintf(file, "    movq   %s, %%r10\n", arg1);
+    fprintf(file, "    subq   %s, %%r10\n", arg2);
+    fprintf(file, "    movq   %%r10, %s\n", result);
     fprintf(file, "\n");
 }
 
@@ -327,10 +329,10 @@ void generateOr(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateDivision(FILE *file, char *result, char *arg1, char *arg2)
 {
-    fprintf(file, "    movl   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
+    fprintf(file, "    movq   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
     fprintf(file, "    cltd\n");                     // Sign-extend %eax into %edx for division.
-    fprintf(file, "    movl   %s, %%r10\n", arg2);   // Load divisor (arg2) into %r10.
-    fprintf(file, "    idivl  %%r10\n");             // Perform signed division, result in %eax.
+    fprintf(file, "    movq   %s, %%r10\n", arg2);   // Load divisor (arg2) into %r10.
+    fprintf(file, "    idivq  %%r10\n");             // Perform signed division, result in %eax.
     fprintf(file, "    movl   %%eax, %s\n", result); // Store quotient from %eax into result.
     fprintf(file, "\n");
 }
@@ -344,8 +346,8 @@ void generateDivision(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateEquals(FILE *file, char *result, char *arg1, char *arg2)
 {
-    fprintf(file, "    movl   %s, %%r10\n", arg1);
-    fprintf(file, "    cmpl   %s, %%r10\n", arg2);
+    fprintf(file, "    movq   %s, %%r10\n", arg1);
+    fprintf(file, "    cmpq   %s, %%r10\n", arg2);
     fprintf(file, "    sete   %%al\n");
     fprintf(file, "    movzbl %%al, %%eax\n");
     fprintf(file, "    movl   %%eax, %s\n", result);
