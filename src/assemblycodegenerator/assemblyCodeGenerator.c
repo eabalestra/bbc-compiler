@@ -6,7 +6,7 @@ char *getValueToString(Node *node);
 
 void generateAddition(FILE *file, char *result, char *arg1, char *arg2);
 void generateMultiplication(FILE *file, char *result, char *arg1, char *arg2);
-void generateSubstraction(file, result, arg1, arg2);
+void generateSubtraction(FILE *file, char *result, char *arg1, char *arg2);
 void generateNegation(FILE *file, char *result, char *arg1);
 void generateDivision(FILE *file, char *result, char *arg1, char *arg2);
 
@@ -15,6 +15,12 @@ void generateOr(FILE *file, char *result, char *arg1, char *arg2);
 
 void generateEquals(FILE *file, char *result, char *arg1, char *arg2);
 void generateLessThan(FILE *file, char *result, char *arg1, char *arg2);
+
+void generateGreaterThan(FILE *pFile, char *result, char *arg1, char *arg2);
+
+void generateModule(FILE *pFile, char *result, char *arg1, char *arg2);
+
+void generateMethodCall(FILE *pFile, char *arg1, char *arg2);
 
 /**
  * Generates code from a quadruple linked list.
@@ -47,7 +53,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         switch (current->op)
         {
         case MOD:
-
+            generateModule(file, result, arg1, arg2);
             break;
         case PLUS:
             generateAddition(file, result, arg1, arg2);
@@ -56,7 +62,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             generateNegation(file, result, arg2);
             break;
         case SUBTRACTION:
-            generateSubstraction(file, result, arg1, arg2);
+            generateSubtraction(file, result, arg1, arg2);
             break;
         case MULTIPLY:
             generateMultiplication(file, result, arg1, arg2);
@@ -76,6 +82,11 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         case LESSTHAN:
             generateLessThan(file, result, arg1, arg2);
             break;
+        case GRATERTHAN:
+            generateGreaterThan(file, result, arg1, arg2);
+            break;
+        case CALL:
+            generateMethodCall(file, current->arg1->name, result);
         case ASSIGN:
             fprintf(file, "    movl   %s, %%r10\n", arg2);
             fprintf(file, "    movl   %%r10, %s\n", result);
@@ -132,6 +143,30 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
     fprintf(file, ".ident   \"GCC: (Ubuntu 13.2.0-23ubuntu4) 13.2.0\" \n");
 }
 
+void generateMethodCall(FILE *pFile, char *arg1, char *arg2) {
+    fprintf(pFile, "    call   %s\n", arg1);
+    fprintf(pFile, "    movl   %%eax, %s\n", arg2);
+    fprintf(pFile, "\n");
+}
+
+void generateModule(FILE *pFile, char *result, char *arg1, char *arg2) {
+    fprintf(pFile, "    movl   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
+    fprintf(pFile, "    cltd\n");                     // Sign-extend %eax into %edx for division.
+    fprintf(pFile, "    movl   %s, %%r10\n", arg2);   // Load divisor (arg2) into %r10.
+    fprintf(pFile, "    idivl  %%r10\n");             // Perform signed division, result in %eax.
+    fprintf(pFile, "    movl   %%edx, %s\n", result); // Store quotient from %eax into result.
+    fprintf(pFile, "\n");
+}
+
+void generateGreaterThan(FILE *pFile, char *result, char *arg1, char *arg2) {
+    fprintf(pFile, "    movl   %s, %%eax\n", arg1);   // Load the first operand (arg1) into %eax.
+    fprintf(pFile, "    cmpl   %s, %%eax\n", arg2);   // Compare %eax (arg1) with arg2.
+    fprintf(pFile, "    setg   %%al\n");              // Set %al (lower byte of %eax) to 1 if %eax > arg2, else 0.
+    fprintf(pFile, "    movzbl %%al, %%eax\n");       // Zero-extend %al into %eax (ensures the result is a full 32-bit value).
+    fprintf(pFile, "    movl   %%eax, %s\n", result); // Store the result into the destination (result).
+    fprintf(pFile, "\n");
+}
+
 /**
  * Generates assembly code for addition.
  *
@@ -186,7 +221,7 @@ void generateNegation(FILE *file, char *result, char *arg1)
  * @param arg1 The first operand.
  * @param arg2 The second operand.
  */
-void generateSubstraction(FILE *file, char *result, char *arg1, char *arg2)
+void generateSubtraction(FILE *file, char *result, char *arg1, char *arg2)
 {
     fprintf(file, "    movl   %s, %%r10\n", arg1);
     fprintf(file, "    subl   %s, %%r10\n", arg2);
