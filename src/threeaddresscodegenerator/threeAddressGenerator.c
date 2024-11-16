@@ -66,38 +66,44 @@ Node *generateThreeAddressCode(Tree *tree)
     {
     case PARAM:
         Node *paramNode = tree->root;
+        Node *foundParamNode = findNodeInTree(idsDeclaredTreeList, paramNode->name);
         if (idsDeclaredTreeList == NULL)
         {
             currentOffset++;
             paramNode->offset = currentOffset;
-            printf("INCREMENTE POR %s\n", paramNode->name);
             idsDeclaredTreeList = createTree(paramNode, NULL, NULL);
         }
-        else if (findNodeInTree(idsDeclaredTreeList, paramNode->name) == NULL)
+        else if (foundParamNode == NULL)
         {
             currentOffset++;
             paramNode->offset = currentOffset;
-            printf("INCREMENTE POR %s\n", paramNode->name);
             idsDeclaredTreeList = createTree(paramNode, idsDeclaredTreeList, NULL);
+        }
+        else
+        {
+            paramNode->offset = foundParamNode->offset;
         }
         generateThreeAddressCode(tree->left);
         return paramNode;
 
     case ID:
         Node *idNode = tree->root;
+        Node *foundNode = findNodeInTree(idsDeclaredTreeList, idNode->name);
         if (idsDeclaredTreeList == NULL && methodFlag != 1)
         {
             currentOffset++;
             idNode->offset = currentOffset;
-            printf("INCREMENTE POR %s\n", idNode->name);
             idsDeclaredTreeList = createTree(idNode, NULL, NULL);
         }
-        else if (findNodeInTree(idsDeclaredTreeList, idNode->name) == NULL && methodFlag != 1)
+        else if (foundNode == NULL && methodFlag != 1)
         {
             currentOffset++;
             idNode->offset = currentOffset;
-            printf("INCREMENTE POR %s\n", idNode->name);
             idsDeclaredTreeList = createTree(idNode, idsDeclaredTreeList, NULL);
+        }
+        else if (foundNode != NULL)
+        {
+            idNode->offset = foundNode->offset;
         }
         return tree->root;
 
@@ -292,7 +298,6 @@ Node *newTemp()
     temp->flag = TEMP;
     temp->name = strdup(name);
 
-    printf("INCREMENTE POR %s\n", temp->name);
     currentOffset++;
     temp->offset = currentOffset;
     return temp;

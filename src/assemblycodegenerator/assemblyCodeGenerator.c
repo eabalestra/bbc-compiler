@@ -12,6 +12,7 @@ void generateDivision(FILE *file, char *result, char *arg1, char *arg2);
 
 void generateAnd(FILE *file, char *result, char *arg1, char *arg2);
 void generateOr(FILE *file, char *result, char *arg1, char *arg2);
+void generateNot(FILE *file, char *result, char *arg1);
 
 void generateEquals(FILE *file, char *result, char *arg1, char *arg2);
 void generateLessThan(FILE *file, char *result, char *arg1, char *arg2);
@@ -21,6 +22,12 @@ void generateGreaterThan(FILE *pFile, char *result, char *arg1, char *arg2);
 void generateModule(FILE *pFile, char *result, char *arg1, char *arg2);
 
 void generateMethodCall(FILE *pFile, char *arg1, char *arg2);
+
+void generateLoadParameter(FILE *pFile, char *arg1, char *arg2);
+
+void generateJumpByFalse(FILE *pFile, char *arg1, char *result);
+
+void generateGoTo(FILE *pFile, char *arg1);
 
 /**
  * Generates code from a quadruple linked list.
@@ -50,8 +57,14 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         char *arg1 = getValueToString(current->arg1);
         char *arg2 = getValueToString(current->arg2);
 
+        printf("CURRENT OP: %s\n", nodeFlagToString(current->op));
         switch (current->op)
         {
+        case PARAM:
+            int orderOfParameter = current->arg2->value;
+            char *registerParameterName = getRegisterNameByOffset(orderOfParameter);
+            generateLoadParameter(file, arg1, registerParameterName);
+            break;
         case MOD:
             generateModule(file, result, arg1, arg2);
             break;
@@ -79,6 +92,9 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         case EQUALS:
             generateEquals(file, result, arg1, arg2);
             break;
+        case NOT:
+            generateNot(file, result, arg2);
+            break;
         case LESSTHAN:
             generateLessThan(file, result, arg1, arg2);
             break;
@@ -87,6 +103,16 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             break;
         case CALL:
             generateMethodCall(file, current->arg1->name, result);
+            break;
+        case JMPF:
+            generateJumpByFalse(file, arg2, current->result->name);
+            break;
+        case GOTO:
+            generateGoTo(file, current->arg1->name);
+            break;
+        case LABEL:
+            fprintf(file, "%s:\n", current->arg1->name);
+            break;
         case ASSIGN:
             fprintf(file, "    movl   %s, %%r10\n", arg2);
             fprintf(file, "    movl   %%r10, %s\n", result);
@@ -100,7 +126,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         case INITMETHOD:
             if (strcmp(current->arg1->name, "main") == 0)
             {
-                fprintf(file, "    .globl main\n");
+                fprintf(file, "\n    .globl main\n");
             }
 
             fprintf(file, "\n%s:\n", current->arg1->name);
@@ -143,13 +169,43 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
     fprintf(file, ".ident   \"GCC: (Ubuntu 13.2.0-23ubuntu4) 13.2.0\" \n");
 }
 
-void generateMethodCall(FILE *pFile, char *arg1, char *arg2) {
+void generateNot(FILE *file, char *result, char *arg1)
+{
+    fprintf(file, "    movl   %s, %%eax\n", arg1);  // Load the value of arg1 into %eax.
+    fprintf(file, "    cmpl   $0, %%eax\n");    // Compare %eax with 0.
+    fprintf(file, "    sete   %%al\n"); // If %eax is zero, set %eax to 1 (logical NOT).
+    fprintf(file, "    movzbl %%al, %%eax\n");  // Zero-extend %al to %eax.
+    fprintf(file, "    movl   %%eax, %s\n", result);     // Store the result in the result variable.
+    fprintf(file, "\n");
+}
+
+void generateGoTo(FILE *pFile, char *arg1)
+{
+    fprintf(pFile, "    jmp    %s\n", arg1);
+    fprintf(pFile, "\n");
+}
+
+void generateJumpByFalse(FILE *pFile, char *arg1, char *result)
+{
+    fprintf(pFile, "    cmpl   $0, %s\n", arg1);
+    fprintf(pFile, "    je     %s\n", result);
+    fprintf(pFile, "\n");
+}
+
+void generateLoadParameter(FILE *pFile, char *arg1, char *arg2)
+{
+    fprintf(pFile, "    movl    %s, %s\n", arg1, arg2);
+}
+
+void generateMethodCall(FILE *pFile, char *arg1, char *arg2)
+{
     fprintf(pFile, "    call   %s\n", arg1);
     fprintf(pFile, "    movl   %%eax, %s\n", arg2);
     fprintf(pFile, "\n");
 }
 
-void generateModule(FILE *pFile, char *result, char *arg1, char *arg2) {
+void generateModule(FILE *pFile, char *result, char *arg1, char *arg2)
+{
     fprintf(pFile, "    movl   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
     fprintf(pFile, "    cltd\n");                     // Sign-extend %eax into %edx for division.
     fprintf(pFile, "    movl   %s, %%r10\n", arg2);   // Load divisor (arg2) into %r10.
@@ -158,7 +214,8 @@ void generateModule(FILE *pFile, char *result, char *arg1, char *arg2) {
     fprintf(pFile, "\n");
 }
 
-void generateGreaterThan(FILE *pFile, char *result, char *arg1, char *arg2) {
+void generateGreaterThan(FILE *pFile, char *result, char *arg1, char *arg2)
+{
     fprintf(pFile, "    movl   %s, %%eax\n", arg1);   // Load the first operand (arg1) into %eax.
     fprintf(pFile, "    cmpl   %s, %%eax\n", arg2);   // Compare %eax (arg1) with arg2.
     fprintf(pFile, "    setg   %%al\n");              // Set %al (lower byte of %eax) to 1 if %eax > arg2, else 0.
@@ -355,6 +412,11 @@ char *getValueToString(Node *node)
     }
 
     char *result = malloc(100);
+    if (result == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
 
     Tag tag = node->flag;
 
@@ -369,6 +431,8 @@ char *getValueToString(Node *node)
     case PARAM:
     case ID:
         sprintf(result, "-%d(%%rbp)", node->offset * 8);
+        break;
+    default:
         break;
     }
 
