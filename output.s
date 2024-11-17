@@ -29,8 +29,8 @@ main:
     movq    -8(%rbp), %rdi
     call   printInteger@PLT
     movl   %eax, -32(%rbp)
-    movq   -8(%rbp), %r10
-    cmpq   $2, %r10
+    movl   -8(%rbp), %eax
+    cmpl   $2, %eax
     sete   %al
     movzbl %al, %eax
     movl   %eax, -40(%rbp)

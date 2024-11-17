@@ -268,9 +268,9 @@ void generateMultiplication(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateNegation(FILE *file, char *result, char *arg1)
 {
-    fprintf(file, "    movq   %s, %%r10\n", arg1); // Load operand into r10.
-    fprintf(file, "    negq   %%r10\n");           // Negate the value in r10.
-    fprintf(file, "    movq   %%r10, %s\n", arg1); // Store the result.
+    fprintf(file, "    movl   %s, %%eax\n", arg1); // Load operand into r10.
+    fprintf(file, "    negl   %%eax\n");           // Negate the value in r10.
+    fprintf(file, "    movl   %%eax, %s\n", result); // Store the result.
     fprintf(file, "\n");
 }
 
@@ -347,8 +347,8 @@ void generateDivision(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateEquals(FILE *file, char *result, char *arg1, char *arg2)
 {
-    fprintf(file, "    movq   %s, %%r10\n", arg1);
-    fprintf(file, "    cmpq   %s, %%r10\n", arg2);
+    fprintf(file, "    movl   %s, %%eax\n", arg1);
+    fprintf(file, "    cmpl   %s, %%eax\n", arg2);
     fprintf(file, "    sete   %%al\n");
     fprintf(file, "    movzbl %%al, %%eax\n");
     fprintf(file, "    movl   %%eax, %s\n", result);
