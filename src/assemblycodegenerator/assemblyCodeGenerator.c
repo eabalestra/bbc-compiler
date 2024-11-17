@@ -172,6 +172,13 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
     fprintf(file, ".section .note.GNU-stack,\"\",@progbits\n");
 }
 
+/**
+ * Generates assembly code for addition.
+ *
+ * @param file File pointer to the assembly output file.
+ * @param result The result variable.
+ * @param arg1 The first operand.
+ */
 void generateNot(FILE *file, char *result, char *arg1)
 {
     fprintf(file, "    movl   %s, %%eax\n", arg1);   // Load the value of arg1 into %eax.
@@ -182,12 +189,25 @@ void generateNot(FILE *file, char *result, char *arg1)
     fprintf(file, "\n");
 }
 
+/**
+ * Generates assembly code for addition.
+ *
+ * @param pfile File pointer to the assembly output file.
+ * @param arg1 the label to jump to.
+ */
 void generateGoTo(FILE *pFile, char *arg1)
 {
     fprintf(pFile, "    jmp    %s\n", arg1);
     fprintf(pFile, "\n");
 }
 
+/**
+ * Generates assembly code for a conditional jump when the value is false (zero).
+ *
+ * @param pFile File pointer to the assembly output file.
+ * @param arg1 The variable to evaluate (check if it's zero).
+ * @param result The label to jump to if `arg1` is zero.
+ */
 void generateJumpByFalse(FILE *pFile, char *arg1, char *result)
 {
     fprintf(pFile, "    cmpl   $0, %s\n", arg1);
@@ -195,11 +215,25 @@ void generateJumpByFalse(FILE *pFile, char *arg1, char *result)
     fprintf(pFile, "\n");
 }
 
+/**
+ * Generates assembly code to load a parameter.
+ *
+ * @param pFile File pointer to the assembly output file.
+ * @param arg1 The source variable to load.
+ * @param arg2 The destination register or memory location where the parameter will be stored.
+ */
 void generateLoadParameter(FILE *pFile, char *arg1, char *arg2)
 {
     fprintf(pFile, "    movq    %s, %s\n", arg1, arg2);
 }
 
+/**
+ * Generates assembly code for a method call.
+ *
+ * @param pFile File pointer to the assembly output file.
+ * @param arg1 The method to call.
+ * @param arg2 The variable to store the method's return value (stored in `%eax`).
+ */
 void generateMethodCall(FILE *pFile, char *arg1, char *arg2)
 {
     fprintf(pFile, "    call   %s\n", arg1);
@@ -207,6 +241,14 @@ void generateMethodCall(FILE *pFile, char *arg1, char *arg2)
     fprintf(pFile, "\n");
 }
 
+/**
+ * Generates assembly code for the modulo operation.
+ *
+ * @param pFile File pointer to the assembly output file.
+ * @param result The destination variable to store the modulo result.
+ * @param arg1 The dividend variable.
+ * @param arg2 The divisor variable.
+ */
 void generateModule(FILE *pFile, char *result, char *arg1, char *arg2)
 {
     fprintf(pFile, "    movl   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
@@ -217,6 +259,13 @@ void generateModule(FILE *pFile, char *result, char *arg1, char *arg2)
     fprintf(pFile, "\n");
 }
 
+/**
+ * Generates assembly code for less-than comparison.
+ * @param pfile File pointer to the assembly output file.
+ * @param result The variable to store the result.
+ * @param arg1 The first operand.
+ * @param arg2 The second operand.
+ */
 void generateGreaterThan(FILE *pFile, char *result, char *arg1, char *arg2)
 {
     fprintf(pFile, "    movl   %s, %%eax\n", arg1);   // Load the first operand (arg1) into %eax.
