@@ -143,9 +143,12 @@ Type checkTypes(Tree *tree)
         case RETURN:
             if (currentMethodType == VOID) {
                 if (tree->left != NULL) {
-                    printf("Type Mismatch Error [Line %d]: Void function should not return a value.\n", 
-                    root->line_number);
-                    exit(1);
+                    hiType = checkTypes(tree->left);
+                    if (hiType != VOID) {
+                        printf("Type Mismatch Error [Line %d]: Void function should not return a value.\n", 
+                        root->line_number);
+                        exit(1);
+                    }
                 }
             } else {
                 if (tree->left == NULL) {
