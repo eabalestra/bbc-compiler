@@ -47,7 +47,6 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
 
     fprintf(file, ".file \"%s\"\n", fileName);
     fprintf(file, ".text\n");
-    //fprintf(file, ".section .note.GNU-stack,\"\",@progbits\n");
 
     QuadrupleLinkedList *quadList = quadrupleLinkedList;
 
@@ -123,11 +122,14 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             fprintf(file, "%s:\n", current->result->name);
             fprintf(file, "    .long %d\n", current->arg2->value);
             break;
-
+        case EXTERNAL_CALL:
+            fprintf(file, "    call   %s@PLT\n", current->arg1->name);
+            fprintf(file, "    movl   %%eax, %s\n", result);
+            break;
         case INITMETHOD:
             if (strcmp(current->arg1->name, "main") == 0)
             {
-                fprintf(file, "\n    .globl main\n");
+                fprintf(file, "\n    .globl main");
             }
 
             fprintf(file, "\n%s:\n", current->arg1->name);
@@ -146,7 +148,6 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
 
             fprintf(file, "\n");
             break;
-
         case RETURN:
             if (current->arg2 == NULL)
             {

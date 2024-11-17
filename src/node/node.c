@@ -149,6 +149,12 @@ char *nodeFlagToString(Tag flag)
         return "SUBTRACTION";
     case LABEL:
         return "LABEL";
+    case INIT_EXTERNAL_METHOD:
+        return "INIT_EXTERNAL_METHOD";
+    case END_EXTERNAL_METHOD:
+        return "END_EXTERNAL_METHOD";
+    case EXTERNAL_CALL:
+        return "EXTERNAL_CALL";
     default:
         return "UNKNOWN";
     }

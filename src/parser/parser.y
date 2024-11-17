@@ -89,10 +89,12 @@
 program:    TPROGRAM TLCURLY var_decls method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, $4);
+                return;
             }
             | TPROGRAM TLCURLY method_decls TRCURLY {
                 Node *newNode = createNonTerminalNode(PROG);
                 ast = createTree(newNode, $3, NULL);
+                return;
             }
             ;
 
@@ -160,6 +162,7 @@ method_end:     block {
                 }
                 | TEXTERN TCOLON {
                     Node *newNode = createNonTerminalNode(EXTERN);
+                    newNode->isExternal = 1;
                     $$ = createTree(newNode, NULL, NULL);
                 }
                 ;

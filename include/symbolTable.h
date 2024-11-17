@@ -28,7 +28,7 @@ void printSymbolTable(SymbolTable *table);
 
 Node *searchAndValidateSymbol(SymbolTable *table, Node* nodeToSearch);
 
-SymbolTable *semanticCheck(SymbolTable *table, Tree *ast);
+Tree *semanticCheck(SymbolTable *table, Tree *ast);
 void buildSymbolTable(SymbolTable *pTable, Tree *pTree);
 
 #endif // SYMBOL_TABLE_H

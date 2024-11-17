@@ -92,3 +92,15 @@ Node *findNodeInTree(Tree *tree, char *nodeName)
 
     return NULL;
 }
+
+int checkIfMethodIsExternal(Tree *pTree)
+{
+    if (pTree == NULL || pTree->root == NULL) {
+        return 0;
+    }
+    Node *methodNode = pTree->root;
+    if (methodNode->isExternal == 1) {
+        return 1;
+    }
+    return checkIfMethodIsExternal(pTree->right);;
+}

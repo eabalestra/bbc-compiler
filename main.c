@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     
     // Perform semantic checks
     symbolTable = createSymbolTable();
-    symbolTable = semanticCheck(symbolTable, ast);
+    ast = semanticCheck(symbolTable, ast);
 
     // Generate three address code
     generateThreeAddressCode(ast);

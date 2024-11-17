@@ -18,6 +18,6 @@ void printTree(Tree *tree);
 void printTreeRecursive(Tree *tree, char *prefix, int isLast);
 Node *findNodeInTree(Tree *tree, char *nodeName);
 Node *findNodeInTreeRecursive(Tree *tree, char *nodeName);
-
+int checkIfMethodIsExternal(Tree *pTree);
 
 #endif // TREE_H

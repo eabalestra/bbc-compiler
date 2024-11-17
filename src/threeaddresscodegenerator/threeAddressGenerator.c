@@ -5,6 +5,8 @@ QuadrupleLinkedList *quadrupleList = NULL;
 Node *newTemp();
 Node *newLabel();
 
+int checkIfMethodIsExternal(Tree *pTree);
+
 QuadrupleLinkedList *getQuadrupleList()
 {
     return quadrupleList;
@@ -191,39 +193,82 @@ Node *generateThreeAddressCode(Tree *tree)
         return NULL;
 
     case METHODCALL:
-        methodFlag = 1;
-        arg1 = generateThreeAddressCode(tree->left);
-        methodFlag = 0;
-
-        Tree *methodParameters = tree->right;
-        int i = 0;
-        while (methodParameters != NULL && methodParameters->root->flag != EMPTY)
+        if (checkIfMethodIsExternal(tree))
         {
-            i++;
-            Node *param = generateExprWithOrder(methodParameters, i);
-            methodParameters = methodParameters->right;
+            methodFlag = 1;
+            arg1 = generateThreeAddressCode(tree->left);
+            methodFlag = 0;
+
+            Tree *methodParameters = tree->right;
+            int i = 0;
+            while (methodParameters != NULL && methodParameters->root->flag != EMPTY)
+            {
+                i++;
+                Node *param = generateExprWithOrder(methodParameters, i);
+                methodParameters = methodParameters->right;
+            }
+            Node *paramsNode = createNode(NUMBER, NONTYPE, i, NULL, NULL);
+            temp = generateBinaryQuadruple(EXTERNAL_CALL, arg1, paramsNode);
+            return temp;
         }
-        Node *paramsNode = createNode(NUMBER, NONTYPE, i, NULL, NULL);
-        temp = generateBinaryQuadruple(CALL, arg1, paramsNode);
-        return temp;
+        else
+        {
+            methodFlag = 1;
+            arg1 = generateThreeAddressCode(tree->left);
+            methodFlag = 0;
+
+            Tree *methodParameters = tree->right;
+            int i = 0;
+            while (methodParameters != NULL && methodParameters->root->flag != EMPTY)
+            {
+                i++;
+                Node *param = generateExprWithOrder(methodParameters, i);
+                methodParameters = methodParameters->right;
+            }
+            Node *paramsNode = createNode(NUMBER, NONTYPE, i, NULL, NULL);
+            temp = generateBinaryQuadruple(CALL, arg1, paramsNode);
+            return temp;
+        }
 
     case METHODDECL:
-        methodDeclaredflag = 1;
-        methodFlag = 1;
-        arg1 = generateThreeAddressCode(tree->left);
+        if (checkIfMethodIsExternal(tree))
+        {
+            methodDeclaredflag = 1;
+            methodFlag = 1;
+            arg1 = generateThreeAddressCode(tree->left);
 
-        quad = newSimpleQuadruple(INITMETHOD, arg1);
-        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
-        methodFlag = 0;
-        generateThreeAddressCode(tree->right);
+            quad = newSimpleQuadruple(INIT_EXTERNAL_METHOD, arg1);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+            methodFlag = 0;
+            generateThreeAddressCode(tree->right);
 
-        arg1->offset = currentOffset;
-        quad = newSimpleQuadruple(ENDMETHOD, arg1);
-        quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+            arg1->offset = currentOffset;
+            quad = newSimpleQuadruple(END_EXTERNAL_METHOD, arg1);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
 
-        // reset
-        currentOffset = 0;
-        idsDeclaredTreeList = NULL;
+            // reset
+            currentOffset = 0;
+            idsDeclaredTreeList = NULL;
+        }
+        else
+        {
+            methodDeclaredflag = 1;
+            methodFlag = 1;
+            arg1 = generateThreeAddressCode(tree->left);
+
+            quad = newSimpleQuadruple(INITMETHOD, arg1);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+            methodFlag = 0;
+            generateThreeAddressCode(tree->right);
+
+            arg1->offset = currentOffset;
+            quad = newSimpleQuadruple(ENDMETHOD, arg1);
+            quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
+
+            // reset
+            currentOffset = 0;
+            idsDeclaredTreeList = NULL;
+        }
         return NULL;
 
     case IF:

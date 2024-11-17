@@ -3,63 +3,53 @@
 
 inc:
     enter   $(8 * 2), $0 
-    movl   %rdi, -8(%rbp)
+    movq   %rdi, -8(%rbp)
 
-    movl   -8(%rbp), %r10
-    addl   $1, %r10
-    movl   %r10, -16(%rbp)
+    movq   -8(%rbp), %r10
+    addq   $1, %r10
+    movq   %r10, -16(%rbp)
 
     mov   -16(%rbp), %rax 
     leave 
     ret
 
-get_integer:
-    enter   $(8 * 0), $0 
-
-
-printInteger:
-    enter   $(8 * 1), $0 
-    movl   %rdi, -8(%rbp)
-
     .globl main
-
 main:
-    enter   $(8 * 6), $0 
+    enter   $(8 * 7), $0 
 
-    call   get_integer
+    call   get_integer@PLT
     movl   %eax, -16(%rbp)
-
-    movl   $0, %r10
-    movl   %r10, -16(%rbp)
-
+    movq    -16(%rbp), %rdi
     call   inc
     movl   %eax, -24(%rbp)
 
-    movl   $1, %r10
-    movl   %r10, -24(%rbp)
+    movq   -24(%rbp), %r10
+    movq   %r10, -8(%rbp)
 
-    movl   -24(%rbp), %r10
-    movl   %r10, -0(%rbp)
-
-    movl   -8(%rbp), %r10
-    cmpl   $1, %r10
+    movq    -8(%rbp), %rdi
+    call   printInteger@PLT
+    movl   %eax, -32(%rbp)
+    movq   -8(%rbp), %r10
+    cmpq   $2, %r10
     sete   %al
     movzbl %al, %eax
-    movl   %eax, -32(%rbp)
-
-    call   printInteger
     movl   %eax, -40(%rbp)
 
-    movl   $1, %r10
-    movl   %r10, -40(%rbp)
+    cmpl   $0, -40(%rbp)
+    je     L0
 
-    call   printInteger
+    movq    $1, %rdi
+    call   printInteger@PLT
     movl   %eax, -48(%rbp)
+    jmp    L1
 
-    movl   $1, %r10
-    movl   %r10, -48(%rbp)
-
+L0:
+    movq    $0, %rdi
+    call   printInteger@PLT
+    movl   %eax, -56(%rbp)
+L1:
     mov   $0, %rax 
     leave 
     ret
 .ident   "GCC: (Ubuntu 13.2.0-23ubuntu4) 13.2.0" 
+.section .note.GNU-stack,"",@progbits

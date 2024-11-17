@@ -242,12 +242,12 @@ void printSymbolTable(SymbolTable *table)
  * @param ast tree to perform the semantic checkForDuplicateParameters on.
  * @return pointer to the constructed SymbolTable after processing the AST.
  */
-SymbolTable *semanticCheck(SymbolTable *table, Tree *ast)
+Tree *semanticCheck(SymbolTable *table, Tree *ast)
 {
     buildSymbolTable(table, ast);
     checkTypes(ast);
 
-    return table;
+    return ast;
 }
 
 /**
@@ -369,6 +369,7 @@ void handleMethodCall(SymbolTable *table, Tree *methodTree)
     Node *leftChild = methodTree->left->root;
 
     Node *methodNode = searchSymbolInTable(table, leftChild->name, table->levels);
+
     if (methodNode == NULL)
     {
         printf("buildSymbolTable: Method %s not declared. \n", leftChild->name);
@@ -376,6 +377,7 @@ void handleMethodCall(SymbolTable *table, Tree *methodTree)
     }
 
     methodTree->left->root = methodNode;
+    methodTree->root->isExternal = methodNode->isExternal;
     methodTree->left->root->parameters = methodNode->parameters;
 
     Tree *methodParameters = methodTree->right;
@@ -406,6 +408,10 @@ void handleMethodDecl(SymbolTable *table, Tree *tree)
     if (tree->right->left->root->flag != EMPTY)
     {
         leftChild->parameters = tree->right->left;
+    }
+    if (checkIfMethodIsExternal(tree))
+    {
+        leftChild->isExternal = 1;
     }
     checkForDuplicateParameters(tree, leftChild);
     insertSymbolInSymbolTable(table, leftChild, table->levels);
