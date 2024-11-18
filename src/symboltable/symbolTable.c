@@ -169,18 +169,12 @@ void popLevelFromSymbolTable(SymbolTable *table)
         tableAux = tableAux->next;
     }
 
-    //  if (tableAux->levelData != NULL)
-    //  {
-    //      freeSymbolList(tableAux->levelData);
-    //  }
-
     if (prev != NULL)
     {
         prev->next = NULL;
     }
 
     table->levels--;
-    //    free(tableAux);
 }
 
 /**
@@ -329,6 +323,12 @@ void buildSymbolTable(SymbolTable *pTable, Tree *pTree)
     }
 }
 
+/**
+ * Handles the construction of the symbol table for a `while` loop.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param tree Pointer to the syntax tree node representing the `while` loop.
+ */
 void handleWhile(SymbolTable *table, Tree *tree)
 {
     pushLevelToSymbolTable(table);
@@ -338,6 +338,15 @@ void handleWhile(SymbolTable *table, Tree *tree)
     popLevelFromSymbolTable(table);
 }
 
+/**
+ * Handles the validation and processing of expressions in the syntax tree.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param tree Pointer to the syntax tree node representing the expression.
+ * 
+ * This method verifies if the identifiers (IDs) or parameters (PARAMs) in the expression 
+ * are declared in the symbol table. If an undeclared variable is found, an error is raised.
+ */
 void handleExpresion(SymbolTable *table, Tree *tree)
 {
     if (tree == NULL)
@@ -356,6 +365,12 @@ void handleExpresion(SymbolTable *table, Tree *tree)
     handleExpresion(table, tree->right);
 }
 
+/**
+ * Handles the construction of the symbol table for `then` or `else` blocks in conditional statements.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param tree Pointer to the syntax tree node representing the `then` or `else` block.
+ */
 void handleThenOrElse(SymbolTable *table, Tree *tree)
 {
     pushLevelToSymbolTable(table);
@@ -364,6 +379,12 @@ void handleThenOrElse(SymbolTable *table, Tree *tree)
     buildSymbolTable(table, tree->right);
 }
 
+/**
+ * Handles the construction of the symbol table for method calls.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param methodTree Pointer to the syntax tree node representing the method call.
+ */
 void handleMethodCall(SymbolTable *table, Tree *methodTree)
 {
     Node *leftChild = methodTree->left->root;
@@ -402,6 +423,15 @@ void handleMethodCall(SymbolTable *table, Tree *methodTree)
     }
 }
 
+/**
+ * Handles the construction of the symbol table for method declarations.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param tree Pointer to the syntax tree node representing the method declaration.
+ * 
+ * This method checks for external methods, duplicate parameter names, and adds the method 
+ * and its parameters to the symbol table.
+ */
 void handleMethodDecl(SymbolTable *table, Tree *tree)
 {
     Node *leftChild = tree->left->root;
@@ -418,6 +448,12 @@ void handleMethodDecl(SymbolTable *table, Tree *tree)
     buildSymbolTable(table, tree->right);
 }
 
+/**
+ * Handles the construction of the symbol table for variable declarations.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param tree Pointer to the syntax tree node representing the variable declaration.
+ */
 void handleVarDecl(SymbolTable *table, Tree *tree)
 {
     Node *leftChild = tree->left->root;
@@ -449,6 +485,15 @@ void handleVarDecl(SymbolTable *table, Tree *tree)
     buildSymbolTable(table, tree->right);
 }
 
+/**
+ * Handles the construction of the symbol table for assignment statements.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param tree Pointer to the syntax tree node representing the assignment statement.
+ * 
+ * This method ensures the left-hand side variable is declared, assigns values or types 
+ * from the right-hand side expression, and updates the symbol table accordingly.
+ */
 void handleAssign(SymbolTable *table, Tree *tree)
 {
     Node *leftChild = tree->left->root;
@@ -485,6 +530,15 @@ void handleAssign(SymbolTable *table, Tree *tree)
     buildSymbolTable(table, tree->right);
 }
 
+/**
+ * Searches for a symbol in the symbol table and validates its existence.
+ * 
+ * @param table Pointer to the SymbolTable instance.
+ * @param nodeToSearch Pointer to the node representing the symbol to be searched.
+ * @return Pointer to the found Node in the symbol table.
+ * 
+ * If the symbol is not found, the method raises an error.
+ */
 Node *searchAndValidateSymbol(SymbolTable *table, Node *nodeToSearch)
 {
     Node *searchedNode = searchSymbolInTable(table, nodeToSearch->name, table->levels);
@@ -496,6 +550,15 @@ Node *searchAndValidateSymbol(SymbolTable *table, Node *nodeToSearch)
     return searchedNode;
 }
 
+/**
+ * Checks for duplicate parameter names in a method declaration.
+ * 
+ * @param tree Pointer to the syntax tree node representing the method.
+ * @param leftChild Pointer to the Node representing the method in the symbol table.
+ * 
+ * This method traverses the parameter list of a method and raises an error if duplicate 
+ * parameter names are detected.
+ */
 void checkForDuplicateParameters(Tree *tree, const Node *leftChild)
 {
     Tree *paramList = tree->right->left;

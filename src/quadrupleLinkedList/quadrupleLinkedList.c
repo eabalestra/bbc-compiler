@@ -1,7 +1,10 @@
 #include "../../include/quadrupleLinkedList.h"
 
 /**
+ * Creates a new `QuadrupleLinkedList` node containing the given quadruple.
  *
+ * @param quad A pointer to the `Quadruple` to be stored in the linked list node.
+ * @return A pointer to the newly created `QuadrupleLinkedList`.
  */
 QuadrupleLinkedList *newQuadrupleLinkedList(Quadruple *quad)
 {
@@ -11,6 +14,13 @@ QuadrupleLinkedList *newQuadrupleLinkedList(Quadruple *quad)
     return list;
 }
 
+/**
+ * Adds a new `Quadruple` to the end of the `QuadrupleLinkedList`.
+ *
+ * @param list The head of the `QuadrupleLinkedList`. Can be `NULL` to create a new list.
+ * @param quad The `Quadruple` to add to the list.
+ * @return The head of the updated `QuadrupleLinkedList`.
+ */
 QuadrupleLinkedList *addQuadrupleLinkedList(QuadrupleLinkedList *list, Quadruple *quad)
 {
     QuadrupleLinkedList *newQuadLinkedList = newQuadrupleLinkedList(quad);
@@ -27,6 +37,11 @@ QuadrupleLinkedList *addQuadrupleLinkedList(QuadrupleLinkedList *list, Quadruple
     return list;
 }
 
+/**
+ * Prints all the quadruples stored in a `QuadrupleLinkedList`.
+ *
+ * @param list The head of the `QuadrupleLinkedList` to print.
+ */
 void printQuadrupleLinkedList(QuadrupleLinkedList *list)
 {
     QuadrupleLinkedList *current = list;

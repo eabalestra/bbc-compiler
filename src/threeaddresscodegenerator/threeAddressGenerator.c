@@ -7,6 +7,9 @@ Node *newLabel();
 
 int checkIfMethodIsExternal(Tree *pTree);
 
+/**
+ * Retrieves the global quadruple list.
+ */
 QuadrupleLinkedList *getQuadrupleList()
 {
     return quadrupleList;
@@ -28,6 +31,12 @@ Node *generateBinaryQuadruple(Tag flag, Node *arg1, Node *arg2)
     return temp;
 }
 
+/**
+ * Generates three-address code for method parameters with a specified order.
+ *
+ * @param methodParameters The tree representation of method parameters.
+ * @param order The order of the parameter in the method call.
+ */
 Node *generateExprWithOrder(Tree *methodParameters, int order)
 {
     if (methodParameters == NULL || methodParameters->root == NULL)
@@ -44,12 +53,21 @@ Node *generateExprWithOrder(Tree *methodParameters, int order)
     return NULL;
 }
 
+/** The current offset used for variable declarations. */
 int currentOffset = 0;
+/** Flag indicating if a method is currently being declared. */
 int methodDeclaredflag = 0;
-
+/** Tree storing all declared IDs. */
 Tree *idsDeclaredTreeList = NULL;
+/** Flag indicating if a method context is active. */
 int methodFlag = 0;
 
+/**
+ * Generates three-address code for the given tree.
+ * 
+ * @param tree The tree representing the code.
+ * @return The resulting Node or NULL if no result is produced.
+ */
 Node *generateThreeAddressCode(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -328,7 +346,14 @@ Node *generateThreeAddressCode(Tree *tree)
     return NULL;
 }
 
+/** Counter for generating unique temporary variable names. */
 int tempCount = 1;
+
+/**
+ * Creates a new temporary variable node with a unique name.
+ * 
+ * @return A new Node representing a temporary variable.
+ */
 Node *newTemp()
 {
     char name[10];
@@ -348,7 +373,14 @@ Node *newTemp()
     return temp;
 }
 
+/** Counter for generating unique label names. */
 int labelCount = 0;
+
+/**
+ * Creates a new label node with a unique name.
+ * 
+ * @return A new Node representing a label.
+ */
 Node *newLabel()
 {
     char name[10];

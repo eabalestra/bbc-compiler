@@ -1,9 +1,18 @@
 #include "../../include/typeChecker.h"
 
-Node *currentMethod; // variable global para la funcion actual en la que estoy
+Node *currentMethod; // global variable indicating the current method being analysed.
 
 Type currentMethodType;
 int flagReturn = 0;
+
+/**
+ * Checks the type of the expression represented by a syntax tree.
+ * Traverses the tree recursively and ensures type compatibility for operators and operands.
+ *
+ * @param tree the tree to check types for.
+ * @return the resulting type of the expression (INTEGER, BOOLEAN, or NONTYPE).
+ * @throws TypeMismatchError if a type mismatch is found during type checking.
+ */
 Type checkTypes(Tree *tree)
 {
     if (tree == NULL || tree->root == NULL)
@@ -17,192 +26,208 @@ Type checkTypes(Tree *tree)
 
     switch (root->flag)
     {
-        case NUMBER:
-            return INTEGER;
-            break;
-        case BOOL:
-            return BOOLEAN;
-            break;
-        case PARAM:
-        case ID:
-            return root->type;
-            break;
-        // Expr cases
-        case MINUS:
-            hiType = checkTypes(tree->left);
-            
-            if (tree->right == NULL) { // unary minus case
-                if(hiType != INTEGER)
-                {
-                    printf("Type Mismatch Error [Line %d]: Unary '-' operator requires INTEGER type, but got '%s'.\n",
-                    root->line_number, nodeTypeToString(hiType));
-                    exit(1);
-                }
-            } else {
-                hdType = checkTypes(tree->right);
-                if (hiType != INTEGER || hdType != INTEGER) {
-                    printf("Type Mismatch Error [Line %d]: Binary '-' operator requires INTEGER types, but got '%s' and '%s'.\n",
-                    root->line_number, nodeTypeToString(hiType), nodeTypeToString(hdType));
-                    exit(1);
-                }
-            }
-            return INTEGER;
-            break;
+    case NUMBER:
+        return INTEGER;
+        break;
+    case BOOL:
+        return BOOLEAN;
+        break;
+    case PARAM:
+    case ID:
+        return root->type;
+        break;
+    // Expr cases
+    case MINUS:
+        hiType = checkTypes(tree->left);
 
-        case MOD:
-        case PLUS:
-        case MULTIPLY:
-        case DIVISION:
-            hiType = checkTypes(tree->left);
+        if (tree->right == NULL)
+        { // unary minus case
+            if (hiType != INTEGER)
+            {
+                printf("Type Mismatch Error [Line %d]: Unary '-' operator requires INTEGER type, but got '%s'.\n",
+                       root->line_number, nodeTypeToString(hiType));
+                exit(1);
+            }
+        }
+        else
+        {
             hdType = checkTypes(tree->right);
-
-
-            if(hiType != INTEGER || hdType != INTEGER)
+            if (hiType != INTEGER || hdType != INTEGER)
             {
-                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires INTEGER types, but got '%s' and '%s'.\n",
-                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
+                printf("Type Mismatch Error [Line %d]: Binary '-' operator requires INTEGER types, but got '%s' and '%s'.\n",
+                       root->line_number, nodeTypeToString(hiType), nodeTypeToString(hdType));
                 exit(1);
             }
-            return INTEGER;
-            break;
-            
-        case AND:
-        case OR:
-            hiType = checkTypes(tree->left);
-            hdType = checkTypes(tree->right);
-            if(hiType != BOOLEAN || hdType != BOOLEAN)
-            {
-                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires BOOLEAN types, but got '%s' and '%s'.\n",
-                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
-                exit(1);
-            }
-            return BOOLEAN;
-            break;
-        case NOT:
-            hiType = checkTypes(tree->left);
+        }
+        return INTEGER;
+        break;
 
-            if(hiType != BOOLEAN){
-                printf("Type Mismatch Error [Line %d]: Unary '%s' operator requires BOOLEAN types, but got '%s'.\n",
-                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType));
-                exit(1);
-            }
-            return BOOLEAN;
-            break;
+    case MOD:
+    case PLUS:
+    case MULTIPLY:
+    case DIVISION:
+        hiType = checkTypes(tree->left);
+        hdType = checkTypes(tree->right);
 
-        case GRATERTHAN:
-        case LESSTHAN:
-            hiType = checkTypes(tree->left);
-            hdType = checkTypes(tree->right);
+        if (hiType != INTEGER || hdType != INTEGER)
+        {
+            printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires INTEGER types, but got '%s' and '%s'.\n",
+                   root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
+            exit(1);
+        }
+        return INTEGER;
+        break;
 
-            if(hiType != INTEGER || hdType != INTEGER)
-            {
-                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires INTEGER types, but got '%s' and '%s'.\n",
-                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
-                exit(1);
-            }
+    case AND:
+    case OR:
+        hiType = checkTypes(tree->left);
+        hdType = checkTypes(tree->right);
+        if (hiType != BOOLEAN || hdType != BOOLEAN)
+        {
+            printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires BOOLEAN types, but got '%s' and '%s'.\n",
+                   root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
+            exit(1);
+        }
+        return BOOLEAN;
+        break;
+    case NOT:
+        hiType = checkTypes(tree->left);
 
-            return BOOLEAN;
-            break;
+        if (hiType != BOOLEAN)
+        {
+            printf("Type Mismatch Error [Line %d]: Unary '%s' operator requires BOOLEAN types, but got '%s'.\n",
+                   root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType));
+            exit(1);
+        }
+        return BOOLEAN;
+        break;
 
-        case ASSIGN:
-            hiType = checkTypes(tree->left);
-            hdType = checkTypes(tree->right);
-            if(hiType != hdType)
-            {
-                printf("Type Mismatch Error [Line %d]: Assignment type mismatch. Cannot assign '%s' to '%s'.\n", 
-                root->line_number, nodeTypeToString(hdType), nodeTypeToString(hiType));
-                exit(1);
-            }
-            break;
-        case EQUALS:
-            hiType = checkTypes(tree->left);
-            hdType = checkTypes(tree->right);
-            if(hiType != hdType)
-            {
-                printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires matching types, but got '%s' and '%s'.\n",
-                root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
-                exit(1);
-            }
-            return BOOLEAN;
-            break;
+    case GRATERTHAN:
+    case LESSTHAN:
+        hiType = checkTypes(tree->left);
+        hdType = checkTypes(tree->right);
 
-        case VARDECL:
-            hiType = checkTypes(tree->left);
-            hdType = checkTypes(tree->right);
-            if(hdType == NONTYPE)
+        if (hiType != INTEGER || hdType != INTEGER)
+        {
+            printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires INTEGER types, but got '%s' and '%s'.\n",
+                   root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
+            exit(1);
+        }
+
+        return BOOLEAN;
+        break;
+
+    case ASSIGN:
+        hiType = checkTypes(tree->left);
+        hdType = checkTypes(tree->right);
+        if (hiType != hdType)
+        {
+            printf("Type Mismatch Error [Line %d]: Assignment type mismatch. Cannot assign '%s' to '%s'.\n",
+                   root->line_number, nodeTypeToString(hdType), nodeTypeToString(hiType));
+            exit(1);
+        }
+        break;
+    case EQUALS:
+        hiType = checkTypes(tree->left);
+        hdType = checkTypes(tree->right);
+        if (hiType != hdType)
+        {
+            printf("Type Mismatch Error [Line %d]: Binary '%s' operator requires matching types, but got '%s' and '%s'.\n",
+                   root->line_number, nodeFlagToString(root->flag), nodeTypeToString(hiType), nodeTypeToString(hdType));
+            exit(1);
+        }
+        return BOOLEAN;
+        break;
+
+    case VARDECL:
+        hiType = checkTypes(tree->left);
+        hdType = checkTypes(tree->right);
+        if (hdType == NONTYPE)
+        {
+            return;
+        }
+        if (hiType != hdType)
+        {
+            printf("Type Mismatch Error [Line %d]: Declaration type mismatch. Cannot assign '%s' to '%s'.\n",
+                   root->line_number, nodeTypeToString(hdType), nodeTypeToString(hiType));
+            exit(1);
+        }
+        break;
+    case RETURN:
+        if (currentMethodType == VOID)
+        {
+            if (tree->left != NULL)
             {
-                return;
-            }
-            if(hiType != hdType)
-            {
-                printf("Type Mismatch Error [Line %d]: Declaration type mismatch. Cannot assign '%s' to '%s'.\n", 
-                root->line_number, nodeTypeToString(hdType), nodeTypeToString(hiType));
-                exit(1);
-            }
-            break;
-        case RETURN:
-            if (currentMethodType == VOID) {
-                if (tree->left != NULL) {
-                    hiType = checkTypes(tree->left);
-                    if (hiType != VOID) {
-                        printf("Type Mismatch Error [Line %d]: Void function should not return a value.\n", 
-                        root->line_number);
-                        exit(1);
-                    }
-                }
-            } else {
-                if (tree->left == NULL) {
-                    printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got nothing.\n",
-                    root->line_number, nodeTypeToString(currentMethodType));
-                    exit(1);
-                }
                 hiType = checkTypes(tree->left);
-                if (hiType != currentMethodType)
+                if (hiType != VOID)
                 {
-                    printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got '%s'.\n",
-                    root->line_number, nodeTypeToString(currentMethodType), nodeTypeToString(hiType));
+                    printf("Type Mismatch Error [Line %d]: Void function should not return a value.\n",
+                           root->line_number);
                     exit(1);
                 }
             }
-            flagReturn = 1;
-            break;
-        case EXTERN:
-            flagReturn = 1;
-            break;
-        case METHODCALL:
-            Tree *formalParameters = tree->left->root->parameters;
-            Tree *actualParameters = tree->right;
-            checkParameters(tree->left, formalParameters, actualParameters);
-            return checkTypes(tree->left);
-            break;
-        case METHODDECL:
-            currentMethodType = checkTypes(tree->left);
-            checkTypes(tree->right);
-            if (currentMethodType != VOID && flagReturn == 0)
+        }
+        else
+        {
+            if (tree->left == NULL)
             {
-                printf("Type Mismatch Error [Line %d]: Method '%s' expected a return statement of type '%s' and got none.\n",
-                root->line_number, tree->left->root->name, nodeTypeToString(currentMethodType));
+                printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got nothing.\n",
+                       root->line_number, nodeTypeToString(currentMethodType));
                 exit(1);
             }
-            flagReturn = 0;
-            break;
-        case IF:
-        case WHILE:
             hiType = checkTypes(tree->left);
-            if (hiType != BOOLEAN) {
-                printf("Type Mismatch Error [Line %d]: Conditional mismatch. Condition type should be 'bool' but found '%s'.\n",
-                root->line_number, nodeTypeToString(hiType));
+            if (hiType != currentMethodType)
+            {
+                printf("Type Mismatch Error [Line %d]: Return type mismatch, expected '%s' but got '%s'.\n",
+                       root->line_number, nodeTypeToString(currentMethodType), nodeTypeToString(hiType));
                 exit(1);
             }
-        default:
-            break;
+        }
+        flagReturn = 1;
+        break;
+    case EXTERN:
+        flagReturn = 1;
+        break;
+    case METHODCALL:
+        Tree *formalParameters = tree->left->root->parameters;
+        Tree *actualParameters = tree->right;
+        checkParameters(tree->left, formalParameters, actualParameters);
+        return checkTypes(tree->left);
+        break;
+    case METHODDECL:
+        currentMethodType = checkTypes(tree->left);
+        checkTypes(tree->right);
+        if (currentMethodType != VOID && flagReturn == 0)
+        {
+            printf("Type Mismatch Error [Line %d]: Method '%s' expected a return statement of type '%s' and got none.\n",
+                   root->line_number, tree->left->root->name, nodeTypeToString(currentMethodType));
+            exit(1);
+        }
+        flagReturn = 0;
+        break;
+    case IF:
+    case WHILE:
+        hiType = checkTypes(tree->left);
+        if (hiType != BOOLEAN)
+        {
+            printf("Type Mismatch Error [Line %d]: Conditional mismatch. Condition type should be 'bool' but found '%s'.\n",
+                   root->line_number, nodeTypeToString(hiType));
+            exit(1);
+        }
+    default:
+        break;
     }
     checkTypes(tree->left);
     checkTypes(tree->right);
 }
 
 /**
+ * Gets the type of an expression in the syntax tree.
+ * Determines the type by inspecting the root node and traversing the tree as needed.
  *
+ * @param tree the tree representing the expression.
+ * @return the resulting type of the expression (INTEGER, BOOLEAN, or NONTYPE).
+ * @throws TypeMismatchError if an invalid type combination is found.
  */
 Type getExprType(Tree *tree)
 {
@@ -216,7 +241,7 @@ Type getExprType(Tree *tree)
 
     if (nodeFlag == METHODCALL)
     {
-        return getExprType(tree->left); // chequea el tipo del metodo
+        return getExprType(tree->left);
     }
     if (nodeFlag == ID || nodeFlag == NUMBER || nodeFlag == BOOL || nodeFlag == PARAM)
     {
@@ -269,6 +294,15 @@ Type getExprType(Tree *tree)
     }
 }
 
+/**
+ * Checks the parameters of a method call against its formal parameter list.
+ * Ensures that the types of actual parameters match the declared types of the formal parameters.
+ *
+ * @param method the tree representing the method being called.
+ * @param formalParameters the tree representing the method's formal parameter list.
+ * @param actualParameters the tree representing the method's actual parameter list.
+ * @throws TypeError if the number of parameters or their types do not match.
+ */
 void checkParameters(Tree *method, Tree *formalParameters, Tree *actualParameters)
 {
     while (formalParameters != NULL && actualParameters != NULL && actualParameters->root->flag != EMPTY)

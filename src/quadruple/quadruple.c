@@ -3,6 +3,15 @@
 /**
  * Create a new quadruple with the given parameters
  */
+/**
+ * Creates a new quadruple with the given operator and operands.
+ *
+ * @param op The operator.
+ * @param arg1 The first operand.
+ * @param arg2 The second operand.
+ * @param result The result node where the operation's output is stored.
+ * @return A pointer to the newly created `Quadruple`.
+ */
 Quadruple *newQuadruple(Tag op, Node *arg1, Node *arg2, Node *result)
 {
     Quadruple *quad = (Quadruple *)malloc(sizeof(Quadruple));
@@ -14,8 +23,15 @@ Quadruple *newQuadruple(Tag op, Node *arg1, Node *arg2, Node *result)
 }
 
 /**
+ * Creates a new unary quadruple for operations involving a single operand.
  *
- * For cases like x = 1 or x = -a,
+ * @param op The operator.
+ * @param arg2 The operand involved in the operation.
+ * @param result The result node where the operation's output is stored.
+ * @return A pointer to the newly created `Quadruple`.
+ *
+ * Example:
+ *  x = 1 or x = -a.
  */
 Quadruple *newUnaryQuadruple(Tag op, Node *arg2, Node *result)
 {
@@ -28,7 +44,14 @@ Quadruple *newUnaryQuadruple(Tag op, Node *arg2, Node *result)
 }
 
 /**
- * For cases like PARAM
+ * Creates a new simple quadruple.
+ *
+ * @param op The operator.
+ * @param arg1 The operand.
+ * @return A pointer to the newly created `Quadruple`.
+ *
+ * Example:
+ *  For cases like PARAM.
  */
 Quadruple *newSimpleQuadruple(Tag op, Node *arg1)
 {
@@ -41,11 +64,23 @@ Quadruple *newSimpleQuadruple(Tag op, Node *arg1)
 }
 
 /**
+ * Prints the details of a given quadruple.
  *
+ * @param quad The quadruple to print.
+ *
+ * Format:
+ * - Conditional jumps: Prints `JMPF` followed by the condition and the target label.
+ * - Unconditional jumps: Prints `GOTO` followed by the target label.
+ * - General operations: Prints the result node, the operator, and the operands (if applicable).
+ *
+ * Example Output:
+ * - `LABEL L1`
+ * - `JMPF condition label`
+ * - `GOTO L2`
+ * - `result = operand1 operator operand2`
  */
 void printQuadruple(Quadruple *quad)
 {
-    // Manejo de etiquetas y saltos
     if (quad->op == LABEL)
     {
         printf("LABEL %s\n", quad->arg1 ? quad->arg1->name : "");
@@ -64,7 +99,6 @@ void printQuadruple(Quadruple *quad)
         return;
     }
 
-    // Manejo de operaciones generales
     if (quad->result && quad->result->name[0] != '\0')
     {
         printf("%s = ", quad->result->name);

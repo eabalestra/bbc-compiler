@@ -160,6 +160,13 @@ char *nodeFlagToString(Tag flag)
     }
 }
 
+
+/**
+ * Converts a node's type to a string representation.
+ *
+ * @param type the type to convert.
+ * @return String representation of the type.
+ */
 char *nodeTypeToString(Type type)
 {
     switch (type)

@@ -66,6 +66,13 @@ void printTreeRecursive(Tree *tree, char *prefix, int isLast)
     }
 }
 
+/**
+ * Searches for a node with a specified name in a tree.
+ *
+ * @param tree a pointer to the tree to search in.
+ * @param nodeName a string containing the name of the node to search for.
+ * @return a pointer to the node with the matching name, or NULL if no match is found.
+ */
 Node *findNodeInTree(Tree *tree, char *nodeName)
 {
     if (tree == NULL || tree->root == NULL)
@@ -93,6 +100,12 @@ Node *findNodeInTree(Tree *tree, char *nodeName)
     return NULL;
 }
 
+/**
+ * Checks whether a method node in the binary tree is marked as external.
+ *
+ * @param pTree a pointer to the tree to check.
+ * @return 1 if the method node is external, 0 otherwise.
+ */
 int checkIfMethodIsExternal(Tree *pTree)
 {
     if (pTree == NULL || pTree->root == NULL) {
