@@ -118,6 +118,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             fprintf(file, "    movq   %%r10, %s\n", result);
             fprintf(file, "\n");
             break;
+
         case GASSIGN:
             fprintf(file, "%s:\n", current->result->name);
             fprintf(file, "    .long %d\n", current->arg2->value);
@@ -161,10 +162,9 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             fprintf(file, "    ret");
             fprintf(file, "\n");
             break;
-
         default:
             break;
-        }
+        } // end switch
         quadList = quadList->next;
     }
 
@@ -210,7 +210,8 @@ void generateGoTo(FILE *pFile, char *arg1)
  */
 void generateJumpByFalse(FILE *pFile, char *arg1, char *result)
 {
-    fprintf(pFile, "    cmpl   $0, %s\n", arg1);
+    fprintf(pFile, "    movl   %s, %%eax\n", arg1);
+    fprintf(pFile, "    cmpl   $0, %%eax\n");
     fprintf(pFile, "    je     %s\n", result);
     fprintf(pFile, "\n");
 }
@@ -317,8 +318,8 @@ void generateMultiplication(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateNegation(FILE *file, char *result, char *arg1)
 {
-    fprintf(file, "    movl   %s, %%eax\n", arg1); // Load operand into r10.
-    fprintf(file, "    negl   %%eax\n");           // Negate the value in r10.
+    fprintf(file, "    movl   %s, %%eax\n", arg1);   // Load operand into r10.
+    fprintf(file, "    negl   %%eax\n");             // Negate the value in r10.
     fprintf(file, "    movl   %%eax, %s\n", result); // Store the result.
     fprintf(file, "\n");
 }
@@ -348,7 +349,7 @@ void generateSubtraction(FILE *file, char *result, char *arg1, char *arg2)
 void generateAnd(FILE *file, char *result, char *arg1, char *arg2)
 {
     fprintf(file, "    movl   %s, %%eax\n", arg1);
-    fprintf(file, "    movl   %s, %%ebx\n", arg1);
+    fprintf(file, "    movl   %s, %%ebx\n", arg2);
     fprintf(file, "    andl   %%ebx, %%eax\n");
     fprintf(file, "    movl   %%eax, %s\n", result);
     fprintf(file, "\n");
@@ -364,7 +365,7 @@ void generateAnd(FILE *file, char *result, char *arg1, char *arg2)
 void generateOr(FILE *file, char *result, char *arg1, char *arg2)
 {
     fprintf(file, "    movl   %s, %%eax\n", arg1);
-    fprintf(file, "    movl   %s, %%ebx\n", arg1);
+    fprintf(file, "    movl   %s, %%ebx\n", arg2);
     fprintf(file, "    orl   %%ebx, %%eax\n");
     fprintf(file, "    movl   %%eax, %s\n", result);
     fprintf(file, "\n");
@@ -379,7 +380,7 @@ void generateOr(FILE *file, char *result, char *arg1, char *arg2)
  */
 void generateDivision(FILE *file, char *result, char *arg1, char *arg2)
 {
-    fprintf(file, "    movq   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
+    fprintf(file, "    movl   %s, %%eax\n", arg1);   // Load dividend (arg1) into %eax.
     fprintf(file, "    cltd\n");                     // Sign-extend %eax into %edx for division.
     fprintf(file, "    movq   %s, %%r10\n", arg2);   // Load divisor (arg2) into %r10.
     fprintf(file, "    idivq  %%r10\n");             // Perform signed division, result in %eax.
@@ -474,11 +475,14 @@ char *getValueToString(Node *node)
 
     switch (tag)
     {
-    case NUMBER:
+    case GASSIGN:
+        printf("ENTRE ACA\n\n");
+        sprintf(result, "%s(%%rip)", node->name);
+        break;
     case BOOL:
+    case NUMBER:
         sprintf(result, "$%d", node->value);
         break;
-
     case TEMP:
     case PARAM:
     case ID:

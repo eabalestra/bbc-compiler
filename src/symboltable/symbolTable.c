@@ -464,10 +464,7 @@ void handleVarDecl(SymbolTable *table, Tree *tree)
         Node *rightChild = tree->right->root;
         if (rightChild->value != NULL)
         {
-            printf("left child %s, VALUE: %d\n", leftChild->name, leftChild->value);
-            printf("right child %s, VALUE: %d\n", leftChild->name, rightChild->value);
             leftChild->value = rightChild->value;
-            printf("en la symbol table para el nodo %s: %d\n", leftChild->name, rightChild->value);
         }
         if (rightChild->flag == ID)
         {
