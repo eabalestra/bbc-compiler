@@ -19,6 +19,7 @@ typedef struct Node {
     struct Tree *parameters;
     int offset;
     int isExternal;
+    int isGlobal;
 } Node;
 
 Node* createNonTerminalNode(Tag flag);

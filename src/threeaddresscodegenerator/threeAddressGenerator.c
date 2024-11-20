@@ -160,7 +160,6 @@ Node *generateThreeAddressCode(Tree *tree)
             }
             else
             {
-                arg1->isGlobal = 1;
                 quad = newUnaryQuadruple(GASSIGN, arg2, arg1);
                 tree->left->root->isGlobal = 1;
             }
@@ -174,7 +173,7 @@ Node *generateThreeAddressCode(Tree *tree)
             quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
             return arg1;
         }
-        arg1->isGlobal = 1;
+        tree->left->root->isGlobal = 1;
         return generateUnaryQuadruple(GASSIGN, arg1);
 
     case ASSIGN:
