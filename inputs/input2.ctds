@@ -11,6 +11,5 @@ Program {
             printInteger(count);
             count = count + 1;
         }
-        return;
     }
 }

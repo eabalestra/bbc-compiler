@@ -442,6 +442,7 @@ void handleMethodDecl(SymbolTable *table, Tree *tree)
     }
     if (checkIfMethodIsExternal(tree))
     {
+        printTree(tree);
         leftChild->isExternal = 1;
     }
     checkForDuplicateParameters(tree, leftChild);
