@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
 
     // Print debugging information if requested
-    if (1)
+    if (0)
     {
         printTree(ast);
         printQuadrupleLinkedList(qll);

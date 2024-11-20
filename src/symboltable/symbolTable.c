@@ -359,7 +359,6 @@ void handleExpresion(SymbolTable *table, Tree *tree)
             printf("buildSymbolTable: Variable %s not declared. \n", tree->root->name);
             exit(1);
         }
-        printf("NODO EN SYMBOL TABLE: %s, memory_dir: %p\n", nodeFound->name, &nodeFound);
         tree->root = nodeFound;
     }
     handleExpresion(table, tree->left);
@@ -442,7 +441,6 @@ void handleMethodDecl(SymbolTable *table, Tree *tree)
     }
     if (checkIfMethodIsExternal(tree))
     {
-        printTree(tree);
         leftChild->isExternal = 1;
     }
     checkForDuplicateParameters(tree, leftChild);

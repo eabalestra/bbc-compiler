@@ -25,8 +25,8 @@ To execute the project, run:
 make c-tds inputs/input.ctds
 ```
 
+### Compile, link and execute the program
+clear && make clean && make build && make c-tds inputs/input5.ctds && gcc output.s functions.c && ./a.out
+
 ### Running the project's tests
-To execute the tests, run:
-```
-sh scripts/run_paser_tests.sh 
-```
+Each test with different scenarios are included in the repository ```inputs```. You can choose to runa specific one by changing the name of the input file in the command above.
