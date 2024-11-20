@@ -1,19 +1,16 @@
 Program {
    
     integer count = 0;
-    bool flag = true;
-    
-    integer inc(integer x)
-    {
-        return x + x;
-    }
+    bool terminated = false;
+
+    void printInteger(integer x) extern;
 
     void main() {
-        while (count < 10) {
+        while (count < 10 && !terminated)
+        {
+            printInteger(count);
             count = count + 1;
         }
-        if (flag && (count == 0)) then {
-            count = 1;
-        }
+        return;
     }
 }

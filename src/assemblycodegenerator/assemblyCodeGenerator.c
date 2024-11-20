@@ -45,8 +45,7 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         exit(1);
     }
 
-    fprintf(file, ".file \"%s\"\n", fileName);
-    fprintf(file, ".text\n");
+    fprintf(file, ".data\n");
 
     QuadrupleLinkedList *quadList = quadrupleLinkedList;
 
@@ -57,7 +56,6 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
         char *arg1 = getValueToString(current->arg1);
         char *arg2 = getValueToString(current->arg2);
 
-        printf("CURRENT OP: %s\n", nodeFlagToString(current->op));
         switch (current->op)
         {
         case PARAM:
@@ -114,12 +112,22 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             fprintf(file, "%s:\n", current->arg1->name);
             break;
         case ASSIGN:
-            fprintf(file, "    movq   %s, %%r10\n", arg2);
-            fprintf(file, "    movq   %%r10, %s\n", result);
+            fprintf(file, "    movl   %s, %%r10d\n", arg2);
+            fprintf(file, "    movl   %%r10d, %s\n", result);
             fprintf(file, "\n");
             break;
-
         case GASSIGN:
+            fprintf(file,"     .globl %s\n", current->result->name);
+            fprintf(file,"     .align 4\n");
+            fprintf(file, "    .type   %s, @object\n", current->result->name);
+            fprintf(file, "    .size   %s, 4\n", current->result->name);
+
+                /*.globl count
+                .align 8
+                .type   count, @object
+                .size   count, 8
+            count:
+                .long 0*/
             fprintf(file, "%s:\n", current->result->name);
             fprintf(file, "    .long %d\n", current->arg2->value);
             break;
@@ -128,11 +136,11 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             fprintf(file, "    movl   %%eax, %s\n", result);
             break;
         case INITMETHOD:
+            fprintf(file, ".text\n");
             if (strcmp(current->arg1->name, "main") == 0)
             {
-                fprintf(file, "\n    .globl main");
+                fprintf(file, "\n    .globl main\n");
             }
-
             fprintf(file, "\n%s:\n", current->arg1->name);
             int offset = current->arg1->offset;
             fprintf(file, "    enter   $(8 * %d), $0 \n", offset);
@@ -149,14 +157,19 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
 
             fprintf(file, "\n");
             break;
+        case ENDMETHOD:
+            fprintf(file, "    leave \n");
+            fprintf(file, "    ret");
+            fprintf(file, "\n");
+            break;
         case RETURN:
             if (current->arg2 == NULL)
             {
-                fprintf(file, "    mov   $0, %%rax \n");
+                fprintf(file, "    mov   $0, %%eax \n");
             }
             else
             {
-                fprintf(file, "    mov   %s, %%rax \n", arg2);
+                fprintf(file, "    mov   %s, %%eax \n", arg2);
             }
             fprintf(file, "    leave \n");
             fprintf(file, "    ret");
@@ -475,10 +488,6 @@ char *getValueToString(Node *node)
 
     switch (tag)
     {
-    case GASSIGN:
-        printf("ENTRE ACA\n\n");
-        sprintf(result, "%s(%%rip)", node->name);
-        break;
     case BOOL:
     case NUMBER:
         sprintf(result, "$%d", node->value);
@@ -486,7 +495,14 @@ char *getValueToString(Node *node)
     case TEMP:
     case PARAM:
     case ID:
-        sprintf(result, "-%d(%%rbp)", node->offset * 8);
+        if (node->isGlobal)
+        {
+            sprintf(result, "%s(%%rip)", node->name);
+        }
+        else
+        {
+            sprintf(result, "-%d(%%rbp)", node->offset * 8);
+        }
         break;
     default:
         break;
