@@ -109,6 +109,10 @@ Node *generateThreeAddressCode(Tree *tree)
     case ID:
         Node *idNode = tree->root;
         Node *foundNode = findNodeInTree(idsDeclaredTreeList, idNode->name);
+        if (tree->root->isGlobal)
+        {
+            idNode->isGlobal = 1;
+        }
         if (idsDeclaredTreeList == NULL && methodFlag != 1)
         {
             currentOffset++;
@@ -146,9 +150,9 @@ Node *generateThreeAddressCode(Tree *tree)
         return generateUnaryQuadruple(flag, arg1);
 
     case VARDECL:
+        arg1 = generateThreeAddressCode(tree->left);
         if (tree->right != NULL)
         {
-            arg1 = generateThreeAddressCode(tree->left);
             arg2 = generateThreeAddressCode(tree->right);
             if (methodDeclaredflag == 1)
             {
@@ -156,12 +160,13 @@ Node *generateThreeAddressCode(Tree *tree)
             }
             else
             {
+                arg1->isGlobal = 1;
                 quad = newUnaryQuadruple(GASSIGN, arg2, arg1);
+                tree->left->root->isGlobal = 1;
             }
             quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
             return NULL;
         }
-        arg1 = generateThreeAddressCode(tree->left);
         if (methodDeclaredflag == 1)
         {
             // case for only declaration without assignment, ej: integer y;
@@ -169,6 +174,7 @@ Node *generateThreeAddressCode(Tree *tree)
             quadrupleList = addQuadrupleLinkedList(quadrupleList, quad);
             return arg1;
         }
+        arg1->isGlobal = 1;
         return generateUnaryQuadruple(GASSIGN, arg1);
 
     case ASSIGN:

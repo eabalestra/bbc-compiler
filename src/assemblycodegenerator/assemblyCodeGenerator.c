@@ -69,6 +69,11 @@ void generateAssemblyCode(QuadrupleLinkedList *quadrupleLinkedList)
             generateModule(file, result, arg1, arg2);
             break;
         case PLUS:
+            printf("PLUS\n");
+                printQuadruple(current);
+                printf("arg1: %s\n", arg1);
+                printf("arg2: %s\n", arg2);
+                printf("result: %s\n", result);
             generateAddition(file, result, arg1, arg2);
             break;
         case MINUS:
@@ -486,7 +491,14 @@ char *getValueToString(Node *node)
     case TEMP:
     case PARAM:
     case ID:
-        sprintf(result, "-%d(%%rbp)", node->offset * 8);
+        if (node->isGlobal)
+        {
+            sprintf(result, "%s(%%rip)", node->name);
+        }
+        else
+        {
+            sprintf(result, "-%d(%%rbp)", node->offset * 8);
+        }
         break;
     default:
         break;
