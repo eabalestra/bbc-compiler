@@ -20,9 +20,16 @@ Program {
         }
     }
 
+    void printInteger(integer x) extern;
+
+    void printBool(bool x) extern;
+
     void main() {
-        integer a = 10; 
-        integer b = 25; 
+        integer a = 9;
+        integer b = 1;
         check_values(a, b);
+        printInteger(a);
+        printInteger(b);
+        printBool(is_valid);
     }
 }

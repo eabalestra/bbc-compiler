@@ -4,7 +4,6 @@ Program {
     */
 
    integer x = 0;
-   void printInteger(integer x) extern;
 
     integer get_value() {
         return 10; // Changed to return a value that can demonstrate all operators
@@ -28,6 +27,8 @@ Program {
             x = x - 1;
         }
     }
+
+   void printInteger(integer x) extern;
 
     void main() {
         integer val = get_value();

@@ -7,5 +7,10 @@ int get_integer()
 
 void printInteger(int x)
 {
-    printf("(print) %d\n", x);
+    printf("(print_int) %d\n", x);
+}
+
+void printBool(int x)
+{
+    printf("(print_bool) %d\n", x);
 }

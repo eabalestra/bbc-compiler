@@ -14,7 +14,7 @@ Program
     void main()
     {
         integer y = 0;
-        y = get_int();
+        y = get_integer();
         if (y == 1) then
         {
             printInteger(y);
