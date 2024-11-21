@@ -53,7 +53,7 @@ This will create an executable named a.out. Run it with:
 
 ### Running Test Cases
 The repository includes multiple .ctds input files under the inputs/ directory. 
-To test a specific scenario, modify the input file path in the execution command:
+To test a specific scenario, modify the input file path in the Makefile and run:
 ```bash
   make test
 ```
