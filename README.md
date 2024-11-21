@@ -58,4 +58,7 @@ To test a specific scenario, modify the input file path in the Makefile and run:
   make test
 ```
 
+---
+### Documentation  
+The project documentation is located in the `docs` folder as **Compiler-Balestra-Buil-Compagnucci.pdf**.
 
