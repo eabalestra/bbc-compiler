@@ -1,0 +1,29 @@
+Program{
+  integer x = 1;
+  bool y = true;
+  integer f(integer x) {
+    if (x==1) then {
+      return 1;
+    }
+    else {
+      return x * f(x-1);
+    }
+  }
+  integer metodo(bool t, integer n){// potencia de 2 desde 5
+    if(n > 4)then{
+      x = x + metodo(y, n-1);
+    }
+    return x;
+  }
+  integer meth_no_param() {// returns 3
+    return 1 * x + (x+x);
+  }
+  integer printInteger(integer x) extern;
+  void main(){
+    integer int_var;
+    bool f = false;
+    integer j = meth_no_param();
+    integer res = metodo(!true, 7);
+    printInteger(res);
+  }
+}

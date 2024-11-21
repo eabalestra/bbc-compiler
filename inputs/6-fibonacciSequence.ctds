@@ -1,0 +1,46 @@
+// FIBO
+Program
+{
+
+    void printInteger(integer x) extern;
+
+    void printFib(integer n) {
+        integer i = 1;
+        // First two terms of the series
+        integer prev1 = 1;
+        integer prev2 = 0;
+
+        // If the number of terms is smaller than 1
+        if (n < 1) then {
+            return;
+        }
+
+        // while loop that prints n terms of fibonacci series
+        while (i < n + 1) {
+            // Print current term and update previous terms
+            if (i > 2) then {
+                integer curr = prev1 + prev2;
+                prev2 = prev1;
+                prev1 = curr;
+                printInteger(curr);
+            } else {
+                if (i == 1) then {
+                    printInteger(prev2);
+                } else {
+                    if (i == 2) then {
+                        printInteger(prev1);
+                    }
+                }
+            }
+            i = i + 1;
+        }
+    }
+
+    integer main() {
+        integer n = 10;
+
+        // Printing first n fibonacci terms
+        printFib(n);
+        return 0;
+    }
+}

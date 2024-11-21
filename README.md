@@ -1,32 +1,61 @@
 # TDS24/BBC Compiler
-## Getting Started
-### Prerequisites
 
-Make sure you have `git` and `make` installed on your system.
+## Overview
+The **TDS24/BBC Compiler** translates `.ctds` source files into assembly code. This guide will help you set up, build, and run the compiler, as well as execute test cases.
+
+---
+
+## Getting Started
+
+### Prerequisites
+Ensure the following tools are installed on your system:
+- **Git**: For cloning the repository.
+- **Make**: To build and manage the project.
+
+---
 
 ### Cloning the Repository
+Clone the repository to your local machine with:
 
-To get a copy of the project, clone the repository using the following command:
-
-```
-git clone https://github.com/eabalestra/bbc-compiler.git 
-cd bbc-compiler
+```bash
+  git clone https://github.com/eabalestra/bbc-compiler.git 
+  cd bbc-compiler
 ```
 
 ### Building the Project
-To compile the lexer and parser, run:
+To build the compiler, use the following command:
+```bash
+  make build
 ```
-make build
+This generates the required files to execute the compiler.
+
+### Running the Compiler
+To process a .ctds file and generate assembly code:
+
+```bash
+  make c-tds inputs/input.ctds
+```
+This will produce an assembly file named `output.s`.
+
+### Compiling the Assembly Code
+You can compile the generated assembly code using gcc like a typical C file:
+```bash
+  gcc output.s
+```
+If you need to link it with additional functions, you can do so:
+```bash
+  gcc output.s functions.c
+```
+This will create an executable named a.out. Run it with:
+```bash
+  ./a.out
 ```
 
-### Running the Project
-To execute the project, run:
-```
-make c-tds inputs/input.ctds
+### Running Test Cases
+The repository includes multiple .ctds input files under the inputs/ directory. 
+To test a specific scenario, modify the input file path in the execution command:
+```bash
+  make test
 ```
 
-### Compile, link and execute the program
-clear && make clean && make build && make c-tds inputs/input5.ctds && gcc output.s functions.c && ./a.out
 
-### Running the project's tests
-Each test with different scenarios are included in the repository ```inputs```. You can choose to runa specific one by changing the name of the input file in the command above.

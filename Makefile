@@ -26,6 +26,17 @@ clean:
 	@rm -f output.s
 	@rm -f output.out
 
-.PHONY: build c-tds clean
+test:
+	 for input_file in inputs/*.ctds; do \
+		 echo "=========================================="; \
+   		 echo "Compiling $$input_file"; \
+		 ./compiler "$$input_file"; \
+		 echo "Compiling output.s with functions.c"; \
+		 gcc -w output.s functions.c -o output; \
+		 echo "Running the executable"; \
+		 ./output; \
+	 done
+
+.PHONY: build c-tds clean test
 
 # 2>/dev/null
